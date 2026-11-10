@@ -43,7 +43,7 @@ header{position:sticky;top:0;z-index:50;background:var(--dk);color:#fff;padding-
 .cartbtn b{position:absolute;top:1px;left:19px;min-width:20px;height:20px;border-radius:10px;background:var(--cta);color:#1b1b1b;font-size:12px;display:grid;place-items:center;padding:0 5px}
 .sub{background:var(--dk2);border-top:1px solid #4a4d52}
 .subin{display:flex;gap:4px;align-items:center;overflow-x:auto;scrollbar-width:none;min-height:42px}
-.subin a,.subin button{flex:none;background:none;border:0;color:#e6e8ea;font-size:14px;padding:9px 12px;border-radius:6px;white-space:nowrap}
+.subin a,.subin button{cursor:pointer;flex:none;background:none;border:0;color:#e6e8ea;font-size:14px;padding:9px 12px;border-radius:6px;white-space:nowrap}
 .subin a:hover,.subin button:hover{background:#4a4d52;color:#fff}
 .subin .sp{flex:1}
 /* afis */
@@ -143,6 +143,68 @@ footer{background:var(--dk);color:#c7cacd;font-size:14px}
 }
 @media(max-width:560px){.grid{grid-template-columns:repeat(2,1fr);gap:10px}.cb{padding:10px}.price{font-size:19px}.f .r2{grid-template-columns:1fr}.srch select{display:none}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* ana sayfa (pazaryeri duzeni) */
+.hero2{position:relative;height:410px;overflow:hidden;background:var(--dk)}
+.hero2::after{content:"";position:absolute;left:0;right:0;bottom:0;height:150px;background:linear-gradient(transparent,var(--bg));pointer-events:none;z-index:3}
+.slide{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .6s;display:flex;align-items:center}
+.slide.on{opacity:1;visibility:visible;z-index:1}
+.slide .wrap{display:flex;align-items:center;justify-content:space-between;gap:30px;padding-bottom:110px;color:#fff;width:min(1400px,100% - 120px)}
+.s0{background:linear-gradient(90deg,rgba(255,106,0,.36),rgba(255,106,0,.12) 16%,transparent 40%,transparent 60%,rgba(255,106,0,.12) 84%,rgba(255,106,0,.36)),var(--dk)}
+.s1{background:radial-gradient(900px 420px at 85% 40%,rgba(255,138,31,.38),transparent 70%),linear-gradient(120deg,#23252a,#3a3e45)}
+.s2{background:radial-gradient(900px 420px at 15% 40%,rgba(255,138,31,.34),transparent 70%),linear-gradient(240deg,#23252a,#3a3e45)}
+.s3{background:linear-gradient(120deg,#5a2a0b,#2b2d30 70%)}
+.slide h2{font-size:clamp(26px,3.4vw,46px);max-width:20ch;text-shadow:0 2px 12px #0006}
+.slide p{color:#d4d7da;margin:10px 0 20px;max-width:44ch;font-size:17px}
+.slide .vis{flex:none;width:min(46%,520px);display:grid;place-items:center}
+.slide .vis .lg{height:auto;width:100%}
+.slide .bl{font-family:"Cormorant Garamond",Georgia,serif;font-weight:700;font-size:clamp(90px,16vw,210px);line-height:1;color:#ffffff22;letter-spacing:.04em}
+.slide .vis img{max-height:250px;width:auto;object-fit:contain;filter:drop-shadow(0 10px 20px #0008)}
+.hnav{position:absolute;top:0;bottom:150px;width:56px;z-index:4;border:0;background:none;color:#fff;font-size:44px;opacity:.75;display:grid;place-items:center}
+.hnav:hover{opacity:1;background:#ffffff14}.hnav.l{left:0}.hnav.r{right:0}
+.dots{position:absolute;left:0;right:0;bottom:158px;display:flex;gap:8px;justify-content:center;z-index:4}
+.dots button{width:9px;height:9px;border-radius:50%;border:0;background:#ffffff66;padding:0}.dots button.on{background:var(--cta);width:22px;border-radius:6px}
+.tiles{position:relative;z-index:5;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:-120px}
+.tile{background:#fff;border-radius:var(--r);padding:16px 18px 14px;display:flex;flex-direction:column;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.tile h3{font-family:Inter,system-ui,sans-serif;font-size:19px;font-weight:700;margin-bottom:10px}
+.t4{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mini{display:flex;flex-direction:column;gap:4px;font-size:12.5px;line-height:1.3;color:var(--ink);cursor:pointer;min-width:0}
+.mini .mi{aspect-ratio:1/1;background:#f1f2f3;border-radius:6px;display:grid;place-items:center;overflow:hidden;font-family:"Cormorant Garamond",serif;font-size:34px;color:#9aa0a8}
+.mini .mi img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply}
+.mini span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mini small{color:var(--mute);font-size:12px}
+.mini:hover span{color:#c45500}
+.tl{margin-top:auto;padding-top:12px;color:#0a58ca;font-size:14px;cursor:pointer}.tl:hover{text-decoration:underline;color:#c45500}
+.ul{list-style:none;padding:0;margin:0 0 14px;display:grid;gap:10px;font-size:14px}
+.ul li::before{content:"✓";color:var(--ok);font-weight:700;margin-right:8px}
+.rowsec{background:#fff;border-radius:var(--r);padding:16px 18px 18px;margin-top:16px;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.rh{display:flex;align-items:baseline;gap:14px;margin-bottom:12px}
+.rh h2{font-family:Inter,system-ui,sans-serif;font-size:21px;font-weight:700}
+.rh a{color:#0a58ca;font-size:14px;cursor:pointer}.rh a:hover{text-decoration:underline;color:#c45500}
+.rowwrap{position:relative}
+.row{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:4px}
+.row::-webkit-scrollbar{display:none}
+.row .card{flex:0 0 212px;scroll-snap-align:start;box-shadow:none}
+.rb{position:absolute;top:30%;z-index:2;width:42px;height:92px;border:1px solid #d5d9d9;border-radius:6px;background:#fffffff2;font-size:28px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.rb.l{left:-10px}.rb.r{right:-10px}.rb:hover{background:#fff}
+#vHome{padding-bottom:30px}
+.crumb{padding:14px 0 0;font-size:14px}.crumb a{color:#0a58ca;cursor:pointer}.crumb a:hover{text-decoration:underline}
+.lmenu{position:fixed;top:0;left:0;bottom:0;width:min(330px,88%);background:#fff;z-index:100;transform:translateX(-100%);transition:.25s;overflow:auto}
+.lmenu.on{transform:none}
+.lmh{background:var(--dk);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:18px}
+.lmh .x{color:#fff}
+.lmenu h4{padding:16px 20px 6px;font-size:16px}
+.lmenu a{display:block;padding:12px 20px;cursor:pointer;border-bottom:1px solid #f0f1f1}.lmenu a:hover{background:#f3f4f4}
+.qty{display:flex;align-items:center;gap:8px;font-size:14px}.qty select{min-height:36px;border:1px solid #c8cccc;border-radius:8px;padding:0 8px;background:#f3f4f4}
+.mbtns{display:grid;gap:8px;margin-top:6px}
+.btn.now{background:var(--dk);border-color:var(--dk);color:#fff}.btn.now:hover{background:#44474c}
+@media(max-width:900px){
+ .hero2{height:330px}.hero2::after{height:90px}
+ .slide .wrap{padding-bottom:70px;width:min(1400px,100% - 28px)}.slide .vis{display:none}.slide p{font-size:14px;margin:6px 0 12px}
+ .hnav{display:none}.dots{bottom:96px}
+ .tiles{grid-template-columns:1fr 1fr;margin-top:-60px;gap:10px}.tile{padding:12px}.tile h3{font-size:16px}.slide h2{font-size:24px}
+ .row .card{flex-basis:160px}.rb{display:none}
+}
 </style>
 </head>
 <body>
@@ -150,19 +212,26 @@ footer{background:var(--dk);color:#c7cacd;font-size:14px}
 <div id="demoBar" class="demo" hidden>Önizleme: örnek ürünlerle gösteriliyor, sipariş gönderilmez.</div>
 <header>
 <div class="wrap hd">
-  <a href="#top" class="logo" aria-label="APRON Business"><svg class="lg" viewBox="0 0 700.64 314.72" role="img" aria-label="APRON Business"><use href="#apronLogo" width="700.64" height="314.72"/></svg></a>
+  <a href="#top" class="logo" id="logoA" aria-label="APRON Business"><svg class="lg" viewBox="0 0 700.64 314.72" role="img" aria-label="APRON Business"><use href="#apronLogo" width="700.64" height="314.72"/></svg></a>
   <form class="srch" id="srch" role="search"><select id="qm" aria-label="Marka"><option value="Tümü">Tümü</option></select><input id="q" type="search" placeholder="Ürün veya marka ara" aria-label="Ürün ara" autocomplete="off"><button type="submit" aria-label="Ara"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg></button></form>
   <button class="cartbtn" id="cartOpen" aria-label="Sepeti aç"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 3.5h3l2.4 11.2a1.5 1.5 0 0 0 1.5 1.2h8.2a1.5 1.5 0 0 0 1.5-1.1l1.6-6.6H6.4"/><circle cx="10" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/></svg><b id="cartN">0</b><span>Sepet</span></button>
 </div>
-<div class="sub"><div class="wrap subin" id="subin"><a href="#magaza" data-m="Tümü">Tüm ürünler</a><span id="subm" style="display:contents"></span><span class="sp"></span><a href="#hakkimizda">Hakkımızda</a><a href="#iletisim">İletişim</a></div></div>
+<div class="sub"><div class="wrap subin" id="subin"><button id="hamb" type="button" aria-label="Menü">☰ Tümü</button><a data-m="Tümü">Tüm ürünler</a><span id="subm" style="display:contents"></span><span class="sp"></span><a href="#hakkimizda">Hakkımızda</a><a href="#iletisim">İletişim</a></div></div>
 </header>
 
 <main id="top">
-<div class="promo"><div class="wrap">
-  <div><h1>Salonun profesyonel bakım ürünleri, kapınızda</h1><p>Salonumuzda kullandığımız saç ve sakal bakım ürünleri.</p></div>
-  <div class="tr"><div><b>Orijinal ürün</b>Salon stoğundan</div><div><b>Güvenli ödeme</b>Kart bilgisi tutulmaz</div><div><b>14 gün iade</b>Yasal cayma hakkı</div></div>
-</div></div>
+<div id="vHome">
+  <div class="hero2" id="hero"><div id="slides"></div>
+    <button class="hnav l" id="hPrev" aria-label="Önceki">‹</button><button class="hnav r" id="hNext" aria-label="Sonraki">›</button>
+    <div class="dots" id="dots"></div></div>
+  <div class="wrap">
+    <div class="tiles" id="tiles"></div>
+    <div id="rows"></div>
+  </div>
+</div>
 
+<div id="vListe" hidden>
+<div class="wrap crumb"><a id="toHome">‹ Ana sayfa</a></div>
 <div class="wrap shop" id="magaza">
   <aside class="side" id="side" aria-label="Filtreler">
     <h4>Marka</h4><div id="fMarka"></div>
@@ -171,11 +240,12 @@ footer{background:var(--dk);color:#c7cacd;font-size:14px}
     <button class="clr" id="fClr" type="button">Filtreleri temizle</button>
   </aside>
   <section>
-    <div class="top"><div><h2>Ürünler</h2><span id="count" style="color:var(--mute);font-size:14px"></span></div>
-      <div class="tl"><button class="fbtn" id="fBtn" type="button">Filtrele</button>
+    <div class="top"><div><h2 id="lTitle">Ürünler</h2><span id="count" style="color:var(--mute);font-size:14px"></span></div>
+      <div class="tl2" style="display:flex;gap:10px;align-items:center"><button class="fbtn" id="fBtn" type="button">Filtrele</button>
       <select id="srt" aria-label="Sırala"><option value="o">Önerilen</option><option value="a">Fiyat: düşükten yükseğe</option><option value="d">Fiyat: yüksekten düşüğe</option><option value="z">İsme göre (A-Z)</option></select></div></div>
     <div class="grid" id="grid"></div>
   </section>
+</div>
 </div>
 
 <section class="about" id="hakkimizda"><div class="wrap two">
@@ -193,6 +263,8 @@ footer{background:var(--dk);color:#c7cacd;font-size:14px}
 </div></footer>
 
 <div class="shade" id="shade"></div>
+<aside class="lmenu" id="lmenu" aria-label="Menü" aria-hidden="true"><div class="lmh"><span>Alışveriş</span><button class="x" id="lmClose" aria-label="Kapat">×</button></div>
+<h4>Ürünler</h4><a data-m="Tümü">Tüm ürünler</a><div id="lmM"></div><h4>Sayfalar</h4><a href="#hakkimizda" data-close>Hakkımızda</a><a href="#iletisim" data-close>İletişim</a></aside>
 
 <aside class="drawer" id="drawer" aria-label="Sepet" aria-hidden="true">
   <div class="dh"><h3 id="dTitle">Sepetiniz</h3><button class="x" id="dClose" aria-label="Kapat">×</button></div>
@@ -222,6 +294,7 @@ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 const TL=n=>new Intl.NumberFormat("tr-TR",{style:"currency",currency:"TRY",maximumFractionDigits:0}).format(n);
 const isDemo=new URLSearchParams(location.search).has("demo");
 let urunler=[],secMarka=new Set(),ara="",fMin="",fMax="",fStok=false,sirala="o";
+let gorunum="home";
 let sepet=(()=>{try{return JSON.parse(localStorage.getItem("apron_sepet")||"[]")}catch(e){return[]}})();
 const kaydet=()=>{try{localStorage.setItem("apron_sepet",JSON.stringify(sepet))}catch(e){}};
 function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("on"),1800)}
@@ -239,12 +312,18 @@ const norm=s=>String(s||"").toLocaleLowerCase("tr").normalize("NFD").replace(/[�
 
 /* ===== Vitrin ===== */
 const markalar=()=>[...new Set(urunler.map(u=>u.marka).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"tr"));
+const resim=(u,c)=>u.foto?`<img loading="lazy" src="${esc(u.foto)}" alt="${esc(u.ad_tam)}">`:esc((u.marka||"A").slice(0,1));
+const kart=u=>`<article class="card">
+    <div class="ph" data-d="${esc(u.id)}">${resim(u)}</div>
+    <div class="cb"><span class="m">${esc(u.marka)}</span><span class="n" data-d="${esc(u.id)}">${esc(u.ad_tam)}</span><span class="v">${esc(u.ml)}</span>
+    <div class="price">${TL(u.fiyat)}</div>
+    ${!stokta(u)?`<span class="stk out">Tükendi</span>`:u.stok<=3?`<span class="stk low">Son ${u.stok} ürün</span>`:`<span class="stk">Stokta</span>`}
+    ${stokta(u)?`<button class="btn" data-a="${esc(u.id)}">Sepete ekle</button>`:`<button class="btn ghost" disabled>Tükendi</button>`}</div></article>`;
 function cizFiltre(){
   const m=markalar();
   $("#fMarka").innerHTML=m.map(x=>`<label><input type="checkbox" data-mk="${esc(x)}"${secMarka.has(x)?" checked":""}> ${esc(x)} <small>(${urunler.filter(u=>u.marka===x).length})</small></label>`).join("")||'<small>Marka yok</small>';
-  const sel=secMarka.size===1?[...secMarka][0]:"Tümü";
-  $("#qm").innerHTML=["Tümü",...m].map(x=>`<option${x===sel?" selected":""}>${esc(x)}</option>`).join("");
-  $("#subm").innerHTML=m.map(x=>`<a href="#magaza" data-m="${esc(x)}">${esc(x)}</a>`).join("");
+  $("#subm").innerHTML=m.map(x=>`<a data-m="${esc(x)}">${esc(x)}</a>`).join("");
+  $("#lmM").innerHTML=m.map(x=>`<a data-m="${esc(x)}">${esc(x)}</a>`).join("");
 }
 function cizGrid(){
   const q=norm(ara),mn=Number(fMin)||0,mx=Number(fMax)||Infinity;
@@ -252,64 +331,131 @@ function cizGrid(){
   if(sirala==="a")l=[...l].sort((a,b)=>a.fiyat-b.fiyat);
   else if(sirala==="d")l=[...l].sort((a,b)=>b.fiyat-a.fiyat);
   else if(sirala==="z")l=[...l].sort((a,b)=>a.ad_tam.localeCompare(b.ad_tam,"tr"));
+  $("#lTitle").textContent=ara.trim()?`“${ara.trim()}” için sonuçlar`:secMarka.size===1?[...secMarka][0]:"Tüm ürünler";
   $("#count").textContent=urunler.length?l.length+" ürün":"";
   if(!l.length){$("#grid").innerHTML=`<div class="empty" style="grid-column:1/-1">${urunler.length?"Aramanıza uygun ürün bulunamadı.":"Ürünlerimiz çok yakında burada olacak."}</div>`;return}
-  $("#grid").innerHTML=l.map(u=>`<article class="card">
-    <div class="ph" data-d="${esc(u.id)}">${u.foto?`<img loading="lazy" src="${esc(u.foto)}" alt="${esc(u.ad_tam)}">`:esc((u.marka||"A").slice(0,1))}</div>
-    <div class="cb"><span class="m">${esc(u.marka)}</span><span class="n" data-d="${esc(u.id)}">${esc(u.ad_tam)}</span><span class="v">${esc(u.ml)}</span>
-    <div class="price">${TL(u.fiyat)}</div>
-    ${!stokta(u)?`<span class="stk out">Tükendi</span>`:u.stok<=3?`<span class="stk low">Son ${u.stok} ürün</span>`:`<span class="stk">Stokta</span>`}
-    ${stokta(u)?`<button class="btn" data-a="${esc(u.id)}">Sepete ekle</button>`:`<button class="btn ghost" disabled>Tükendi</button>`}</div></article>`).join("");
+  $("#grid").innerHTML=l.map(kart).join("");
 }
-const yenile=()=>{cizFiltre();cizGrid()};
-const markaSec=x=>{secMarka=x==="Tümü"?new Set():new Set([x]);yenile()};
-$("#fMarka").onchange=e=>{const c=e.target.closest("[data-mk]");if(!c)return;c.checked?secMarka.add(c.dataset.mk):secMarka.delete(c.dataset.mk);cizFiltre();cizGrid()};
-$("#qm").onchange=e=>markaSec(e.target.value);
-$("#subin").onclick=e=>{const a=e.target.closest("[data-m]");if(a)markaSec(a.dataset.m)};
-$("#q").oninput=e=>{ara=e.target.value;cizGrid()};
-$("#srch").onsubmit=e=>{e.preventDefault();$("#magaza").scrollIntoView();$("#q").blur()};
+/* --- ana sayfa --- */
+let slayt=0,slaytZ=null;
+function cizHome(){
+  const m=markalar(),ok=urunler.filter(stokta),son=ok.filter(u=>u.stok<=3);
+  // slaytlar
+  const S=[`<div><h2>Salonun bakım ürünleri, kapınızda</h2><p>Salonumuzda kullandığımız saç ve sakal bakım ürünleri, orijinal ve güvenle.</p><button class="btn" data-m="Tümü">Ürünleri keşfet</button></div><div class="vis"><svg class="lg" viewBox="0 0 700.64 314.72" role="img" aria-label="APRON Business"><use href="#apronLogo" width="700.64" height="314.72"/></svg></div>`];
+  m.slice(0,2).forEach(b=>{const u=urunler.find(x=>x.marka===b&&x.foto);S.push(`<div><h2>${esc(b)} ürünleri</h2><p>${urunler.filter(x=>x.marka===b).length} ürün, salon kalitesinde bakım.</p><button class="btn" data-m="${esc(b)}">${esc(b)} ürünlerine git</button></div><div class="vis">${u?`<img src="${esc(u.foto)}" alt="">`:`<div class="bl">${esc(b.slice(0,1))}</div>`}</div>`)});
+  if(son.length)S.push(`<div><h2>Son adetler</h2><p>Stokta az kalan ürünleri kaçırmayın.</p><button class="btn" data-son="1">Hemen incele</button></div><div class="vis"><div class="bl">${son.length}</div></div>`);
+  $("#slides").innerHTML=S.map((h,i)=>`<div class="slide s${Math.min(i,3)}${i===0?" on":""}"><div class="wrap">${h}</div></div>`).join("");
+  $("#dots").innerHTML=S.length>1?S.map((_,i)=>`<button data-sl="${i}" class="${i===0?"on":""}" aria-label="Slayt ${i+1}"></button>`).join(""):"";
+  $("#hPrev").hidden=$("#hNext").hidden=S.length<2;
+  slayt=0;clearInterval(slaytZ);
+  if(S.length>1&&!matchMedia("(prefers-reduced-motion:reduce)").matches)slaytZ=setInterval(()=>slaytGit(slayt+1),6000);
+  // karolar
+  const mini=(u,f)=>`<a class="mini" data-d="${esc(u.id)}"><div class="mi">${resim(u)}</div><span>${esc(u.ad_tam)}</span>${f?`<small>${TL(u.fiyat)}</small>`:""}</a>`;
+  const T=[];
+  if(m.length)T.push(`<div class="tile"><h3>Markaya göre alışveriş</h3><div class="t4">${m.slice(0,4).map(b=>`<a class="mini" data-m="${esc(b)}"><div class="mi">${esc(b.slice(0,1))}</div><span>${esc(b)}</span></a>`).join("")}</div><a class="tl" data-m="Tümü">Tüm ürünleri gör</a></div>`);
+  if(ok.length)T.push(`<div class="tile"><h3>Uygun fiyatlılar</h3><div class="t4">${[...ok].sort((a,b)=>a.fiyat-b.fiyat).slice(0,4).map(u=>mini(u,1)).join("")}</div><a class="tl" data-sort="a">Fiyata göre sırala</a></div>`);
+  if(son.length)T.push(`<div class="tile"><h3>Son adetler</h3><div class="t4">${son.slice(0,4).map(u=>mini(u,1)).join("")}</div><a class="tl" data-son="1">Tümünü gör</a></div>`);
+  else if(ok.length)T.push(`<div class="tile"><h3>Önerilenler</h3><div class="t4">${ok.slice(0,4).map(u=>mini(u,1)).join("")}</div><a class="tl" data-m="Tümü">Tümünü gör</a></div>`);
+  T.push(`<div class="tile"><h3>APRON güvencesi</h3><ul class="ul"><li>Orijinal ürün</li><li>Salon stoğundan</li><li>Kart bilgisi sitemizde tutulmaz</li><li>14 gün yasal cayma hakkı</li></ul><button class="btn" style="margin-top:auto" data-m="Tümü">Alışverişe başla</button></div>`);
+  $("#tiles").innerHTML=T.join("");
+  // satirlar
+  const R=[];
+  const satir=(b,ad,ml)=>`<section class="rowsec"><div class="rh"><h2>${esc(ad)}</h2><a data-m="${esc(b)}">Tümünü gör ›</a></div><div class="rowwrap"><button class="rb l" type="button" aria-label="Geri">‹</button><div class="row">${ml.map(kart).join("")}</div><button class="rb r" type="button" aria-label="İleri">›</button></div></section>`;
+  if(urunler.length)R.push(satir("Tümü","Tüm ürünler",urunler));
+  m.forEach(b=>{const l=urunler.filter(u=>u.marka===b);if(l.length&&m.length>1)R.push(satir(b,b+" ürünleri",l))});
+  $("#rows").innerHTML=urunler.length?R.join(""):`<div class="empty" style="margin-top:16px">Ürünlerimiz çok yakında burada olacak.</div>`;
+}
+function slaytGit(i){
+  const el=document.querySelectorAll(".slide"),n=el.length;if(!n)return;
+  slayt=(i+n)%n;el.forEach((e,k)=>e.classList.toggle("on",k===slayt));
+  document.querySelectorAll("#dots button").forEach((e,k)=>e.classList.toggle("on",k===slayt));
+}
+$("#hPrev").onclick=()=>{slaytGit(slayt-1);clearInterval(slaytZ)};
+$("#hNext").onclick=()=>{slaytGit(slayt+1);clearInterval(slaytZ)};
+$("#dots").onclick=e=>{const b=e.target.closest("[data-sl]");if(b){slaytGit(+b.dataset.sl);clearInterval(slaytZ)}};
+$("#rows").onclick=e=>{
+  const b=e.target.closest(".rb");if(!b)return;
+  const r=b.parentElement.querySelector(".row");r.scrollBy({left:(b.classList.contains("l")?-1:1)*r.clientWidth*.85,behavior:"smooth"});
+};
+/* --- gorunum / yonlendirme --- */
+function route(){
+  const h=location.hash;
+  if(h==="#liste")gorunum="liste";else if(h===""||h==="#"||h==="#top")gorunum="home";else return;
+  $("#vHome").hidden=gorunum!=="home";$("#vListe").hidden=gorunum!=="liste";
+  if(gorunum==="liste")cizGrid();
+  window.scrollTo(0,0);
+}
+addEventListener("hashchange",route);
+function listeyeGit(){if(location.hash!=="#liste")location.hash="#liste";else route()}
+function tumunuSifirla(){secMarka=new Set();fMin=fMax="";fStok=false;ara="";sirala="o";["#fMin","#fMax","#q"].forEach(k=>$(k).value="");$("#fStok").checked=false;$("#srt").value="o"}
+const yenile=()=>{cizFiltre();cizGrid();cizHome()};
+const markaSec=x=>{secMarka=x==="Tümü"?new Set():new Set([x]);cizFiltre();cizGrid();listeyeGit()};
+document.addEventListener("click",e=>{
+  const sn=e.target.closest("[data-son]");
+  if(sn){tumunuSifirla();fStok=true;$("#fStok").checked=true;cizFiltre();cizGrid();mac(false);return listeyeGit()}
+  const so=e.target.closest("[data-sort]");
+  if(so){tumunuSifirla();sirala=so.dataset.sort;$("#srt").value=sirala;cizFiltre();cizGrid();return listeyeGit()}
+  const mk=e.target.closest("[data-m]");
+  if(mk){e.preventDefault();ara="";$("#q").value="";mac(false);return markaSec(mk.dataset.m)}
+  if(e.target.closest("[data-close]"))mac(false);
+});
+$("#logoA").onclick=e=>{e.preventDefault();tumunuSifirla();cizFiltre();if(location.hash!=="")history.pushState(null,"",location.pathname+location.search);route()};
+$("#toHome").onclick=()=>{tumunuSifirla();cizFiltre();history.pushState(null,"",location.pathname+location.search);route()};
+$("#fMarka").onchange=e=>{const c=e.target.closest("[data-mk]");if(!c)return;c.checked?secMarka.add(c.dataset.mk):secMarka.delete(c.dataset.mk);cizGrid()};
+$("#q").oninput=e=>{ara=e.target.value;if(ara.trim()&&gorunum==="home"){secMarka=new Set();fMin=fMax="";fStok=false;["#fMin","#fMax"].forEach(k=>$(k).value="");$("#fStok").checked=false;cizFiltre();listeyeGit()}cizGrid()};
+$("#srch").onsubmit=e=>{e.preventDefault();ara=$("#q").value;cizGrid();listeyeGit();$("#q").blur()};
 $("#fMin").oninput=e=>{fMin=e.target.value;cizGrid()};
 $("#fMax").oninput=e=>{fMax=e.target.value;cizGrid()};
 $("#fStok").onchange=e=>{fStok=e.target.checked;cizGrid()};
 $("#srt").onchange=e=>{sirala=e.target.value;cizGrid()};
-$("#fClr").onclick=()=>{secMarka=new Set();fMin=fMax="";fStok=false;ara="";$("#fMin").value=$("#fMax").value=$("#q").value="";$("#fStok").checked=false;yenile()};
+$("#fClr").onclick=()=>{tumunuSifirla();cizFiltre();cizGrid()};
 $("#fBtn").onclick=()=>$("#side").classList.toggle("on");
-$("#grid").onclick=e=>{
+function mac(on){$("#lmenu").classList.toggle("on",on);$("#lmenu").setAttribute("aria-hidden",!on);$("#shade").classList.toggle("on",on)}
+$("#hamb").onclick=()=>mac(true);$("#lmClose").onclick=()=>mac(false);
+const kartTik=e=>{
   const a=e.target.closest("[data-a]");if(a)return ekle(a.dataset.a);
   const d=e.target.closest("[data-d]");if(d)detay(d.dataset.d);
 };
+$("#grid").onclick=kartTik;$("#rows").addEventListener("click",kartTik);$("#tiles").addEventListener("click",e=>{const d=e.target.closest("[data-d]");if(d)detay(d.dataset.d)});
 
 /* ===== Urun detay ===== */
 function detay(id){
   const u=urunler.find(x=>x.id===id);if(!u)return;
+  const mx=Math.min(u.stok,10);
   $("#mbox").innerHTML=`<div class="ph">${u.foto?`<img src="${esc(u.foto)}" alt="${esc(u.ad_tam)}" style="height:100%">`:esc((u.marka||"A").slice(0,1))}</div>
   <div class="md"><button class="x" id="mClose" style="align-self:flex-end" aria-label="Kapat">×</button>
-  <span class="m" style="color:var(--mute);letter-spacing:.1em;text-transform:uppercase;font-size:12px">${esc(u.marka)}</span>
+  <span style="color:var(--mute);letter-spacing:.1em;text-transform:uppercase;font-size:12px">${esc(u.marka)}</span>
   <h3 style="font-size:30px">${esc(u.ad_tam)}</h3><span style="color:var(--mute)">${esc(u.ml)}</span>
   <p style="color:var(--mute)">${esc(u.aciklama||"")}</p>
-  <b style="font-size:24px">${TL(u.fiyat)}</b>
-  ${stokta(u)?`<button class="btn" data-a="${esc(u.id)}">Sepete ekle</button>`:`<button class="btn ghost" disabled>Tükendi</button>`}</div>`;
+  <b style="font-size:26px">${TL(u.fiyat)}</b>
+  ${!stokta(u)?`<span class="stk out">Tükendi</span>`:u.stok<=3?`<span class="stk low">Son ${u.stok} ürün</span>`:`<span class="stk">Stokta</span>`}
+  ${stokta(u)?`<div class="qty">Adet: <select id="mq">${Array.from({length:mx},(_,i)=>`<option>${i+1}</option>`).join("")}</select></div>
+  <div class="mbtns"><button class="btn" data-a="${esc(u.id)}">Sepete ekle</button><button class="btn now" data-now="${esc(u.id)}">Hemen al</button></div>`:`<button class="btn ghost" disabled>Tükendi</button>`}
+  <ul class="ul" style="margin-top:8px;font-size:13px;color:var(--mute)"><li>Orijinal ürün, salon stoğundan</li><li>14 gün yasal cayma hakkı</li></ul></div>`;
   $("#modal").classList.add("on");
 }
 $("#modal").onclick=e=>{
   if(e.target.id==="modal"||e.target.id==="mClose")return $("#modal").classList.remove("on");
-  const a=e.target.closest("[data-a]");if(a){ekle(a.dataset.a);$("#modal").classList.remove("on")}
+  const n=Number(($("#mq")||{}).value)||1;
+  const a=e.target.closest("[data-a]");if(a){ekle(a.dataset.a,n);$("#modal").classList.remove("on")}
+  const w=e.target.closest("[data-now]");if(w&&ekle(w.dataset.now,n)){$("#modal").classList.remove("on");cizSepet();cizOdeme();dac(true)}
 };
 
 /* ===== Sepet ===== */
-function ekle(id){
-  const u=urunler.find(x=>x.id===id);if(!u||!stokta(u))return;
-  const s=sepet.find(x=>x.id===id);
-  if(s){if(s.adet>=Math.min(u.stok,20))return toast("Stoktaki en fazla adet sepette");s.adet++}else sepet.push({id,adet:1});
-  kaydet();sepetSay();toast("Sepete eklendi");
+function ekle(id,n=1){
+  const u=urunler.find(x=>x.id===id);if(!u||!stokta(u))return false;
+  const cap=Math.min(u.stok,20),s=sepet.find(x=>x.id===id),cur=s?s.adet:0;
+  if(cur>=cap){toast("Stoktaki en fazla adet sepette");return true}
+  const ek=Math.min(n,cap-cur);if(s)s.adet+=ek;else sepet.push({id,adet:ek});
+  kaydet();sepetSay();toast("Sepete eklendi");return true;
 }
 const satirlar=()=>sepet.map(s=>({s,u:urunler.find(x=>x.id===s.id)})).filter(x=>x.u);
 const toplam=()=>satirlar().reduce((t,{s,u})=>t+u.fiyat*s.adet,0);
 function sepetSay(){$("#cartN").textContent=sepet.reduce((t,s)=>t+s.adet,0)}
 function dac(on){$("#drawer").classList.toggle("on",on);$("#shade").classList.toggle("on",on);$("#drawer").setAttribute("aria-hidden",!on);document.body.style.overflow=on?"hidden":""}
 $("#cartOpen").onclick=()=>{cizSepet();dac(true)};
-$("#dClose").onclick=$("#shade").onclick=()=>dac(false);
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){dac(false);$("#modal").classList.remove("on")}});
+$("#dClose").onclick=$("#shade").onclick=()=>{dac(false);mac(false)};
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){dac(false);mac(false);$("#modal").classList.remove("on")}});
 
 function cizSepet(){
   $("#dTitle").textContent="Sepetiniz";
@@ -365,7 +511,7 @@ async function siparisGonder(){
     const j=await r.json();
     if(!r.ok){
       const m=String(j.message||"");
-      if(m.includes("STOK_YETERSIZ")){await yukle();yenile();throw new Error("Sepetinizdeki bir ürün için yeterli stok kalmadı. Sepet güncellendi, lütfen kontrol edin.")}
+      if(m.includes("STOK_YETERSIZ")){await yukle();yenile();route();throw new Error("Sepetinizdeki bir ürün için yeterli stok kalmadı. Sepet güncellendi, lütfen kontrol edin.")}
       throw new Error("Sipariş alınamadı. Bilgilerinizi kontrol edip tekrar deneyin.");
     }
     sepet=[];kaydet();sepetSay();
@@ -386,7 +532,7 @@ async function siparisGonder(){
   document.querySelectorAll("[data-yasal]").forEach(a=>a.onclick=e=>{e.preventDefault();toast("Yasal metinler yayın öncesi eklenecek")});
 })();
 
-(async()=>{await yukle();cizFiltre();cizGrid();sepetSay()})();
+(async()=>{await yukle();cizFiltre();cizGrid();cizHome();sepetSay();route()})();
 </script>
 </body>
 </html>
