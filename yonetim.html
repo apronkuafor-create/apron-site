@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>APRON Mağaza Yönetimi</title>
+<style>
+:root{--bg:#f4f1ec;--card:#fff;--ink:#1d1a17;--mute:#6f675e;--line:#e0d9ce;--gold:#a8812f;--ok:#2e8b57;--err:#c0392b;--r:10px}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding-bottom:env(safe-area-inset-bottom)}
+button{font:inherit;cursor:pointer}
+input,textarea,select{font:inherit;font-size:16px;width:100%;min-height:42px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fff;color:var(--ink)}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--gold);outline-offset:1px}
+.wrap{width:min(1100px,100% - 24px);margin-inline:auto}
+.btn{min-height:42px;padding:0 16px;border-radius:8px;border:1px solid var(--gold);background:var(--gold);color:#fff;font-weight:600}
+.btn.g{background:#fff;color:var(--ink);border-color:var(--line)}
+.btn.d{background:#fff;color:var(--err);border-color:var(--err)}
+.btn[disabled]{opacity:.5}
+header{background:#1d1a17;color:#f3ece3;padding:calc(10px + env(safe-area-inset-top)) 0 10px;position:sticky;top:0;z-index:20}
+.hd{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.hd b{letter-spacing:.2em}
+.tabs{display:flex;gap:6px;margin:14px 0}
+.tab{flex:1;min-height:44px;border:1px solid var(--line);background:#fff;border-radius:8px;font-weight:600}
+.tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.login{max-width:380px;margin:12vh auto;background:#fff;border:1px solid var(--line);border-radius:14px;padding:24px;display:grid;gap:12px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.bar input,.bar select{flex:1 1 180px}
+.row{background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin-bottom:8px}
+.rh{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:12px 14px;cursor:pointer;align-items:center}
+.rh .a{font-weight:600}.rh .b{color:var(--mute);font-size:13px}
+.pill{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;background:#eee;color:var(--mute)}
+.pill.on{background:#dff2e6;color:var(--ok)}.pill.low{background:#fde8e5;color:var(--err)}
+.rb{display:none;padding:4px 14px 14px;border-top:1px solid var(--line)}
+.row.open .rb{display:block}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+label{display:grid;gap:4px;font-size:12px;color:var(--mute)}
+.sw{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:15px;color:var(--ink)}
+.sw input{width:22px;min-height:22px;height:22px}
+.foto{display:flex;gap:12px;align-items:center;margin-top:12px}
+.foto img{width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.acts{display:flex;gap:8px;margin-top:14px}
+.msg{padding:10px 12px;border-radius:8px;margin:8px 0;font-size:14px}
+.msg.e{background:#fde8e5;border:1px solid var(--err)}.msg.o{background:#e3f4ea;border:1px solid var(--ok)}
+.box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+.sip{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:10px}
+.sip .t{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.sip ul{margin:8px 0 8px 18px;color:var(--mute);font-size:14px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#1d1a17;color:#fff;padding:10px 18px;border-radius:30px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;z-index:50}
+.toast.on{opacity:1}
+@media(max-width:600px){.g2,.g3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+const SB="https://txbvqwcwarpkwvvhxdoo.supabase.co",KEY="sb_publishable_fqTUK7zk4d0peq6jFib-VQ__gYCl34J";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const TL=n=>new Intl.NumberFormat("tr-TR",{style:"currency",currency:"TRY",maximumFractionDigits:2}).format(n);
+const DURUM={odeme_bekliyor:"Ödeme bekliyor",odendi:"Ödendi",hazirlaniyor:"Hazırlanıyor",kargolandi:"Kargolandı",teslim:"Teslim edildi",iptal:"İptal",iade:"İade"};
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("on"),2200)}
+
+/* ---- oturum ---- */
+let oturum=null;try{oturum=JSON.parse(localStorage.getItem("apron_web_oturum")||"null")}catch(e){}
+const oturumYaz=o=>{oturum=o;try{o?localStorage.setItem("apron_web_oturum",JSON.stringify(o)):localStorage.removeItem("apron_web_oturum")}catch(e){}};
+async function auth(body,tip){
+  const r=await fetch(SB+"/auth/v1/token?grant_type="+tip,{method:"POST",headers:{apikey:KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
+  const j=await r.json();if(!r.ok)throw new Error(j.error_description||j.msg||"Giriş başarısız");
+  oturumYaz({token:j.access_token,yenile:j.refresh_token,bitis:Date.now()+(j.expires_in-60)*1000,eposta:j.user&&j.user.email});
+}
+async function token(){
+  if(!oturum)throw new Error("oturum");
+  if(Date.now()>oturum.bitis){try{await auth({refresh_token:oturum.yenile},"refresh_token")}catch(e){oturumYaz(null);throw new Error("oturum")}}
+  return oturum.token;
+}
+async function api(yol,{method="GET",body,basliklar={}}={}){
+  const t=await token();
+  const r=await fetch(SB+yol,{method,headers:{apikey:KEY,Authorization:"Bearer "+t,"Content-Type":"application/json",...basliklar},body:body===undefined?undefined:JSON.stringify(body)});
+  const txt=await r.text();let j=null;try{j=txt?JSON.parse(txt):null}catch(e){}
+  if(!r.ok){if(r.status===401){oturumYaz(null);throw new Error("oturum")}throw new Error((j&&(j.message||j.hint))||"İşlem başarısız ("+r.status+")")}
+  return j;
+}
+const rpc=(ad,args)=>api("/rest/v1/rpc/"+ad,{method:"POST",body:args||{}});
+
+/* ---- durum ---- */
+let sekme="urun",urunler=[],siparisler=[],ayar={stok_koprusu:true},ara="",markaF="",sadeceAktif=false,acik=null;
+
+function giris(hata){
+  $("#app").innerHTML=`<form class="login" id="gf"><h2 style="font-family:Georgia,serif;letter-spacing:.2em">APRON</h2><div style="color:var(--mute);margin-top:-6px">Mağaza yönetimi</div>
+  <label>E-posta<input name="e" type="email" autocomplete="username" required></label>
+  <label>Şifre<input name="p" type="password" autocomplete="current-password" required></label>
+  ${hata?`<div class="msg e">${esc(hata)}</div>`:""}<button class="btn">Giriş yap</button></form>`;
+  $("#gf").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);
+    try{await auth({email:f.get("e").trim(),password:f.get("p")},"password");await ac()}catch(x){giris(x.message)}};
+}
+async function ac(){
+  try{
+    $("#app").innerHTML=`<div class="wrap" style="padding:40px 0">Yükleniyor…</div>`;
+    const [u,s,a]=await Promise.all([rpc("web_yonetim_liste"),api("/rest/v1/web_siparisler?select=*&order=olusturma.desc&limit=100"),api("/rest/v1/web_ayar?id=eq.ana&select=*")]);
+    urunler=u;siparisler=s;if(a&&a[0])ayar=a[0];cizIskelet();
+  }catch(e){if(e.message==="oturum")giris("Oturum süresi doldu, tekrar giriş yapın.");else $("#app").innerHTML=`<div class="wrap"><div class="msg e" style="margin-top:20px">${esc(e.message)}<br>Veritabanı dosyaları (02 ve 03) çalıştırıldı mı?</div></div>`}
+}
+function cizIskelet(){
+  const bek=siparisler.filter(s=>s.durum==="odeme_bekliyor"||s.durum==="odendi").length;
+  $("#app").innerHTML=`<header><div class="wrap hd"><b>APRON · YÖNETİM</b><button class="btn g" id="cik" style="min-height:36px;padding:0 12px">Çıkış</button></div></header>
+  <div class="wrap"><div class="tabs"><button class="tab" data-s="urun">Ürünler</button><button class="tab" data-s="sip">Siparişler${bek?` (${bek})`:""}</button><button class="tab" data-s="ayar">Ayarlar</button></div><div id="ic"></div></div>`;
+  $("#cik").onclick=()=>{oturumYaz(null);giris()};
+  document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{sekme=b.dataset.s;ciz()});
+  ciz();
+}
+function ciz(){
+  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.s===sekme));
+  ({urun:cizUrun,sip:cizSip,ayar:cizAyar})[sekme]();
+}
+
+/* ---- urunler ---- */
+function cizUrun(){
+  const markalar=[...new Set(urunler.map(u=>u.marka).filter(Boolean))].sort();
+  $("#ic").innerHTML=`<div class="bar"><input id="ar" placeholder="Ürün, marka veya barkod ara" value="${esc(ara)}">
+  <select id="mf"><option value="">Tüm markalar</option>${markalar.map(m=>`<option${m===markaF?" selected":""}>${esc(m)}</option>`).join("")}</select>
+  <label style="display:flex;grid-auto-flow:column;align-items:center;gap:6px;flex-direction:row;color:var(--ink);font-size:14px"><input type="checkbox" id="sa" style="width:20px;min-height:20px"${sadeceAktif?" checked":""}>Yalnız sitedekiler</label></div>
+  <div id="lst"></div>`;
+  $("#ar").oninput=e=>{ara=e.target.value;liste()};$("#mf").onchange=e=>{markaF=e.target.value;liste()};$("#sa").onchange=e=>{sadeceAktif=e.target.checked;liste()};
+  liste();
+}
+const norm=s=>String(s||"").toLocaleLowerCase("tr");
+function liste(){
+  const q=norm(ara);
+  const l=urunler.filter(u=>(!markaF||u.marka===markaF)&&(!sadeceAktif||u.aktif)&&(!q||norm(u.ad_tam+" "+u.marka+" "+u.id).includes(q)));
+  const kopru=ayar.stok_koprusu;
+  $("#lst").innerHTML=(l.length?"":`<div class="box">Ürün bulunamadı.</div>`)+l.slice(0,120).map(u=>{
+    const stok=kopru?Math.max(0,Math.floor(u.salon_stok)):u.web_stok;
+    return `<div class="row${acik===u.id?" open":""}" data-id="${esc(u.id)}"><div class="rh" data-t="1"><div><div class="a">${esc(u.ad_tam)} ${esc(u.ml)}</div><div class="b">${esc(u.marka)} · ${esc(u.id)}</div></div>
+    <div style="text-align:right"><span class="pill${u.aktif?" on":""}">${u.aktif?"Sitede":"Gizli"}</span><div class="b">${TL(u.fiyat)} · stok ${stok}</div></div></div>
+    <div class="rb">${acik===u.id?govde(u):""}</div></div>`}).join("");
+}
+function govde(u){
+  const kopru=ayar.stok_koprusu;
+  return `<label class="sw"><input type="checkbox" id="f_aktif"${u.aktif?" checked":""}>Sitede göster</label>
+  <div class="g2"><label>Web fiyatı (₺)<input id="f_fiyat" type="number" inputmode="decimal" step="0.01" min="0" value="${esc(u.fiyat)}"></label>
+  <label>${kopru?"Salon stoğu (köprü açık, sitede bu görünür)":"Site stoğu (köprü kapalı)"}<input id="f_stok" type="number" inputmode="numeric" min="0" value="${kopru?Math.max(0,Math.floor(u.salon_stok)):u.web_stok}"${kopru?" disabled":""}></label></div>
+  <label style="margin-top:10px">Açıklama<textarea id="f_ac" rows="3" maxlength="600">${esc(u.aciklama)}</textarea></label>
+  <div class="foto">${u.foto?`<img src="${esc(u.foto)}" alt="">`:`<div class="pill">Fotoğraf yok</div>`}<div><input type="file" id="f_foto" accept="image/*"><div style="font-size:12px;color:var(--mute);margin-top:4px">Yüklenince otomatik küçültülür.</div></div></div>
+  <div class="acts"><button class="btn" data-k="1">Kaydet</button><button class="btn g" data-i="1">Kapat</button></div>`;
+}
+$("#app").addEventListener("click",async e=>{
+  const row=e.target.closest(".row");if(!row)return;const id=row.dataset.id;
+  if(e.target.closest("[data-t]")){acik=acik===id?null:id;liste();return}
+  if(e.target.closest("[data-i]")){acik=null;liste();return}
+  if(e.target.closest("[data-k]")){
+    const u=urunler.find(x=>x.id===id),b=e.target.closest("[data-k]");b.disabled=true;
+    try{
+      const fiyat=parseFloat(row.querySelector("#f_fiyat").value);
+      if(!(fiyat>=0))throw new Error("Fiyat geçersiz");
+      const aktif=row.querySelector("#f_aktif").checked;
+      if(aktif&&!(fiyat>0))throw new Error("Sitede göstermek için fiyat girin");
+      const veri={aktif,fiyat,aciklama:row.querySelector("#f_ac").value.trim(),guncelleme:new Date().toISOString()};
+      if(!ayar.stok_koprusu){const s=parseInt(row.querySelector("#f_stok").value,10);if(!(s>=0))throw new Error("Stok geçersiz");veri.web_stok=s}
+      const f=row.querySelector("#f_foto").files[0];
+      if(f)veri.foto=await fotoYukle(id,f);
+      await api("/rest/v1/web_urunler?id=eq."+encodeURIComponent(id),{method:"PATCH",body:veri,basliklar:{Prefer:"return=minimal"}});
+      Object.assign(u,veri);toast("Kaydedildi");acik=null;liste();
+    }catch(x){if(x.message==="oturum")giris("Oturum süresi doldu.");else{b.disabled=false;toast(x.message)}}
+  }
+});
+function kucult(file,maks=900){return new Promise((res,rej)=>{const im=new Image(),u=URL.createObjectURL(file);
+  im.onload=()=>{let w=im.width,h=im.height;if(w>maks||h>maks){if(w>h){h=Math.round(h*maks/w);w=maks}else{w=Math.round(w*maks/h);h=maks}}
+    const c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(im,0,0,w,h);
+    c.toBlob(b=>{URL.revokeObjectURL(u);b?res(b):rej(new Error("Resim işlenemedi"))},"image/jpeg",.84)};
+  im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error("Resim okunamadı"))};im.src=u})}
+async function fotoYukle(id,file){
+  const blob=await kucult(file),yol=id.replace(/[^\w-]/g,"")+"-"+Date.now()+".jpg",t=await token();
+  const r=await fetch(SB+"/storage/v1/object/web-gorseller/"+yol,{method:"POST",headers:{apikey:KEY,Authorization:"Bearer "+t,"Content-Type":"image/jpeg","x-upsert":"true"},body:blob});
+  if(!r.ok)throw new Error("Fotoğraf yüklenemedi (03_yonetim.sql çalıştırıldı mı?)");
+  return SB+"/storage/v1/object/public/web-gorseller/"+yol;
+}
+
+/* ---- siparisler ---- */
+function cizSip(){
+  if(!siparisler.length){$("#ic").innerHTML=`<div class="box">Henüz sipariş yok.</div>`;return}
+  $("#ic").innerHTML=`<div class="bar"><button class="btn g" id="yen">Yenile</button></div>`+siparisler.map(s=>{
+    const m=s.musteri||{},k=s.kalemler||[],kapali=s.durum==="iptal"||s.durum==="iade";
+    return `<div class="sip" data-sid="${esc(s.id)}"><div class="t"><b>${esc(s.no)}</b><span class="pill${s.durum==="iptal"||s.durum==="iade"?" low":" on"}">${esc(DURUM[s.durum]||s.durum)}</span></div>
+    <div style="color:var(--mute);font-size:13px">${new Date(s.olusturma).toLocaleString("tr-TR")}</div>
+    <ul>${k.map(x=>`<li>${esc(x.ad)} × ${esc(x.adet)} — ${TL(x.fiyat*x.adet)}</li>`).join("")}</ul>
+    <div><b>Toplam: ${TL(s.toplam)}</b></div>
+    <div style="margin-top:8px;font-size:14px">${esc(m.ad)} · <a href="tel:${esc(m.tel)}">${esc(m.tel)}</a>${m.eposta?" · "+esc(m.eposta):""}<br>${esc(m.adres)}, ${esc(m.ilce||"")} ${esc(m.il)}</div>
+    ${s.not_?`<div class="msg o">Not: ${esc(s.not_)}</div>`:""}
+    ${kapali?"":`<div class="acts"><select data-d>${["odeme_bekliyor","odendi","hazirlaniyor","kargolandi","teslim"].map(d=>`<option value="${d}"${d===s.durum?" selected":""}>${DURUM[d]}</option>`).join("")}</select><button class="btn g" data-g>Durumu kaydet</button><button class="btn d" data-c>İptal et</button></div>`}</div>`}).join("");
+  $("#yen").onclick=ac;
+}
+$("#app").addEventListener("click",async e=>{
+  const kart=e.target.closest("[data-sid]");if(!kart)return;const id=kart.dataset.sid;
+  try{
+    if(e.target.closest("[data-g]")){await rpc("web_siparis_durum",{p_id:id,p_durum:kart.querySelector("[data-d]").value});toast("Durum güncellendi");await ac();sekme="sip";ciz()}
+    if(e.target.closest("[data-c]")){if(!confirm("Sipariş iptal edilecek ve stok geri eklenecek. Emin misiniz?"))return;
+      await rpc("web_siparis_durum",{p_id:id,p_durum:"iptal"});toast("İptal edildi, stok geri eklendi");await ac();sekme="sip";ciz()}
+  }catch(x){if(x.message==="oturum")giris("Oturum süresi doldu.");else toast(x.message)}
+});
+
+/* ---- ayarlar ---- */
+function cizAyar(){
+  $("#ic").innerHTML=`<div class="box"><b>Stok köprüsü: ${ayar.stok_koprusu?"AÇIK":"KAPALI"}</b>
+  <p style="color:var(--mute);margin:8px 0 12px">${ayar.stok_koprusu
+    ?"Site, stoğu salon stok defterinden alır; internet satışı salon stoğundan düşer."
+    :"Site kendi stok sayısını kullanır; salon stok defterine hiç dokunulmaz. Her ürünün site stoğunu Ürünler sekmesinden girin."}</p>
+  <button class="btn ${ayar.stok_koprusu?"d":""}" id="kopru">${ayar.stok_koprusu?"Bağlantıyı kes":"Bağlantıyı aç"}</button></div>
+  <div class="box"><b>Hesap</b><p style="color:var(--mute);margin:6px 0">${esc(oturum&&oturum.eposta||"")}</p></div>`;
+  $("#kopru").onclick=async()=>{
+    const yeni=!ayar.stok_koprusu;
+    if(!confirm(yeni?"Site stoğu salon stok defterine bağlanacak. Devam?":"Site ile salon stoğu arasındaki bağlantı kesilecek. Site kendi stok sayısıyla çalışacak. Devam?"))return;
+    try{await api("/rest/v1/web_ayar?id=eq.ana",{method:"PATCH",body:{stok_koprusu:yeni},basliklar:{Prefer:"return=minimal"}});ayar.stok_koprusu=yeni;toast(yeni?"Bağlantı açıldı":"Bağlantı kesildi");await ac();sekme="ayar";ciz()}
+    catch(x){if(x.message==="oturum")giris("Oturum süresi doldu.");else toast(x.message)}
+  };
+}
+
+oturum?ac():giris();
+</script>
+</body>
+</html>
