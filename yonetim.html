@@ -78,6 +78,17 @@ label{display:grid;gap:4px;font-size:12.5px;color:var(--mute)}
 .tq{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px}
 .tq .t{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center}
 .tq .ms{background:#f6f7f7;border-radius:8px;padding:10px 12px;margin:10px 0;white-space:pre-wrap}
+.rh{grid-template-columns:26px 52px 1fr auto}
+.sel{width:20px;min-height:20px;height:20px;padding:0;accent-color:var(--cta)}
+.bulk{position:sticky;top:112px;z-index:20;background:var(--dk);color:#fff;border-radius:10px;padding:8px 12px;display:none;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.bulk.on{display:flex}.bulk .btn{min-height:34px;padding:0 14px;font-size:14px}
+.kar{background:#f6f7f7;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:14px}
+.kar table{width:100%;border-collapse:collapse}.kar td{padding:3px 0}.kar td:last-child{text-align:right;white-space:nowrap}
+.kar .tp td{border-top:1px solid #cfd3d3;padding-top:6px;font-weight:700}
+.kar .pos{color:var(--ok)}.kar .neg{color:var(--err)}
+.sug{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center}
+.ozet{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0 4px}.ozet .box{margin:0;padding:12px 14px}.ozet b{font-size:20px;display:block}.ozet span{color:var(--mute);font-size:12.5px}
+@media(max-width:700px){.ozet{grid-template-columns:1fr 1fr}.rh{grid-template-columns:26px 44px 1fr}.bulk{top:108px}}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--dk);color:#fff;padding:10px 18px;border-radius:30px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;z-index:50;max-width:92vw;text-align:center}
 .toast.on{opacity:1}
 a{color:#0a58ca}
@@ -126,7 +137,7 @@ const oturumHata=x=>{if(x.message==="oturum")giris("Oturum süresi doldu, tekrar
 
 /* ---- durum ---- */
 let sekme="urun",urunler=[],siparisler=[],talepler=[],ayar={stok_koprusu:true};
-let ara="",markaF="",sadeceAktif=false,acik=null,edit=null;
+let ara="",markaF="",sadeceAktif=false,acik=null,edit=null;const sec=new Set();
 let sipF="acik",sipAra="",talF="acik",talTip="";
 
 function giris(hata){
@@ -165,6 +176,34 @@ function ciz(){
 }
 const yenidenYukle=async(s)=>{await ac();sekme=s||sekme;ciz()};
 
+/* ================= MALIYET / KAR ================= */
+const num=(x,d=0)=>{const n=parseFloat(x);return isFinite(n)?n:d};
+const AYAR=()=>({kdv:num(ayar.kdv_orani,20),dahil:ayar.alis_kdv_dahil!==false,kom:num(ayar.komisyon_orani),paket:num(ayar.paket_gider),vergi:num(ayar.vergi_orani)});
+const r2=x=>Math.round(x*100)/100;
+// Tek ürün, 1 sipariş varsayımıyla (paketleme/kargo gideri dahil)
+function karHesap(F,A,ay){
+  const k=ay.kdv/100,N=F/(1+k),satKdv=F-N,An=ay.dahil?A/(1+k):A,alKdv=ay.dahil?A-An:A*k;
+  const kom=F*ay.kom/100,brut=N-An-kom-ay.paket,vergi=Math.max(0,brut)*ay.vergi/100,net=brut-vergi;
+  return{F,N,satKdv,An,alKdv,odenecekKdv:satKdv-alKdv,kom,paket:ay.paket,brut,vergi,net,marj:N>0?net/N*100:0};
+}
+// Önerilen satış fiyatı (KDV dahil) – hedef net kâr marjı (net satış üzerinden %)
+function oneri(A,ay,marj){
+  const k=ay.kdv/100,t=1-ay.vergi/100,m=marj/100,An=ay.dahil?A/(1+k):A;
+  const pay=(An+ay.paket)*t,pey=t*(1/(1+k)-ay.kom/100)-m/(1+k);
+  return pey>0?pay/pey:null;
+}
+const yuvarla=F=>F==null?null:Math.ceil(F/5)*5;
+// Sipariş kârı (sipariş anındaki maliyet/ayar kaydı varsa onu kullanır)
+function sipKar(s){
+  const ay=s.maliyet_ayar?{kdv:num(s.maliyet_ayar.kdv,20),dahil:s.maliyet_ayar.dahil!==false,kom:num(s.maliyet_ayar.kom),paket:num(s.maliyet_ayar.paket),vergi:num(s.maliyet_ayar.vergi)}:AYAR();
+  const k=ay.kdv/100,T=num(s.toplam),N=T/(1+k);let An=0,alKdv=0,eksik=false;
+  (s.kalemler||[]).forEach(x=>{const u=urunler.find(p=>p.id===x.id);const A=x.maliyet!=null?num(x.maliyet):num(u&&u.alis_fiyat);if(!(A>0))eksik=true;const a=ay.dahil?A/(1+k):A;An+=a*x.adet;alKdv+=(ay.dahil?A-a:A*k)*x.adet});
+  const kom=T*ay.kom/100,brut=N-An-kom-ay.paket,vergi=Math.max(0,brut)*ay.vergi/100;
+  return{T,N,satKdv:T-N,An,alKdv,odenecekKdv:T-N-alKdv,kom,paket:ay.paket,brut,vergi,net:brut-vergi,eksik};
+}
+const para=x=>TL(r2(x));
+const renk=x=>x>=0?"pos":"neg";
+
 /* ================= URUNLER ================= */
 const norm=s=>String(s||"").toLocaleLowerCase("tr");
 function eksikler(u){
@@ -181,31 +220,40 @@ function cizUrun(){
   $("#ic").innerHTML=`<div class="bar"><input id="ar" placeholder="Ürün, marka veya barkod ara" value="${esc(ara)}">
   <select id="mf"><option value="">Tüm markalar</option>${markalar.map(m=>`<option${m===markaF?" selected":""}>${esc(m)}</option>`).join("")}</select>
   <label class="chk" style="display:flex;flex-direction:row;align-items:center;color:var(--ink)"><input type="checkbox" id="sa"${sadeceAktif?" checked":""}>Yalnız sitedekiler</label></div>
-  <div style="color:var(--mute);font-size:13px;margin-bottom:10px">${urunler.length} ürün · ${sitede} tanesi sitede${eksik?` · <b style="color:#b45b00">${eksik} sitedeki üründe eksik bilgi var</b>`:""}</div><div id="lst"></div>`;
+  <div class="bulk" id="bulk"></div><div style="color:var(--mute);font-size:13px;margin-bottom:10px">${urunler.length} ürün · ${sitede} tanesi sitede${eksik?` · <b style="color:#b45b00">${eksik} sitedeki üründe eksik bilgi var</b>`:""}</div><div id="lst"></div>`;
   $("#ar").oninput=e=>{ara=e.target.value;liste()};$("#mf").onchange=e=>{markaF=e.target.value;liste()};$("#sa").onchange=e=>{sadeceAktif=e.target.checked;liste()};
-  liste();
+  liste();bulkCiz();
+}
+function gorunen(){const q=norm(ara);return urunler.filter(u=>(!markaF||u.marka===markaF)&&(!sadeceAktif||u.aktif)&&(!q||norm(u.ad_tam+" "+u.marka+" "+u.id).includes(q))).slice(0,150)}
+function bulkCiz(){
+  const b=$("#bulk");if(!b)return;const n=sec.size;
+  b.classList.toggle("on",n>0);
+  b.innerHTML=n?`<b>${n} ürün seçili</b><button class="btn s g" data-bk="hepsi">Görünenlerin hepsini seç</button><button class="btn s g" data-bk="goster">Sitede göster</button><button class="btn s g" data-bk="gizle">Gizle</button><button class="btn s d" data-bk="sil">Seçilenleri sil</button><button class="btn s g" data-bk="temizle">Seçimi kaldır</button>`:"";
 }
 function liste(){
   const q=norm(ara),kopru=ayar.stok_koprusu;
-  const l=urunler.filter(u=>(!markaF||u.marka===markaF)&&(!sadeceAktif||u.aktif)&&(!q||norm(u.ad_tam+" "+u.marka+" "+u.id).includes(q)));
+  const l=gorunen();
   $("#lst").innerHTML=(l.length?"":`<div class="box">Ürün bulunamadı.</div>`)+l.slice(0,150).map(u=>{
     const stok=kopru?Math.max(0,Math.floor(u.salon_stok)):u.web_stok,ek=eksikler(u);
-    return `<div class="row${acik===u.id?" open":""}" data-id="${esc(u.id)}"><div class="rh" data-t="1">
+    return `<div class="row${acik===u.id?" open":""}" data-id="${esc(u.id)}"><div class="rh" data-t="1"><input type="checkbox" class="sel" data-sel="${esc(u.id)}"${sec.has(u.id)?" checked":""} aria-label="Seç">
       <div class="th">${u.foto?`<img src="${esc(u.foto)}" alt="" loading="lazy">`:esc((u.marka||"A").slice(0,1))}</div>
       <div><div class="a">${esc(u.ad_tam)} ${esc(u.ml)}</div><div class="b">${esc(u.marka)} · ${esc(u.id)}</div>
         ${u.aktif&&ek.length?`<div class="eks">${ek.map(x=>`<span class="pill wr">${esc(x)} yok</span>`).join("")}</div>`:""}</div>
-      <div style="text-align:right"><span class="pill${u.aktif?" on":""}">${u.aktif?"Sitede":"Gizli"}</span><div class="b">${TL(u.fiyat)} · stok ${stok}</div></div></div>
+      <div style="text-align:right"><span class="pill${u.aktif?" on":""}">${u.aktif?"Sitede":"Gizli"}</span><div class="b">${TL(u.fiyat)} · stok ${stok}</div>${num(u.alis_fiyat)>0?(()=>{const h=karHesap(num(u.fiyat),num(u.alis_fiyat),AYAR());return `<div class="b" style="color:${h.net>=0?"var(--ok)":"var(--err)"}">kâr ${para(h.net)}/adet</div>`})():`<div class="b" style="color:#b45b00">alış fiyatı yok</div>`}</div></div>
     <div class="rb">${acik===u.id?govde(u):""}</div></div>`}).join("");
 }
 const resimler=u=>[...new Set([u.foto,...(Array.isArray(u.galeri)?u.galeri:[])].filter(Boolean))];
 function govde(u){
   const kopru=ayar.stok_koprusu;
-  edit={id:u.id,imgs:resimler(u),orig:resimler(u)};
+  edit={id:u.id,imgs:resimler(u),orig:resimler(u)};setTimeout(karGuncelle,0);
   const T=(id,ad,deger,sat,ipucu,max=4000)=>`<label>${ad}<textarea id="${id}" rows="${sat}" maxlength="${max}">${esc(deger||"")}</textarea>${ipucu?`<span style="font-size:12px">${ipucu}</span>`:""}</label>`;
   return `<div class="bl"><h3>Genel</h3><label class="sw"><input type="checkbox" id="f_aktif"${u.aktif?" checked":""}>Sitede göster</label>
-  <div class="g3" style="margin-top:10px"><label>Web fiyatı (₺)<input id="f_fiyat" type="number" inputmode="decimal" step="0.01" min="0" value="${esc(u.fiyat)}"></label>
+  <div class="g3" style="margin-top:10px"><label>Satış fiyatı (₺, KDV dahil)<input id="f_fiyat" type="number" inputmode="decimal" step="0.01" min="0" value="${esc(u.fiyat)}"></label>
   <label>${kopru?"Salon stoğu (köprü açık)":"Site stoğu (köprü kapalı)"}<input id="f_stok" type="number" inputmode="numeric" min="0" value="${kopru?Math.max(0,Math.floor(u.salon_stok)):u.web_stok}"${kopru?" disabled":""}></label>
   <label>Sıra (küçük olan önde)<input id="f_sira" type="number" inputmode="numeric" value="${esc(u.sira||0)}"></label></div></div>
+  <div class="bl"><h3>Maliyet ve kâr <small>Yalnız siz görürsünüz, müşteriye hiç gösterilmez</small></h3>
+  <label style="max-width:300px">Bana geliş (alış) fiyatı (₺ ${AYAR().dahil?"KDV dahil":"KDV hariç"})<input id="f_alis" type="number" inputmode="decimal" step="0.01" min="0" value="${esc(num(u.alis_fiyat)||"")}"></label>
+  <div class="kar" id="karKutu" style="margin-top:10px"></div><div class="sug" id="karOner"></div></div>
   <div class="bl"><h3>Ürün görselleri <small>İlk görsel ana görseldir. Her görsel yüklenirken otomatik küçültülür.</small></h3><div id="gal"></div></div>
   <div class="bl"><h3>Ürün bilgisi</h3>
   ${T("f_ac","Kısa açıklama (müşterinin ilk gördüğü metin)",u.aciklama,3,"Satırı “- ” ile başlatırsanız madde işareti olur.")}</div>
@@ -215,7 +263,26 @@ function govde(u){
   <div class="g2"><label>Adı<input id="f_uzad" value="${esc(u.uzman_ad)}" maxlength="80" placeholder="Örn: Ahmet Serdar"></label><label>Unvanı<input id="f_uzun" value="${esc(u.uzman_unvan)}" maxlength="80" placeholder="Örn: Usta Berber"></label></div>
   <div style="margin-top:10px">${T("f_uz","Görüşü",u.uzman_gorus,4,"Müşteriye “Salon uzmanımızın görüşü” olarak, tırnak içinde gösterilir.",1500)}</div></div>
   <div class="bl"><h3>Kullanım ve içerik</h3><div class="g2">${T("f_ku","Kullanım önerisi",u.kullanim,4,"",2000)}${T("f_ic","İçindekiler",u.icerik,4,"",3000)}</div></div>
-  <div class="acts"><button class="btn" data-k="1">Kaydet</button><button class="btn g" data-i="1">Kapat</button><a class="btn g" style="display:inline-grid;place-items:center;text-decoration:none" href="./index.html#urun/${encodeURIComponent(u.id)}" target="_blank" rel="noopener">Sitede gör ↗</a></div>`;
+  <div class="acts"><button class="btn" data-k="1">Kaydet</button><button class="btn g" data-i="1">Kapat</button><button class="btn d" data-sil1="1">Bu ürünü sil</button><a class="btn g" style="display:inline-grid;place-items:center;text-decoration:none" href="./index.html#urun/${encodeURIComponent(u.id)}" target="_blank" rel="noopener">Sitede gör ↗</a></div>`;
+}
+function karGuncelle(){
+  const f=$("#f_fiyat"),a=$("#f_alis"),kk=$("#karKutu");if(!f||!a||!kk)return;
+  const F=num(f.value),A=num(a.value),ay=AYAR();
+  if(!(A>0)){kk.innerHTML=`<span style="color:var(--mute)">Alış fiyatını girince satışta cebinize kalan net kâr burada hesaplanır.</span>`;$("#karOner").innerHTML="";return}
+  const h=karHesap(F,A,ay);
+  kk.innerHTML=`<table><tr><td>Satış fiyatı (KDV dahil)</td><td>${para(h.F)}</td></tr>
+  <tr><td>− Satış KDV'si (%${ay.kdv})</td><td>−${para(h.satKdv)}</td></tr>
+  <tr><td>= Net satış (KDV hariç)</td><td>${para(h.N)}</td></tr>
+  <tr><td>− Alış maliyeti (KDV hariç)</td><td>−${para(h.An)}</td></tr>
+  <tr><td>− Ödeme komisyonu (%${ay.kom})</td><td>−${para(h.kom)}</td></tr>
+  <tr><td>− Paketleme/kargo gideri</td><td>−${para(h.paket)}</td></tr>
+  <tr><td>= Vergi öncesi kâr</td><td>${para(h.brut)}</td></tr>
+  ${ay.vergi?`<tr><td>− Gelir/kurumlar vergisi tahmini (%${ay.vergi})</td><td>−${para(h.vergi)}</td></tr>`:""}
+  <tr class="tp"><td>Cebinize kalan net kâr (adet başına)</td><td class="${renk(h.net)}">${para(h.net)} · %${r2(h.marj)}</td></tr></table>
+  <div style="color:var(--mute);font-size:12.5px;margin-top:6px">Ödenecek KDV farkı: ${para(h.odenecekKdv)} (satış KDV'si − alış KDV'si). Bu tutar kâr değildir, devlete ödenir; yukarıdaki kâr hesabına dahil edilmemiştir.</div>`;
+  const s=m=>{const v=yuvarla(oneri(A,ay,m));return v==null?"":`<button class="btn s g" data-oner="${v}">%${m} kâr için ${TL(v)}</button>`};
+  const ba=yuvarla(oneri(A,ay,0));
+  $("#karOner").innerHTML=`<span style="color:var(--mute);font-size:13px">Önerilen satış fiyatı:</span>${ba?`<span class="pill">Zarar etmeme sınırı ${TL(ba)}</span>`:""}${s(15)}${s(25)}${s(35)}`;
 }
 function galCiz(){
   const el=$("#gal");if(!el||!edit)return;
@@ -241,7 +308,8 @@ $("#app").addEventListener("click",async e=>{
       const aktif=row.querySelector("#f_aktif").checked;
       if(aktif&&!(fiyat>0))throw new Error("Sitede göstermek için fiyat girin");
       const v=k=>row.querySelector(k).value.trim();
-      const veri={aktif,fiyat,sira:parseInt(row.querySelector("#f_sira").value,10)||0,aciklama:v("#f_ac"),uretici_bilgi:v("#f_ur"),uzman_ad:v("#f_uzad"),uzman_unvan:v("#f_uzun"),uzman_gorus:v("#f_uz"),kullanim:v("#f_ku"),icerik:v("#f_ic"),
+      const alis=num(row.querySelector("#f_alis").value);if(alis<0)throw new Error("Alış fiyatı geçersiz");
+      const veri={aktif,fiyat,alis_fiyat:alis,sira:parseInt(row.querySelector("#f_sira").value,10)||0,aciklama:v("#f_ac"),uretici_bilgi:v("#f_ur"),uzman_ad:v("#f_uzad"),uzman_unvan:v("#f_uzun"),uzman_gorus:v("#f_uz"),kullanim:v("#f_ku"),icerik:v("#f_ic"),
         foto:edit.imgs[0]||"",galeri:edit.imgs.slice(1),guncelleme:new Date().toISOString()};
       if(!ayar.stok_koprusu){const s=parseInt(row.querySelector("#f_stok").value,10);if(!(s>=0))throw new Error("Stok geçersiz");veri.web_stok=s}
       await api("/rest/v1/web_urunler?id=eq."+encodeURIComponent(id),{method:"PATCH",body:veri,basliklar:{Prefer:"return=minimal"}});
@@ -251,6 +319,8 @@ $("#app").addEventListener("click",async e=>{
     }catch(x){b.disabled=false;b.textContent="Kaydet";oturumHata(x)}
   }
 });
+$("#app").addEventListener("input",e=>{if(e.target.id==="f_fiyat"||e.target.id==="f_alis")karGuncelle()});
+$("#app").addEventListener("click",e=>{const o=e.target.closest("[data-oner]");if(o){$("#f_fiyat").value=o.dataset.oner;karGuncelle()}});
 $("#app").addEventListener("change",async e=>{
   if(e.target.id!=="f_foto"||!edit)return;
   const files=[...e.target.files].slice(0,8-edit.imgs.length);if(!files.length)return;
@@ -272,16 +342,49 @@ async function fotoYukle(id,file,i=0){
   return SB+"/storage/v1/object/public/web-gorseller/"+yol;
 }
 
+$("#app").addEventListener("click",async e=>{
+  const s=e.target.closest("[data-sel]");
+  if(s){e.stopPropagation();s.checked?sec.add(s.dataset.sel):sec.delete(s.dataset.sel);bulkCiz();return}
+  const b=e.target.closest("[data-bk]"),d1=e.target.closest("[data-sil1]");
+  if(!b&&!d1)return;e.stopPropagation();
+  const ids=d1?[d1.closest(".row").dataset.id]:[...sec];
+  try{
+    const k=b&&b.dataset.bk;
+    if(k==="hepsi"){gorunen().forEach(u=>sec.add(u.id));liste();bulkCiz();return}
+    if(k==="temizle"){sec.clear();liste();bulkCiz();return}
+    if(k==="goster"||k==="gizle"){
+      const goster=k==="goster",bos=goster?ids.filter(id=>!(num(urunler.find(u=>u.id===id).fiyat)>0)):[];
+      if(bos.length)return toast(bos.length+" ürünün fiyatı yok; önce fiyat girin");
+      await api("/rest/v1/web_urunler?id=in.("+ids.map(i=>'"'+i+'"').join(",")+")",{method:"PATCH",body:{aktif:goster},basliklar:{Prefer:"return=minimal"}});
+      urunler.forEach(u=>{if(ids.includes(u.id))u.aktif=goster});toast(ids.length+" ürün güncellendi");cizUrun();bulkCiz();return}
+    // silme
+    const ad=ids.length===1?(urunler.find(u=>u.id===ids[0])||{}).ad_tam:ids.length+" ürün";
+    if(!confirm(ad+" KALICI olarak silinecek.\n\n• Geçmiş siparişleriniz ve salon uygulamanız etkilenmez.\n• Silinen ürünün girdiğiniz bilgileri (görsel, açıklama, alış fiyatı…) geri getirilemez.\n\nSilmek yerine 'Gizle' seçeneği de var. Silinsin mi?"))return;
+    if(ids.length>3){const t=prompt("Onaylamak için SİL yazın:");if(!t||t.trim().toLocaleUpperCase("tr")!=="SİL")return toast("Vazgeçildi")}
+    await api("/rest/v1/web_urunler?id=in.("+ids.map(i=>'"'+i+'"').join(",")+")",{method:"DELETE",basliklar:{Prefer:"return=minimal"}});
+    urunler=urunler.filter(u=>!ids.includes(u.id));ids.forEach(i=>sec.delete(i));acik=null;edit=null;toast(ids.length+" ürün silindi");cizUrun();
+  }catch(x){oturumHata(x)}
+},true);
+
 /* ================= SIPARISLER ================= */
 const SONRAKI={odeme_bekliyor:["odendi","Ödeme alındı"],odendi:["hazirlaniyor","Hazırlanıyor"],hazirlaniyor:["kargolandi","Kargoya verildi"],kargolandi:["teslim","Teslim edildi"]};
 function cizSip(){
   const acikD=["odeme_bekliyor","odendi","hazirlaniyor","kargolandi"];
   $("#ic").innerHTML=`<div class="bar"><select id="sf"><option value="acik"${sipF==="acik"?" selected":""}>Açık siparişler</option><option value="hepsi"${sipF==="hepsi"?" selected":""}>Tümü</option>${Object.keys(DURUM).map(d=>`<option value="${d}"${sipF===d?" selected":""}>${DURUM[d]}</option>`).join("")}</select>
-  <input id="sa2" placeholder="Sipariş no, ad veya telefon" value="${esc(sipAra)}"><button class="btn g" id="yen">Yenile</button></div><div id="sl"></div>`;
+  <input id="sa2" placeholder="Sipariş no, ad veya telefon" value="${esc(sipAra)}"><button class="btn g" id="yen">Yenile</button></div><div id="oz"></div><div id="sl"></div>`;
   $("#sf").onchange=e=>{sipF=e.target.value;sipListe()};$("#sa2").oninput=e=>{sipAra=e.target.value;sipListe()};$("#yen").onclick=()=>yenidenYukle("sip");
   sipListe();
 }
-function sipListe(){
+const KARLI=["odendi","hazirlaniyor","kargolandi","teslim"];
+function ozetCiz(){
+  const ay=new Date(),ba=new Date(ay.getFullYear(),ay.getMonth(),1);
+  const hesap=l=>l.reduce((a,s)=>{const h=sipKar(s);a.ciro+=h.T;a.kdv+=h.odenecekKdv;a.net+=h.net;a.n++;if(h.eksik)a.eksik++;return a},{ciro:0,kdv:0,net:0,n:0,eksik:0});
+  const ayl=hesap(siparisler.filter(s=>KARLI.includes(s.durum)&&new Date(s.olusturma)>=ba)),tum=hesap(siparisler.filter(s=>KARLI.includes(s.durum)));
+  const kt=(b,t,x)=>`<div class="box"><span>${b}</span><b class="${x!=null?renk(x):""}">${t}</b></div>`;
+  $("#oz").innerHTML=`<div class="ozet">${kt("Bu ay ciro ("+ayl.n+" sipariş)",para(ayl.ciro))}${kt("Bu ay net kâr",para(ayl.net),ayl.net)}${kt("Bu ay ödenecek KDV farkı",para(ayl.kdv))}${kt("Toplam net kâr ("+tum.n+" sipariş)",para(tum.net),tum.net)}</div>
+  <div style="color:var(--mute);font-size:12.5px;margin-bottom:12px">İptal ve iade edilenler ile ödemesi alınmamış siparişler sayılmaz. Kâr, ödeme komisyonu, paketleme/kargo gideri ve (girdiyseniz) vergi tahmini düşüldükten sonraki tutardır; ayarları Ayarlar sekmesinden değiştirin.${tum.eksik?` <b style="color:#b45b00">${tum.eksik} siparişte alış fiyatı eksik olduğundan kâr olduğundan yüksek görünebilir.</b>`:""}</div>`;
+}
+function sipListe(){ozetCiz();
   const acikD=["odeme_bekliyor","odendi","hazirlaniyor","kargolandi"],q=norm(sipAra).replace(/\s/g,"");
   const l=siparisler.filter(s=>(sipF==="hepsi"||(sipF==="acik"?acikD.includes(s.durum):s.durum===sipF))&&(!q||norm((s.no||"")+(s.musteri&&s.musteri.ad||"")+(s.musteri&&s.musteri.tel||"")).replace(/\s/g,"").includes(q)));
   if(!l.length){$("#sl").innerHTML=`<div class="box">Bu filtrede sipariş yok.</div>`;return}
@@ -294,6 +397,7 @@ function sipListe(){
     ${tl.length?`<div class="msg" style="background:#fff0dc;border:1px solid #f0c48a">⚠ Açık müşteri talebi: ${tl.map(t=>esc(TALEP[t.tip])).join(", ")} <a href="#" data-gotal="${esc(s.id)}">Talepler'e git</a></div>`:""}
     <ul>${k.map(x=>`<li>${esc(x.ad)} × ${esc(x.adet)} — ${TL(x.fiyat*x.adet)}</li>`).join("")}</ul>
     <div><b>Toplam: ${TL(s.toplam)}</b></div>
+    ${KARLI.includes(s.durum)?(()=>{const h=sipKar(s);return `<details style="margin-top:6px"><summary style="cursor:pointer;font-size:14px"><b class="${renk(h.net)}" style="color:var(${h.net>=0?"--ok":"--err"})">Net kâr: ${para(h.net)}</b>${h.eksik?` <span class="pill wr">alış fiyatı eksik</span>`:""}</summary><div class="kar" style="margin-top:6px"><table><tr><td>Tahsil edilen (KDV dahil)</td><td>${para(h.T)}</td></tr><tr><td>− KDV</td><td>−${para(h.satKdv)}</td></tr><tr><td>− Alış maliyeti (KDV hariç)</td><td>−${para(h.An)}</td></tr><tr><td>− Ödeme komisyonu</td><td>−${para(h.kom)}</td></tr><tr><td>− Paketleme/kargo gideri</td><td>−${para(h.paket)}</td></tr>${h.vergi?`<tr><td>− Vergi tahmini</td><td>−${para(h.vergi)}</td></tr>`:""}<tr class="tp"><td>Net kâr</td><td>${para(h.net)}</td></tr></table><div style="color:var(--mute);font-size:12.5px;margin-top:4px">Ödenecek KDV farkı: ${para(h.odenecekKdv)}</div></div></details>`})():""}
     <div style="margin-top:8px;font-size:14px">${esc(m.ad)} · <a href="tel:${esc(m.tel)}">${esc(m.tel)}</a> · <a href="https://wa.me/${wa}" target="_blank" rel="noopener">WhatsApp</a>${m.eposta?" · "+esc(m.eposta):""}<br>${esc(m.adres)}, ${esc(m.ilce||"")} ${esc(m.il)}</div>
     ${s.not_?`<div class="msg o">Müşteri notu: ${esc(s.not_)}</div>`:""}
     ${kapali?"":`<div class="g3" style="margin-top:12px"><label>Kargo firması<select data-kf><option value="">Seçiniz</option>${KARGO.map(x=>`<option${x===s.kargo_firma?" selected":""}>${x}</option>`).join("")}</select></label>
@@ -376,11 +480,23 @@ function cizAyar(){
     ?"Site, stoğu salon stok defterinden alır; internet satışı salon stoğundan düşer."
     :"Site kendi stok sayısını kullanır; salon stok defterine hiç dokunulmaz. Her ürünün site stoğunu Ürünler sekmesinden girin."}</p>
   <button class="btn ${ayar.stok_koprusu?"d":""}" id="kopru">${ayar.stok_koprusu?"Bağlantıyı kes":"Bağlantıyı aç"}</button></div>
+  <div class="box"><b>Maliyet ve vergi ayarları</b><p style="color:var(--mute);margin:6px 0 10px">Kâr hesabı bu değerlere göre yapılır. Sipariş geldiği andaki değerler o siparişe kaydedilir; sonradan değiştirmek geçmiş siparişleri bozmaz.</p>
+  <div class="g3"><label>Satış KDV oranı (%)<input id="a_kdv" type="number" step="0.01" min="0" value="${esc(num(ayar.kdv_orani,20))}"></label>
+  <label>Ödeme kuruluşu komisyonu (%)<input id="a_kom" type="number" step="0.01" min="0" value="${esc(num(ayar.komisyon_orani))}"></label>
+  <label>Sipariş başına paketleme/kargo gideri (₺)<input id="a_pak" type="number" step="0.01" min="0" value="${esc(num(ayar.paket_gider))}"></label></div>
+  <div class="g2" style="margin-top:10px"><label>Kâr üzerinden gelir/kurumlar vergisi tahmini (%)<input id="a_ver" type="number" step="0.01" min="0" value="${esc(num(ayar.vergi_orani))}"><span style="font-size:12px">Bilmiyorsanız 0 bırakın; muhasebecinizin söylediği oranı girin.</span></label>
+  <label class="sw" style="align-self:end"><input type="checkbox" id="a_dahil"${ayar.alis_kdv_dahil!==false?" checked":""}>Girdiğim alış fiyatları KDV dahil</label></div>
+  <div class="flow"><button class="btn" id="a_kaydet">Ayarları kaydet</button></div></div>
   <div class="box"><b>Üretici paketi — Morgan's Türkiye</b><p style="color:var(--mute);margin:6px 0 10px">Morgan's Türkiye sitesinden (morganspomade.com.tr) alınan orijinal ürün adı, görseller, özellik yazısı, kullanım ve içerik bilgisi. Yalnız <b>boş</b> alanlar doldurulur; elle yazdığınız hiçbir şey silinmez. Sonradan Ürünler sekmesinden düzenleyebilirsiniz.</p>
   <label class="sw" style="margin-bottom:8px"><input type="checkbox" id="pk_ad" checked>Ürün adını üreticideki orijinal ad yap</label>
   <div id="pk_l">${PAKET.map(p=>{const u=urunler.find(x=>x.id===p.id);return `<div style="display:flex;gap:10px;align-items:center;padding:6px 0;border-top:1px solid var(--line)"><input type="checkbox" class="pk" value="${esc(p.id)}"${u?" checked":" disabled"} style="width:20px;min-height:20px;height:20px"><img src="${esc(p.galeri[0])}" alt="" style="width:40px;height:40px;object-fit:contain;border-radius:6px;background:#f3f4f4"><div style="flex:1;font-size:14px"><b>${esc(p.ad)}</b><div style="color:var(--mute);font-size:12px">${u?"Ürün listenizde: "+esc(u.ad_tam):"Listenizde bu barkod yok"}</div></div></div>`}).join("")}</div>
   <div class="flow"><button class="btn" id="pk_go">Seçilenleri ürünlere ekle</button></div></div>
   <div class="box"><b>Hesap</b><p style="color:var(--mute);margin:6px 0">${esc(oturum&&oturum.eposta||"")}</p></div>`;
+  $("#a_kaydet").onclick=async()=>{
+    const v={kdv_orani:num($("#a_kdv").value,20),komisyon_orani:num($("#a_kom").value),paket_gider:num($("#a_pak").value),vergi_orani:num($("#a_ver").value),alis_kdv_dahil:$("#a_dahil").checked};
+    if(Object.values(v).some(x=>typeof x==="number"&&x<0))return toast("Değerler eksi olamaz");
+    try{await api("/rest/v1/web_ayar?id=eq.ana",{method:"PATCH",body:v,basliklar:{Prefer:"return=minimal"}});Object.assign(ayar,v);toast("Ayarlar kaydedildi")}catch(x){oturumHata(x)}
+  };
   $("#pk_go").onclick=async e=>{
     const sec=[...document.querySelectorAll(".pk:checked")].map(x=>x.value);if(!sec.length)return toast("Ürün seçilmedi");
     if(!confirm(sec.length+" ürüne üretici bilgileri ve görselleri eklenecek (yalnız boş alanlar). Devam?"))return;
