@@ -53,7 +53,7 @@ header{background:var(--dk);color:#fff;padding-top:env(safe-area-inset-top);posi
 .bl{margin-top:18px}.bl>h3{font-size:15px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .bl>h3 small{font-weight:400;color:var(--mute);font-size:12.5px}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;align-items:start}
 label{display:grid;gap:4px;font-size:12.5px;color:var(--mute)}
 .sw{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--ink)}.sw input{width:22px;min-height:22px;height:22px}
 .imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
@@ -89,6 +89,15 @@ label{display:grid;gap:4px;font-size:12.5px;color:var(--mute)}
 .sug{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center}
 .ozet{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0 4px}.ozet .box{margin:0;padding:12px 14px}.ozet b{font-size:20px;display:block}.ozet span{color:var(--mute);font-size:12.5px}
 @media(max-width:700px){.ozet{grid-template-columns:1fr 1fr}.rh{grid-template-columns:26px 44px 1fr}.bulk{top:108px}}
+.pt{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}.pt th{text-align:left;color:var(--mute);font-weight:500;font-size:12.5px;padding:4px 6px}.pt td{padding:6px;border-top:1px solid var(--line)}
+.pt .x{border:1px solid #c8cccc;background:#fff;color:var(--err);border-radius:6px;min-height:28px;padding:0 8px}
+.pgir{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;align-items:end}@media(max-width:700px){.pgir{grid-template-columns:1fr 1fr}}
+.sk{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin-bottom:8px}
+.sk .t1{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center}
+.sk .ms{display:flex;gap:6px 16px;flex-wrap:wrap;color:var(--mute);font-size:13px;margin-top:6px}.sk .ms b{color:var(--ink)}
+.sk .of{margin-top:8px;padding:8px 10px;border-radius:8px;background:#fff0dc;border:1px solid #f0c48a;font-size:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.sk .of.rk{background:#fde8e5;border-color:var(--err)}
+.abc{display:inline-block;width:22px;height:22px;border-radius:50%;text-align:center;line-height:22px;font-weight:700;font-size:12px;background:#e8eaeb}.abc.A{background:#dff2e6;color:var(--ok)}.abc.C{background:#fde8e5;color:var(--err)}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--dk);color:#fff;padding:10px 18px;border-radius:30px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;z-index:50;max-width:92vw;text-align:center}
 .toast.on{opacity:1}
 a{color:#0a58ca}
@@ -136,7 +145,7 @@ const rpc=(ad,args)=>api("/rest/v1/rpc/"+ad,{method:"POST",body:args||{}});
 const oturumHata=x=>{if(x.message==="oturum")giris("Oturum süresi doldu, tekrar giriş yapın.");else toast(x.message)};
 
 /* ---- durum ---- */
-let sekme="urun",urunler=[],siparisler=[],talepler=[],ayar={stok_koprusu:true};
+let sekme="urun",urunler=[],siparisler=[],talepler=[],partiler=[],ayar={stok_koprusu:true};
 let ara="",markaF="",sadeceAktif=false,acik=null,edit=null;const sec=new Set();
 let sipF="acik",sipAra="",talF="acik",talTip="";
 
@@ -151,9 +160,10 @@ function giris(hata){
 async function ac(){
   try{
     $("#app").innerHTML=`<div class="wrap" style="padding:40px 0">Yükleniyor…</div>`;
-    const [u,s,a,t]=await Promise.all([rpc("web_yonetim_liste"),api("/rest/v1/web_siparisler?select=*&order=olusturma.desc&limit=300"),api("/rest/v1/web_ayar?id=eq.ana&select=*"),
-      api("/rest/v1/web_talepler?select=*&order=olusturma.desc&limit=300").catch(()=>null)]);
-    urunler=u;siparisler=s;talepler=t||[];if(a&&a[0])ayar=a[0];
+    const [u,s,a,t,pr]=await Promise.all([rpc("web_yonetim_liste"),api("/rest/v1/web_siparisler?select=*&order=olusturma.desc&limit=1000"),api("/rest/v1/web_ayar?id=eq.ana&select=*"),
+      api("/rest/v1/web_talepler?select=*&order=olusturma.desc&limit=300").catch(()=>null),
+      api("/rest/v1/web_partiler?select=*&order=tarih.asc,olusturma.asc&limit=3000").catch(()=>null)]);
+    urunler=u;siparisler=s;talepler=t||[];partiler=pr||[];$("#app").dataset.partiYok=pr===null?"1":"";if(a&&a[0])ayar=a[0];
     $("#app").dataset.talepYok=t===null?"1":"";
     cizIskelet();
   }catch(e){if(e.message==="oturum")giris("Oturum süresi doldu, tekrar giriş yapın.");else $("#app").innerHTML=`<div class="wrap"><div class="msg e" style="margin-top:20px">${esc(e.message)}<br>Veritabanı dosyaları (02, 03 ve 04) çalıştırıldı mı?</div></div>`}
@@ -164,7 +174,7 @@ function sayilar(){
 function cizIskelet(){
   const n=sayilar();
   $("#app").innerHTML=`<header><div class="wrap hd">${LOGO}<span class="ttl">MAĞAZA YÖNETİMİ</span><span class="sp"></span><small>${esc(oturum&&oturum.eposta||"")}</small><button class="btn g s" id="cik">Çıkış</button></div>
-  <div class="tabs"><div class="wrap"><button class="tab" data-s="urun">Ürünler</button><button class="tab" data-s="sip">Siparişler${n.sip?`<b>${n.sip}</b>`:""}</button><button class="tab" data-s="tal">Talepler${n.tal?`<b>${n.tal}</b>`:""}</button><button class="tab" data-s="ayar">Ayarlar</button></div></div></header>
+  <div class="tabs"><div class="wrap"><button class="tab" data-s="urun">Ürünler</button><button class="tab" data-s="sip">Siparişler${n.sip?`<b>${n.sip}</b>`:""}</button><button class="tab" data-s="stok">Stok</button><button class="tab" data-s="tal">Talepler${n.tal?`<b>${n.tal}</b>`:""}</button><button class="tab" data-s="ayar">Ayarlar</button></div></div></header>
   <div class="wrap"><div id="ic"></div></div>`;
   $("#cik").onclick=()=>{oturumYaz(null);giris()};
   document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{sekme=b.dataset.s;ciz()});
@@ -172,34 +182,61 @@ function cizIskelet(){
 }
 function ciz(){
   document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.s===sekme));
-  ({urun:cizUrun,sip:cizSip,tal:cizTal,ayar:cizAyar})[sekme]();
+  ({urun:cizUrun,sip:cizSip,stok:cizStok,tal:cizTal,ayar:cizAyar})[sekme]();
 }
 const yenidenYukle=async(s)=>{await ac();sekme=s||sekme;ciz()};
 
 /* ================= MALIYET / KAR ================= */
 const num=(x,d=0)=>{const n=parseFloat(x);return isFinite(n)?n:d};
-const AYAR=()=>({kdv:num(ayar.kdv_orani,20),dahil:ayar.alis_kdv_dahil!==false,kom:num(ayar.komisyon_orani),paket:num(ayar.paket_gider),vergi:num(ayar.vergi_orani)});
+const AYAR=()=>({kdv:num(ayar.kdv_orani,20),dahil:ayar.alis_kdv_dahil!==false,kom:num(ayar.komisyon_orani),paket:num(ayar.paket_gider),vergi:num(ayar.vergi_orani),tutma:num(ayar.tutma_orani)});
 const r2=x=>Math.round(x*100)/100;
 // Tek ürün, 1 sipariş varsayımıyla (paketleme/kargo gideri dahil)
-function karHesap(F,A,ay){
+const gunSay=(t,ref)=>{if(!t)return null;const g=Math.floor(((ref?new Date(ref):new Date())-new Date(t))/864e5);return g<0?0:g};
+// Elde kalma bedeli: stokta bağlanan para (KDV dahil ödenen) × aylık oran × gün/30
+const tutmaBedel=(A,ay,gun)=>{if(!gun||!(ay.tutma>0))return 0;const bag=ay.dahil?A:A*(1+ay.kdv/100);return bag*ay.tutma/100*gun/30};
+function karHesap(F,A,ay,gun=0){
   const k=ay.kdv/100,N=F/(1+k),satKdv=F-N,An=ay.dahil?A/(1+k):A,alKdv=ay.dahil?A-An:A*k;
   const kom=F*ay.kom/100,brut=N-An-kom-ay.paket,vergi=Math.max(0,brut)*ay.vergi/100,net=brut-vergi;
-  return{F,N,satKdv,An,alKdv,odenecekKdv:satKdv-alKdv,kom,paket:ay.paket,brut,vergi,net,marj:N>0?net/N*100:0};
+  const tutma=tutmaBedel(A,ay,gun);
+  return{F,N,satKdv,An,alKdv,odenecekKdv:satKdv-alKdv,kom,paket:ay.paket,brut,vergi,net,tutma,gercek:net-tutma,marj:N>0?net/N*100:0};
 }
 // Önerilen satış fiyatı (KDV dahil) – hedef net kâr marjı (net satış üzerinden %)
-function oneri(A,ay,marj){
+function oneri(A,ay,marj,T=0){
   const k=ay.kdv/100,t=1-ay.vergi/100,m=marj/100,An=ay.dahil?A/(1+k):A;
-  const pay=(An+ay.paket)*t,pey=t*(1/(1+k)-ay.kom/100)-m/(1+k);
+  const pay=(An+ay.paket)*t+T,pey=t*(1/(1+k)-ay.kom/100)-m/(1+k);
   return pey>0?pay/pey:null;
 }
 const yuvarla=F=>F==null?null:Math.ceil(F/5)*5;
+/* ---- Partiler (FIFO) ---- */
+const partiOf=id=>partiler.filter(p=>p.urun_id===id);
+const stokAdet=u=>ayar.stok_koprusu?Math.max(0,Math.floor(num(u.salon_stok))):num(u.web_stok);
+// Elde kalan partilerin ağırlıklı ortalama yaşı (gün); parti yoksa girilen alış tarihine göre
+function stokYas(u){
+  const l=partiOf(u.id).filter(p=>p.kalan>0);
+  if(l.length){const t=l.reduce((a,p)=>a+p.kalan,0);return Math.round(l.reduce((a,p)=>a+p.kalan*(gunSay(p.tarih)||0),0)/t)}
+  return gunSay(u.alis_tarih);
+}
+// Elde kalan stoğun KDV hariç maliyeti (partisiz adetler için güncel alış fiyatı)
+function stokMaliyetNet(u,ay){
+  const k=ay.kdv/100,l=partiOf(u.id).filter(p=>p.kalan>0),pAdet=l.reduce((a,p)=>a+p.kalan,0),A=num(u.alis_fiyat),An=ay.dahil?A/(1+k):A;
+  return l.reduce((a,p)=>a+p.kalan*num(p.birim_net),0)+Math.max(0,stokAdet(u)-pAdet)*An;
+}
+// Satılan bir kalemin KDV hariç maliyeti (FIFO partileri + partisiz kısım için kayıtlı maliyet)
+function kalemMaliyetNet(x,ay,u){
+  const k=ay.kdv/100,pl=Array.isArray(x.partiler)?x.partiler:[],pa=pl.reduce((a,p)=>a+num(p.adet),0);
+  const A=x.maliyet!=null?num(x.maliyet):num(u&&u.alis_fiyat),An=ay.dahil?A/(1+k):A;
+  return pl.reduce((a,p)=>a+num(p.adet)*num(p.net),0)+Math.max(0,x.adet-pa)*An;
+}
 // Sipariş kârı (sipariş anındaki maliyet/ayar kaydı varsa onu kullanır)
 function sipKar(s){
-  const ay=s.maliyet_ayar?{kdv:num(s.maliyet_ayar.kdv,20),dahil:s.maliyet_ayar.dahil!==false,kom:num(s.maliyet_ayar.kom),paket:num(s.maliyet_ayar.paket),vergi:num(s.maliyet_ayar.vergi)}:AYAR();
-  const k=ay.kdv/100,T=num(s.toplam),N=T/(1+k);let An=0,alKdv=0,eksik=false;
-  (s.kalemler||[]).forEach(x=>{const u=urunler.find(p=>p.id===x.id);const A=x.maliyet!=null?num(x.maliyet):num(u&&u.alis_fiyat);if(!(A>0))eksik=true;const a=ay.dahil?A/(1+k):A;An+=a*x.adet;alKdv+=(ay.dahil?A-a:A*k)*x.adet});
+  const ay=s.maliyet_ayar?{kdv:num(s.maliyet_ayar.kdv,20),dahil:s.maliyet_ayar.dahil!==false,kom:num(s.maliyet_ayar.kom),paket:num(s.maliyet_ayar.paket),vergi:num(s.maliyet_ayar.vergi),tutma:num(s.maliyet_ayar.tutma)}:AYAR();
+  const k=ay.kdv/100,T=num(s.toplam),N=T/(1+k);let An=0,alKdv=0,eksik=false,tutma=0;
+  (s.kalemler||[]).forEach(x=>{const u=urunler.find(p=>p.id===x.id);const A=x.maliyet!=null?num(x.maliyet):num(u&&u.alis_fiyat);
+    const pl=Array.isArray(x.partiler)?x.partiler:[],pa=pl.reduce((q,p)=>q+num(p.adet),0),kalan=Math.max(0,x.adet-pa);
+    pl.forEach(p=>{const n=num(p.net)*num(p.adet);An+=n;alKdv+=n*k;tutma+=num(p.net)*(1+k)*num(p.adet)*ay.tutma/100*(gunSay(p.tarih,s.olusturma)||0)/30});
+    if(kalan>0){if(!(A>0))eksik=true;const a=ay.dahil?A/(1+k):A;An+=a*kalan;tutma+=tutmaBedel(A,ay,gunSay(x.alis_tarih||(u&&u.alis_tarih),s.olusturma)||0)*kalan;alKdv+=(ay.dahil?A-a:A*k)*kalan}});
   const kom=T*ay.kom/100,brut=N-An-kom-ay.paket,vergi=Math.max(0,brut)*ay.vergi/100;
-  return{T,N,satKdv:T-N,An,alKdv,odenecekKdv:T-N-alKdv,kom,paket:ay.paket,brut,vergi,net:brut-vergi,eksik};
+  return{T,N,satKdv:T-N,An,alKdv,odenecekKdv:T-N-alKdv,kom,paket:ay.paket,brut,vergi,net:brut-vergi,tutma,gercek:brut-vergi-tutma,eksik};
 }
 const para=x=>TL(r2(x));
 const renk=x=>x>=0?"pos":"neg";
@@ -238,8 +275,9 @@ function liste(){
     return `<div class="row${acik===u.id?" open":""}" data-id="${esc(u.id)}"><div class="rh" data-t="1"><input type="checkbox" class="sel" data-sel="${esc(u.id)}"${sec.has(u.id)?" checked":""} aria-label="Seç">
       <div class="th">${u.foto?`<img src="${esc(u.foto)}" alt="" loading="lazy">`:esc((u.marka||"A").slice(0,1))}</div>
       <div><div class="a">${esc(u.ad_tam)} ${esc(u.ml)}</div><div class="b">${esc(u.marka)} · ${esc(u.id)}</div>
-        ${u.aktif&&ek.length?`<div class="eks">${ek.map(x=>`<span class="pill wr">${esc(x)} yok</span>`).join("")}</div>`:""}</div>
-      <div style="text-align:right"><span class="pill${u.aktif?" on":""}">${u.aktif?"Sitede":"Gizli"}</span><div class="b">${TL(u.fiyat)} · stok ${stok}</div>${num(u.alis_fiyat)>0?(()=>{const h=karHesap(num(u.fiyat),num(u.alis_fiyat),AYAR());return `<div class="b" style="color:${h.net>=0?"var(--ok)":"var(--err)"}">kâr ${para(h.net)}/adet</div>`})():`<div class="b" style="color:#b45b00">alış fiyatı yok</div>`}</div></div>
+        ${(()=>{const ay=AYAR(),A=num(u.alis_fiyat),gun=stokYas(u),r=[];if(A>0&&ay.tutma>0&&gun!=null){const mn=oneri(A,ay,0,tutmaBedel(A,ay,gun));if(mn&&num(u.fiyat)<mn)r.push(`<span class="pill low">Zarar riski: en az ${TL(yuvarla(mn))}</span>`);if(gun>=90)r.push(`<span class="pill wr">${gun} gündür stokta</span>`)}
+        return (u.aktif?ek.map(x=>`<span class="pill wr">${esc(x)} yok</span>`):[]).concat(r).join("")?`<div class="eks">${(u.aktif?ek.map(x=>`<span class="pill wr">${esc(x)} yok</span>`):[]).concat(r).join("")}</div>`:""})()}</div>
+      <div style="text-align:right"><span class="pill${u.aktif?" on":""}">${u.aktif?"Sitede":"Gizli"}</span><div class="b">${TL(u.fiyat)} · stok ${stok}</div>${num(u.alis_fiyat)>0?(()=>{const h=karHesap(num(u.fiyat),num(u.alis_fiyat),AYAR(),stokYas(u)||0);return `<div class="b" style="color:${h.gercek>=0?"var(--ok)":"var(--err)"}">gerçek kâr ${para(h.gercek)}/adet</div>`})():`<div class="b" style="color:#b45b00">alış fiyatı yok</div>`}</div></div>
     <div class="rb">${acik===u.id?govde(u):""}</div></div>`}).join("");
 }
 const resimler=u=>[...new Set([u.foto,...(Array.isArray(u.galeri)?u.galeri:[])].filter(Boolean))];
@@ -252,8 +290,11 @@ function govde(u){
   <label>${kopru?"Salon stoğu (köprü açık)":"Site stoğu (köprü kapalı)"}<input id="f_stok" type="number" inputmode="numeric" min="0" value="${kopru?Math.max(0,Math.floor(u.salon_stok)):u.web_stok}"${kopru?" disabled":""}></label>
   <label>Sıra (küçük olan önde)<input id="f_sira" type="number" inputmode="numeric" value="${esc(u.sira||0)}"></label></div></div>
   <div class="bl"><h3>Maliyet ve kâr <small>Yalnız siz görürsünüz, müşteriye hiç gösterilmez</small></h3>
-  <label style="max-width:300px">Bana geliş (alış) fiyatı (₺ ${AYAR().dahil?"KDV dahil":"KDV hariç"})<input id="f_alis" type="number" inputmode="decimal" step="0.01" min="0" value="${esc(num(u.alis_fiyat)||"")}"></label>
+  <div class="g3"><label>Bana geliş (alış) fiyatı (₺ ${AYAR().dahil?"KDV dahil":"KDV hariç"})<input id="f_alis" type="number" inputmode="decimal" step="0.01" min="0" value="${esc(num(u.alis_fiyat)||"")}"></label>
+  <label>Stoğa giriş (alış) tarihi${(()=>{const pv=partiOf(u.id).some(p=>p.kalan>0),yas=stokYas(u);return `<input id="f_atarih" type="date" value="${pv&&yas!=null?new Date(Date.now()-yas*864e5).toISOString().slice(0,10):esc(u.alis_tarih||"")}"${pv?" disabled":""}><span style="font-size:12px">${pv?"Aşağıdaki partilerden otomatik hesaplanır (ağırlıklı ortalama yaş).":"Ürünü ne zaman aldınız? Elde kalma bedeli bu tarihten sayılır. Mal girişi (parti) ekleyince otomatik olur."}</span>`})()}</label>
+  <label>Hedef kâr oranı (% — alış maliyeti üzerinden)<input id="f_oran" type="number" inputmode="decimal" step="1" min="0" placeholder="Örn: 100" value="${esc(sonOran())}"><span style="font-size:12px">Oranı yazın, satış fiyatı otomatik hesaplanıp yukarıdaki fiyat alanına yazılır. %100 = maliyetin 2 katı kâr.</span></label></div>
   <div class="kar" id="karKutu" style="margin-top:10px"></div><div class="sug" id="karOner"></div></div>
+  ${partiBlok(u)}
   <div class="bl"><h3>Ürün görselleri <small>İlk görsel ana görseldir. Her görsel yüklenirken otomatik küçültülür.</small></h3><div id="gal"></div></div>
   <div class="bl"><h3>Ürün bilgisi</h3>
   ${T("f_ac","Kısa açıklama (müşterinin ilk gördüğü metin)",u.aciklama,3,"Satırı “- ” ile başlatırsanız madde işareti olur.")}</div>
@@ -265,11 +306,36 @@ function govde(u){
   <div class="bl"><h3>Kullanım ve içerik</h3><div class="g2">${T("f_ku","Kullanım önerisi",u.kullanim,4,"",2000)}${T("f_ic","İçindekiler",u.icerik,4,"",3000)}</div></div>
   <div class="acts"><button class="btn" data-k="1">Kaydet</button><button class="btn g" data-i="1">Kapat</button><button class="btn d" data-sil1="1">Bu ürünü sil</button><a class="btn g" style="display:inline-grid;place-items:center;text-decoration:none" href="./index.html#urun/${encodeURIComponent(u.id)}" target="_blank" rel="noopener">Sitede gör ↗</a></div>`;
 }
+const sonOran=()=>{try{return localStorage.getItem("apron_son_oran")||""}catch(e){return ""}};
+// Hedef: komisyon ve paketleme gideri düşüldükten sonra vergi öncesi kâr = KDV hariç alış maliyetinin %m'si
+function oneriOran(A,ay,m,T=0){
+  const k=ay.kdv/100,An=ay.dahil?A/(1+k):A,pey=1/(1+k)-ay.kom/100,t=Math.max(0.01,1-ay.vergi/100);
+  return pey>0?Math.ceil(((An*(1+m/100))+ay.paket+T/t)/pey):null;
+}
+function oranUygula(){
+  const a=num($("#f_alis").value),o=$("#f_oran").value;if(!(a>0)||o===""||!(num(o,-1)>=0))return;
+  try{localStorage.setItem("apron_son_oran",o)}catch(e){}
+  const ay=AYAR(),F=oneriOran(a,ay,num(o),tutmaBedel(a,ay,gunSay($("#f_atarih").value)||0));if(F!=null)$("#f_fiyat").value=F;
+}
+function partiBlok(u){
+  if($("#app").dataset.partiYok)return `<div class="bl"><h3>Mal girişi (partiler)</h3><div class="msg e">Parti tablosu yok. Supabase'de <code>07_parti_ve_stok_analizi.sql</code> dosyasını bir kez çalıştırın.</div></div>`;
+  const ay=AYAR(),l=partiOf(u.id),pAdet=l.reduce((a,p)=>a+p.kalan,0),partisiz=Math.max(0,stokAdet(u)-pAdet),kopru=ayar.stok_koprusu;
+  const bugun=new Date(Date.now()+3*36e5).toISOString().slice(0,10);
+  return `<div class="bl"><h3>Mal girişi ve partiler <small>Her alışı ayrı kaydedin; satışta ilk giren ilk çıkar (FIFO) maliyeti otomatik hesaplanır</small></h3>
+  <div class="pgir"><label>Alış tarihi<input id="p_tarih" type="date" value="${bugun}" max="${bugun}"></label>
+    <label>Adet<input id="p_adet" type="number" inputmode="numeric" min="1" placeholder="24"></label>
+    <label>Birim fiyat (₺ ${ay.dahil?"KDV dahil":"KDV hariç"})<input id="p_birim" type="number" inputmode="decimal" step="0.01" min="0" placeholder="${ay.dahil?"1104":"920"}"></label>
+    <label>Fatura no (isteğe bağlı)<input id="p_fatura" maxlength="60"></label></div>
+  <label class="sw" style="margin-top:8px"><input type="checkbox" id="p_stok"${kopru?" disabled":" checked"}>${kopru?"Stok köprüsü açık: stok salon uygulamasından girilir":"Bu adedi site stoğuna da ekle"}</label>
+  <div class="flow"><button class="btn" data-pekle="${esc(u.id)}">Partiyi ekle</button><span style="color:var(--mute);font-size:13px">Önce üstteki değişiklikleri <b>Kaydet</b> ile saklayın; parti eklenince ekran yenilenir.</span></div>
+  ${partisiz>0?`<div class="msg" style="background:#fff0dc;border:1px solid #f0c48a">${partisiz} adet partisiz stok var (parti eklenmeden önce girilmiş). Bunlar için güncel alış fiyatı kullanılır. Gerçek alış tarihi ve fiyatıyla bir <b>açılış partisi</b> ekleyip "site stoğuna da ekle" kutusunu kaldırarak düzeltebilirsiniz.</div>`:""}
+  ${l.length?`<table class="pt"><tr><th>Tarih</th><th>Giren</th><th>Kalan</th><th>Birim (KDV hariç)</th><th>Yaş</th><th></th></tr>${l.slice().reverse().map(p=>`<tr><td>${tarih(p.tarih).slice(0,10)}</td><td>${p.adet}</td><td><b>${p.kalan}</b></td><td>${para(num(p.birim_net))}</td><td>${gunSay(p.tarih)} gün</td><td><button class="x" data-psil="${esc(p.id)}" title="Partiyi sil">✕</button></td></tr>`).join("")}</table>`:`<div style="color:var(--mute);font-size:13px;margin-top:8px">Henüz parti yok.</div>`}</div>`;
+}
 function karGuncelle(){
   const f=$("#f_fiyat"),a=$("#f_alis"),kk=$("#karKutu");if(!f||!a||!kk)return;
-  const F=num(f.value),A=num(a.value),ay=AYAR();
+  const F=num(f.value),A=num(a.value),ay=AYAR(),gun=gunSay($("#f_atarih")&&$("#f_atarih").value)||0;
   if(!(A>0)){kk.innerHTML=`<span style="color:var(--mute)">Alış fiyatını girince satışta cebinize kalan net kâr burada hesaplanır.</span>`;$("#karOner").innerHTML="";return}
-  const h=karHesap(F,A,ay);
+  const h=karHesap(F,A,ay,gun);
   kk.innerHTML=`<table><tr><td>Satış fiyatı (KDV dahil)</td><td>${para(h.F)}</td></tr>
   <tr><td>− Satış KDV'si (%${ay.kdv})</td><td>−${para(h.satKdv)}</td></tr>
   <tr><td>= Net satış (KDV hariç)</td><td>${para(h.N)}</td></tr>
@@ -278,11 +344,13 @@ function karGuncelle(){
   <tr><td>− Paketleme/kargo gideri</td><td>−${para(h.paket)}</td></tr>
   <tr><td>= Vergi öncesi kâr</td><td>${para(h.brut)}</td></tr>
   ${ay.vergi?`<tr><td>− Gelir/kurumlar vergisi tahmini (%${ay.vergi})</td><td>−${para(h.vergi)}</td></tr>`:""}
-  <tr class="tp"><td>Cebinize kalan net kâr (adet başına)</td><td class="${renk(h.net)}">${para(h.net)} · %${r2(h.marj)}</td></tr></table>
+  <tr class="tp"><td>Vergi sonrası net kâr (adet başına)</td><td class="${renk(h.net)}">${para(h.net)} · %${r2(h.marj)}</td></tr>
+  ${ay.tutma>0?(gun?`<tr><td>− Elde kalma bedeli (${gun} gün × aylık %${ay.tutma})</td><td>−${para(h.tutma)}</td></tr><tr class="tp"><td>Gerçek kâr (elde kalma bedeli düşülmüş)</td><td class="${renk(h.gercek)}">${para(h.gercek)}</td></tr>`:`<tr><td colspan="2" style="color:#b45b00">Alış tarihini girerseniz elde kalma bedeli de hesaplanır.</td></tr>`):""}</table>
   <div style="color:var(--mute);font-size:12.5px;margin-top:6px">Ödenecek KDV farkı: ${para(h.odenecekKdv)} (satış KDV'si − alış KDV'si). Bu tutar kâr değildir, devlete ödenir; yukarıdaki kâr hesabına dahil edilmemiştir.</div>`;
-  const s=m=>{const v=yuvarla(oneri(A,ay,m));return v==null?"":`<button class="btn s g" data-oner="${v}">%${m} kâr için ${TL(v)}</button>`};
-  const ba=yuvarla(oneri(A,ay,0));
-  $("#karOner").innerHTML=`<span style="color:var(--mute);font-size:13px">Önerilen satış fiyatı:</span>${ba?`<span class="pill">Zarar etmeme sınırı ${TL(ba)}</span>`:""}${s(15)}${s(25)}${s(35)}`;
+  const ba=yuvarla(oneri(A,ay,0,tutmaBedel(A,ay,gun)));
+  const oran=$("#f_oran").value,takvim=[0,30,60,90].map(ek=>{const T=tutmaBedel(A,ay,gun+ek),mn=yuvarla(oneri(A,ay,0,T)),h=oran!==""&&num(oran,-1)>=0?oneriOran(A,ay,num(oran),T):null;
+    return `<tr><td>${ek?"+"+ek+" gün sonra":"Bugün"} (${gun+ek}. gün)</td><td>${mn?TL(mn):"-"}</td><td>${h?TL(h):"-"}</td></tr>`}).join("");
+  $("#karOner").innerHTML=(ba?`<span class="pill">Bugün zarar etmeme sınırı: ${TL(ba)}</span>`:"")+(ay.tutma>0&&gun!==undefined?`<div class="kar" style="width:100%;margin-top:8px"><b style="font-size:13px">Ürün stokta bekledikçe fiyat nasıl olmalı?</b><table style="margin-top:4px"><tr style="color:var(--mute);font-size:12.5px"><td></td><td>Zarar etmeme fiyatı</td><td>Hedef kâr fiyatı</td></tr>${takvim}</table><div style="color:var(--mute);font-size:12.5px;margin-top:4px">Fiyatlar KDV dahildir. Ürün ne kadar geç satılırsa, bağlı kalan paranın maliyeti yüzünden fiyat o kadar yukarı çıkar.</div></div>`:"");
 }
 function galCiz(){
   const el=$("#gal");if(!el||!edit)return;
@@ -309,7 +377,7 @@ $("#app").addEventListener("click",async e=>{
       if(aktif&&!(fiyat>0))throw new Error("Sitede göstermek için fiyat girin");
       const v=k=>row.querySelector(k).value.trim();
       const alis=num(row.querySelector("#f_alis").value);if(alis<0)throw new Error("Alış fiyatı geçersiz");
-      const veri={aktif,fiyat,alis_fiyat:alis,sira:parseInt(row.querySelector("#f_sira").value,10)||0,aciklama:v("#f_ac"),uretici_bilgi:v("#f_ur"),uzman_ad:v("#f_uzad"),uzman_unvan:v("#f_uzun"),uzman_gorus:v("#f_uz"),kullanim:v("#f_ku"),icerik:v("#f_ic"),
+      const veri={aktif,fiyat,alis_fiyat:alis,alis_tarih:row.querySelector("#f_atarih").disabled?(u.alis_tarih||null):(row.querySelector("#f_atarih").value||null),sira:parseInt(row.querySelector("#f_sira").value,10)||0,aciklama:v("#f_ac"),uretici_bilgi:v("#f_ur"),uzman_ad:v("#f_uzad"),uzman_unvan:v("#f_uzun"),uzman_gorus:v("#f_uz"),kullanim:v("#f_ku"),icerik:v("#f_ic"),
         foto:edit.imgs[0]||"",galeri:edit.imgs.slice(1),guncelleme:new Date().toISOString()};
       if(!ayar.stok_koprusu){const s=parseInt(row.querySelector("#f_stok").value,10);if(!(s>=0))throw new Error("Stok geçersiz");veri.web_stok=s}
       await api("/rest/v1/web_urunler?id=eq."+encodeURIComponent(id),{method:"PATCH",body:veri,basliklar:{Prefer:"return=minimal"}});
@@ -319,7 +387,7 @@ $("#app").addEventListener("click",async e=>{
     }catch(x){b.disabled=false;b.textContent="Kaydet";oturumHata(x)}
   }
 });
-$("#app").addEventListener("input",e=>{if(e.target.id==="f_fiyat"||e.target.id==="f_alis")karGuncelle()});
+$("#app").addEventListener("input",e=>{if(["f_alis","f_oran","f_atarih"].includes(e.target.id))oranUygula();if(["f_fiyat","f_alis","f_oran","f_atarih"].includes(e.target.id))karGuncelle()});
 $("#app").addEventListener("click",e=>{const o=e.target.closest("[data-oner]");if(o){$("#f_fiyat").value=o.dataset.oner;karGuncelle()}});
 $("#app").addEventListener("change",async e=>{
   if(e.target.id!=="f_foto"||!edit)return;
@@ -366,6 +434,78 @@ $("#app").addEventListener("click",async e=>{
   }catch(x){oturumHata(x)}
 },true);
 
+$("#app").addEventListener("click",async e=>{
+  const pe=e.target.closest("[data-pekle]"),ps=e.target.closest("[data-psil]");if(!pe&&!ps)return;e.stopPropagation();
+  const row=e.target.closest(".row");
+  try{
+    if(pe){
+      const adet=parseInt(row.querySelector("#p_adet").value,10),birim=num(row.querySelector("#p_birim").value),tar=row.querySelector("#p_tarih").value;
+      if(!(adet>=1))return toast("Adet girin");if(!(birim>0))return toast("Birim fiyat girin");if(!tar)return toast("Tarih seçin");
+      pe.disabled=true;
+      await rpc("web_parti_ekle",{p_urun:pe.dataset.pekle,p_tarih:tar,p_adet:adet,p_birim:birim,p_fatura:row.querySelector("#p_fatura").value.trim(),p_stoga_ekle:!!row.querySelector("#p_stok").checked});
+      toast("Parti eklendi");await yenidenYukle("urun");
+    }else{
+      if(!confirm("Bu parti silinsin mi? Kalan adet site stoğundan da düşer. Geçmiş siparişlerin kârı bozulmaz."))return;
+      await rpc("web_parti_sil",{p_id:ps.dataset.psil});toast("Parti silindi");await yenidenYukle("urun");
+    }
+  }catch(x){if(pe)pe.disabled=false;oturumHata(x)}
+},true);
+
+/* ================= STOK ANALIZI ================= */
+let stF="stoklu";
+function stokAnaliz(){
+  const ay=AYAR(),k=ay.kdv/100,simdi=Date.now(),paid=siparisler.filter(s=>KARLI.includes(s.durum));
+  const ilk=paid.length?Math.min(...paid.map(s=>+new Date(s.olusturma))):null;
+  const pen=ilk?Math.min(90,Math.max(14,Math.ceil((simdi-ilk)/864e5))):90,bas=simdi-pen*864e5;
+  const sat={};
+  paid.filter(s=>+new Date(s.olusturma)>=bas).forEach(s=>(s.kalemler||[]).forEach(x=>{
+    const u=urunler.find(p=>p.id===x.id),o=sat[x.id]||(sat[x.id]={adet:0,ciro:0,kar:0}),net=num(x.fiyat)*x.adet/(1+k);
+    o.adet+=x.adet;o.ciro+=net;o.kar+=net-kalemMaliyetNet(x,ay,u)}));
+  const topCiro=Object.values(sat).reduce((a,o)=>a+o.ciro,0),sirali=Object.entries(sat).sort((a,b)=>b[1].ciro-a[1].ciro),sinif={};
+  let kum=0;sirali.forEach(([id,o])=>{kum+=o.ciro;sinif[id]=(kum-o.ciro)/topCiro<0.7?"A":(kum-o.ciro)/topCiro<0.9?"B":"C"});
+  const esik1=num(ayar.yas_esik1,60),esik2=num(ayar.yas_esik2,90),i1=num(ayar.indirim1,5),i2=num(ayar.indirim2,12);
+  const satirlar=urunler.map(u=>{
+    const stok=stokAdet(u),A=num(u.alis_fiyat),yas=stokYas(u),o=sat[u.id]||{adet:0,ciro:0,kar:0},gunluk=o.adet/pen;
+    const mal=stokMaliyetNet(u,ay),yeter=gunluk>0?stok/gunluk:null,devir=stok>0&&o.adet>0?(o.adet*365/pen)/stok:null,gmroi=mal>0&&o.adet>0?(o.kar*365/pen)/mal:null;
+    let of=null;
+    if(stok>0&&A>0&&num(u.fiyat)>0){
+      const T=tutmaBedel(A,ay,yas||0),mn=yuvarla(oneri(A,ay,0,T)),f=num(u.fiyat);
+      if(mn&&f<mn)of={yeni:mn,neden:`Bu fiyatla zarar edersiniz (en az ${TL(mn)} olmalı)`,risk:true};
+      else if(yas!=null&&yas>=esik1){const ind=yas>=esik2?i2:i1;let yeni=Math.floor(f*(1-ind/100)/5)*5;if(mn&&yeni<mn)yeni=mn;if(yeni<f)of={yeni,neden:`${yas} gündür stokta: %${ind} indirim önerisi${mn&&yeni===mn?" (zarar etmeme sınırında durdu)":""}`}}
+    }
+    return{u,stok,yas,o,gunluk,yeter,devir,gmroi,mal,sinif:sinif[u.id]||"C",of,mn:A>0?yuvarla(oneri(A,ay,0,tutmaBedel(A,ay,yas||0))):null};
+  });
+  return{satirlar,pen,ay,k,veri:paid.length>0};
+}
+function cizStok(){
+  const {satirlar,pen,ay,k,veri}=stokAnaliz(),st=satirlar.filter(r=>r.stok>0);
+  const bagli=st.reduce((a,r)=>a+r.mal*(1+k),0),gunluk=bagli*ay.tutma/100/30,of=satirlar.filter(r=>r.of).length,yasli=st.filter(r=>r.yas!=null&&r.yas>=90).length;
+  const kt=(b,t)=>`<div class="box"><span>${b}</span><b>${t}</b></div>`;
+  $("#ic").innerHTML=`<div class="ozet">${kt("Stokta bağlı para (KDV dahil)",para(bagli))}${kt("Elde tutma bedeli (günlük)",para(gunluk))}${kt("Fiyat önerisi olan ürün",of)}${kt("90+ gündür bekleyen",yasli)}</div>
+  <div style="color:var(--mute);font-size:12.5px;margin-bottom:10px">Satış hızı ve kârlılık son ${pen} günün ödenmiş siparişlerinden hesaplanır${veri?"":". <b>Henüz satış yok</b>, bu yüzden hız, devir ve GMROI görünmez; stok yaşı ve fiyat önerileri çalışır"}. Stok yaşı, partilerdeki ağırlıklı ortalamadır.</div>
+  <div class="bar"><select id="stf"><option value="stoklu"${stF==="stoklu"?" selected":""}>Stoktaki ürünler</option><option value="oneri"${stF==="oneri"?" selected":""}>Fiyat önerisi olanlar</option><option value="yavas"${stF==="yavas"?" selected":""}>Yavaş satanlar (C)</option><option value="hepsi"${stF==="hepsi"?" selected":""}>Tüm ürünler</option></select>
+  ${of?`<button class="btn" id="stuyg">Tüm önerileri uygula (${of})</button>`:""}<button class="btn g" id="yen">Yenile</button></div><div id="stl"></div>`;
+  $("#stf").onchange=e=>{stF=e.target.value;stListe()};$("#yen").onclick=()=>yenidenYukle("stok");
+  const ub=$("#stuyg");if(ub)ub.onclick=async()=>{
+    const l=satirlar.filter(r=>r.of);if(!confirm(l.length+" ürünün satış fiyatı önerilen değere çekilecek (KDV dahil). Devam?"))return;
+    try{for(const r of l)await api("/rest/v1/web_urunler?id=eq."+encodeURIComponent(r.u.id),{method:"PATCH",body:{fiyat:r.of.yeni,guncelleme:new Date().toISOString()},basliklar:{Prefer:"return=minimal"}});toast(l.length+" fiyat güncellendi");await yenidenYukle("stok")}catch(x){oturumHata(x)}};
+  stListe(satirlar,ay);
+}
+function stListe(sat,ay){
+  sat=sat||stokAnaliz().satirlar;ay=ay||AYAR();
+  const l=sat.filter(r=>stF==="hepsi"||(stF==="stoklu"&&r.stok>0)||(stF==="oneri"&&r.of)||(stF==="yavas"&&r.stok>0&&r.sinif==="C")).sort((a,b)=>(b.of?1:0)-(a.of?1:0)||(b.yas||0)-(a.yas||0));
+  if(!l.length){$("#stl").innerHTML=`<div class="box">Bu filtrede ürün yok.</div>`;return}
+  $("#stl").innerHTML=l.map(r=>{const u=r.u;
+    return `<div class="sk" data-su="${esc(u.id)}"><div class="t1"><div><span class="abc ${r.sinif}" title="ABC sınıfı: A çok satan, C yavaş">${r.sinif}</span> <b>${esc(u.ad_tam)} ${esc(u.ml)}</b></div><span class="pill${u.aktif?" on":""}">${u.aktif?"Sitede":"Gizli"} · ${TL(u.fiyat)}</span></div>
+    <div class="ms"><span>Stok: <b>${r.stok}</b></span><span>Yaş: <b>${r.yas==null?"-":r.yas+" gün"}</b></span><span>Satış hızı: <b>${r.o.adet?r2(r.gunluk*30)+" adet/ay":"satış yok"}</b></span><span>Stok yeter: <b>${r.yeter==null?"-":Math.round(r.yeter)+" gün"}</b></span><span>Devir: <b>${r.devir==null?"-":r2(r.devir)+"×/yıl"}</b></span><span>GMROI: <b>${r.gmroi==null?"-":r2(r.gmroi)}</b></span><span>Zarar etmeme fiyatı: <b>${r.mn?TL(r.mn):"-"}</b></span>${r.stok>0&&!(num(u.alis_fiyat)>0)?`<span style="color:#b45b00">alış fiyatı girilmemiş</span>`:""}</div>
+    ${r.of?`<div class="of${r.of.risk?" rk":""}"><span>${esc(r.of.neden)} → <b>${TL(r.of.yeni)}</b></span><button class="btn s" data-suyg="${esc(u.id)}" data-fy="${r.of.yeni}">Fiyatı uygula</button></div>`:""}</div>`}).join("");
+}
+$("#app").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-suyg]");if(!b)return;
+  try{await api("/rest/v1/web_urunler?id=eq."+encodeURIComponent(b.dataset.suyg),{method:"PATCH",body:{fiyat:num(b.dataset.fy),guncelleme:new Date().toISOString()},basliklar:{Prefer:"return=minimal"}});
+    const u=urunler.find(x=>x.id===b.dataset.suyg);if(u)u.fiyat=num(b.dataset.fy);toast("Fiyat güncellendi");cizStok()}catch(x){oturumHata(x)}
+});
+
 /* ================= SIPARISLER ================= */
 const SONRAKI={odeme_bekliyor:["odendi","Ödeme alındı"],odendi:["hazirlaniyor","Hazırlanıyor"],hazirlaniyor:["kargolandi","Kargoya verildi"],kargolandi:["teslim","Teslim edildi"]};
 function cizSip(){
@@ -378,11 +518,11 @@ function cizSip(){
 const KARLI=["odendi","hazirlaniyor","kargolandi","teslim"];
 function ozetCiz(){
   const ay=new Date(),ba=new Date(ay.getFullYear(),ay.getMonth(),1);
-  const hesap=l=>l.reduce((a,s)=>{const h=sipKar(s);a.ciro+=h.T;a.kdv+=h.odenecekKdv;a.net+=h.net;a.n++;if(h.eksik)a.eksik++;return a},{ciro:0,kdv:0,net:0,n:0,eksik:0});
+  const hesap=l=>l.reduce((a,s)=>{const h=sipKar(s);a.ciro+=h.T;a.kdv+=h.odenecekKdv;a.net+=h.net;a.gercek+=h.gercek;a.n++;if(h.eksik)a.eksik++;return a},{ciro:0,kdv:0,net:0,gercek:0,n:0,eksik:0});
   const ayl=hesap(siparisler.filter(s=>KARLI.includes(s.durum)&&new Date(s.olusturma)>=ba)),tum=hesap(siparisler.filter(s=>KARLI.includes(s.durum)));
   const kt=(b,t,x)=>`<div class="box"><span>${b}</span><b class="${x!=null?renk(x):""}">${t}</b></div>`;
-  $("#oz").innerHTML=`<div class="ozet">${kt("Bu ay ciro ("+ayl.n+" sipariş)",para(ayl.ciro))}${kt("Bu ay net kâr",para(ayl.net),ayl.net)}${kt("Bu ay ödenecek KDV farkı",para(ayl.kdv))}${kt("Toplam net kâr ("+tum.n+" sipariş)",para(tum.net),tum.net)}</div>
-  <div style="color:var(--mute);font-size:12.5px;margin-bottom:12px">İptal ve iade edilenler ile ödemesi alınmamış siparişler sayılmaz. Kâr, ödeme komisyonu, paketleme/kargo gideri ve (girdiyseniz) vergi tahmini düşüldükten sonraki tutardır; ayarları Ayarlar sekmesinden değiştirin.${tum.eksik?` <b style="color:#b45b00">${tum.eksik} siparişte alış fiyatı eksik olduğundan kâr olduğundan yüksek görünebilir.</b>`:""}</div>`;
+  $("#oz").innerHTML=`<div class="ozet">${kt("Bu ay ciro ("+ayl.n+" sipariş)",para(ayl.ciro))}${kt("Bu ay gerçek kâr",para(ayl.gercek),ayl.gercek)}${kt("Bu ay ödenecek KDV farkı",para(ayl.kdv))}${kt("Toplam gerçek kâr ("+tum.n+" sipariş)",para(tum.gercek),tum.gercek)}</div>
+  <div style="color:var(--mute);font-size:12.5px;margin-bottom:12px">İptal ve iade edilenler ile ödemesi alınmamış siparişler sayılmaz. Gerçek kâr; KDV, alış maliyeti, ödeme komisyonu, paketleme/kargo gideri, (girdiyseniz) vergi tahmini ve elde kalma bedeli düşüldükten sonra size kalan tutardır; ayarları Ayarlar sekmesinden değiştirin.${tum.eksik?` <b style="color:#b45b00">${tum.eksik} siparişte alış fiyatı eksik olduğundan kâr olduğundan yüksek görünebilir.</b>`:""}</div>`;
 }
 function sipListe(){ozetCiz();
   const acikD=["odeme_bekliyor","odendi","hazirlaniyor","kargolandi"],q=norm(sipAra).replace(/\s/g,"");
@@ -397,7 +537,7 @@ function sipListe(){ozetCiz();
     ${tl.length?`<div class="msg" style="background:#fff0dc;border:1px solid #f0c48a">⚠ Açık müşteri talebi: ${tl.map(t=>esc(TALEP[t.tip])).join(", ")} <a href="#" data-gotal="${esc(s.id)}">Talepler'e git</a></div>`:""}
     <ul>${k.map(x=>`<li>${esc(x.ad)} × ${esc(x.adet)} — ${TL(x.fiyat*x.adet)}</li>`).join("")}</ul>
     <div><b>Toplam: ${TL(s.toplam)}</b></div>
-    ${KARLI.includes(s.durum)?(()=>{const h=sipKar(s);return `<details style="margin-top:6px"><summary style="cursor:pointer;font-size:14px"><b class="${renk(h.net)}" style="color:var(${h.net>=0?"--ok":"--err"})">Net kâr: ${para(h.net)}</b>${h.eksik?` <span class="pill wr">alış fiyatı eksik</span>`:""}</summary><div class="kar" style="margin-top:6px"><table><tr><td>Tahsil edilen (KDV dahil)</td><td>${para(h.T)}</td></tr><tr><td>− KDV</td><td>−${para(h.satKdv)}</td></tr><tr><td>− Alış maliyeti (KDV hariç)</td><td>−${para(h.An)}</td></tr><tr><td>− Ödeme komisyonu</td><td>−${para(h.kom)}</td></tr><tr><td>− Paketleme/kargo gideri</td><td>−${para(h.paket)}</td></tr>${h.vergi?`<tr><td>− Vergi tahmini</td><td>−${para(h.vergi)}</td></tr>`:""}<tr class="tp"><td>Net kâr</td><td>${para(h.net)}</td></tr></table><div style="color:var(--mute);font-size:12.5px;margin-top:4px">Ödenecek KDV farkı: ${para(h.odenecekKdv)}</div></div></details>`})():""}
+    ${KARLI.includes(s.durum)?(()=>{const h=sipKar(s);return `<details style="margin-top:6px"><summary style="cursor:pointer;font-size:14px"><b style="color:var(${h.gercek>=0?"--ok":"--err"})">Gerçek kâr: ${para(h.gercek)}</b>${h.eksik?` <span class="pill wr">alış fiyatı eksik</span>`:""}</summary><div class="kar" style="margin-top:6px"><table><tr><td>Tahsil edilen (KDV dahil)</td><td>${para(h.T)}</td></tr><tr><td>− KDV</td><td>−${para(h.satKdv)}</td></tr><tr><td>− Alış maliyeti (KDV hariç)</td><td>−${para(h.An)}</td></tr><tr><td>− Ödeme komisyonu</td><td>−${para(h.kom)}</td></tr><tr><td>− Paketleme/kargo gideri</td><td>−${para(h.paket)}</td></tr>${h.vergi?`<tr><td>− Vergi tahmini</td><td>−${para(h.vergi)}</td></tr>`:""}<tr><td>= Vergi sonrası net kâr</td><td>${para(h.net)}</td></tr>${h.tutma?`<tr><td>− Elde kalma bedeli</td><td>−${para(h.tutma)}</td></tr>`:""}<tr class="tp"><td>Gerçek kâr</td><td>${para(h.gercek)}</td></tr></table><div style="color:var(--mute);font-size:12.5px;margin-top:4px">Ödenecek KDV farkı: ${para(h.odenecekKdv)}</div></div></details>`})():""}
     <div style="margin-top:8px;font-size:14px">${esc(m.ad)} · <a href="tel:${esc(m.tel)}">${esc(m.tel)}</a> · <a href="https://wa.me/${wa}" target="_blank" rel="noopener">WhatsApp</a>${m.eposta?" · "+esc(m.eposta):""}<br>${esc(m.adres)}, ${esc(m.ilce||"")} ${esc(m.il)}</div>
     ${s.not_?`<div class="msg o">Müşteri notu: ${esc(s.not_)}</div>`:""}
     ${kapali?"":`<div class="g3" style="margin-top:12px"><label>Kargo firması<select data-kf><option value="">Seçiniz</option>${KARGO.map(x=>`<option${x===s.kargo_firma?" selected":""}>${x}</option>`).join("")}</select></label>
@@ -484,8 +624,12 @@ function cizAyar(){
   <div class="g3"><label>Satış KDV oranı (%)<input id="a_kdv" type="number" step="0.01" min="0" value="${esc(num(ayar.kdv_orani,20))}"></label>
   <label>Ödeme kuruluşu komisyonu (%)<input id="a_kom" type="number" step="0.01" min="0" value="${esc(num(ayar.komisyon_orani))}"></label>
   <label>Sipariş başına paketleme/kargo gideri (₺)<input id="a_pak" type="number" step="0.01" min="0" value="${esc(num(ayar.paket_gider))}"></label></div>
-  <div class="g2" style="margin-top:10px"><label>Kâr üzerinden gelir/kurumlar vergisi tahmini (%)<input id="a_ver" type="number" step="0.01" min="0" value="${esc(num(ayar.vergi_orani))}"><span style="font-size:12px">Bilmiyorsanız 0 bırakın; muhasebecinizin söylediği oranı girin.</span></label>
+  <div class="g3" style="margin-top:10px"><label>Kâr üzerinden gelir/kurumlar vergisi tahmini (%)<input id="a_ver" type="number" step="0.01" min="0" value="${esc(num(ayar.vergi_orani))}"><span style="font-size:12px">Bilmiyorsanız 0 bırakın; muhasebecinizin söylediği oranı girin.</span></label>
+  <label>Aylık elde tutma maliyeti (%)<input id="a_tut" type="number" step="0.01" min="0" value="${esc(num(ayar.tutma_orani,3))}"><span style="font-size:12px">Paranız mal olarak rafta beklerken her ay ne kadar değer kaybeder? Bankadaki aylık faiz getirisi veya aylık enflasyon, hangisi yüksekse onu yazın. Bilmiyorsanız 3 bırakın, 0 yazarsanız hesaplanmaz.</span></label>
   <label class="sw" style="align-self:end"><input type="checkbox" id="a_dahil"${ayar.alis_kdv_dahil!==false?" checked":""}>Girdiğim alış fiyatları KDV dahil</label></div>
+  <div class="g2" style="margin-top:10px"><label>Stok yaşı 1. eşik (gün) ve indirim (%)<div style="display:flex;gap:8px"><input id="a_y1" type="number" min="1" value="${esc(num(ayar.yas_esik1,60))}"><input id="a_i1" type="number" step="0.5" min="0" value="${esc(num(ayar.indirim1,5))}"></div></label>
+  <label>Stok yaşı 2. eşik (gün) ve indirim (%)<div style="display:flex;gap:8px"><input id="a_y2" type="number" min="1" value="${esc(num(ayar.yas_esik2,90))}"><input id="a_i2" type="number" step="0.5" min="0" value="${esc(num(ayar.indirim2,12))}"></div></label></div>
+  <div style="color:var(--mute);font-size:12.5px;margin-top:4px">Stok sekmesi, ürün bu kadar gündür bekliyorsa fiyat indirimi önerir. İndirim hiçbir zaman "zarar etmeme fiyatı"nın altına inmez.</div>
   <div class="flow"><button class="btn" id="a_kaydet">Ayarları kaydet</button></div></div>
   <div class="box"><b>Üretici paketi — Morgan's Türkiye</b><p style="color:var(--mute);margin:6px 0 10px">Morgan's Türkiye sitesinden (morganspomade.com.tr) alınan orijinal ürün adı, görseller, özellik yazısı, kullanım ve içerik bilgisi. Yalnız <b>boş</b> alanlar doldurulur; elle yazdığınız hiçbir şey silinmez. Sonradan Ürünler sekmesinden düzenleyebilirsiniz.</p>
   <label class="sw" style="margin-bottom:8px"><input type="checkbox" id="pk_ad" checked>Ürün adını üreticideki orijinal ad yap</label>
@@ -493,7 +637,7 @@ function cizAyar(){
   <div class="flow"><button class="btn" id="pk_go">Seçilenleri ürünlere ekle</button></div></div>
   <div class="box"><b>Hesap</b><p style="color:var(--mute);margin:6px 0">${esc(oturum&&oturum.eposta||"")}</p></div>`;
   $("#a_kaydet").onclick=async()=>{
-    const v={kdv_orani:num($("#a_kdv").value,20),komisyon_orani:num($("#a_kom").value),paket_gider:num($("#a_pak").value),vergi_orani:num($("#a_ver").value),alis_kdv_dahil:$("#a_dahil").checked};
+    const v={kdv_orani:num($("#a_kdv").value,20),komisyon_orani:num($("#a_kom").value),paket_gider:num($("#a_pak").value),vergi_orani:num($("#a_ver").value),tutma_orani:num($("#a_tut").value),yas_esik1:Math.round(num($("#a_y1").value,60)),yas_esik2:Math.round(num($("#a_y2").value,90)),indirim1:num($("#a_i1").value,5),indirim2:num($("#a_i2").value,12),alis_kdv_dahil:$("#a_dahil").checked};
     if(Object.values(v).some(x=>typeof x==="number"&&x<0))return toast("Değerler eksi olamaz");
     try{await api("/rest/v1/web_ayar?id=eq.ana",{method:"PATCH",body:v,basliklar:{Prefer:"return=minimal"}});Object.assign(ayar,v);toast("Ayarlar kaydedildi")}catch(x){oturumHata(x)}
   };
