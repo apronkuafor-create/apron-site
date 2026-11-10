@@ -205,6 +205,69 @@ footer{background:var(--dk);color:#c7cacd;font-size:14px}
  .tiles{grid-template-columns:1fr 1fr;margin-top:-60px;gap:10px}.tile{padding:12px}.tile h3{font-size:16px}.slide h2{font-size:24px}
  .row .card{flex-basis:160px}.rb{display:none}
 }
+
+/* urun sayfasi + siparis sayfasi */
+.hbtn{flex:none;display:flex;align-items:center;gap:6px;color:#fff;font-weight:600;font-size:14px;min-height:44px;padding:0 6px;cursor:pointer}
+.hbtn svg{width:28px;height:28px}
+.hbtn:hover{color:#ffd9b0}
+.pdp{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1.1fr) 300px;gap:26px;padding:18px 0 10px;align-items:start}
+.gal{display:grid;grid-template-columns:64px 1fr;gap:12px}
+.gthumbs{display:flex;flex-direction:column;gap:8px}
+.gth{width:64px;height:64px;border:2px solid #d5d9d9;border-radius:8px;background:#fff;padding:3px;cursor:pointer}
+.gth.on{border-color:var(--cta)}.gth img{width:100%;height:100%;object-fit:contain}
+.gmain{background:#fff;border:1px solid var(--line);border-radius:var(--r);aspect-ratio:1/1;display:grid;place-items:center;padding:14px;position:relative;font-family:"Cormorant Garamond",serif;font-size:120px;color:#b3b8bf}
+.gmain img{width:100%;height:100%;object-fit:contain}
+.pinfo h1{font-size:clamp(26px,3vw,36px);margin:4px 0 6px}
+.pinfo .bm{color:#0a58ca;cursor:pointer;font-size:14px}.pinfo .bm:hover{text-decoration:underline}
+.pinfo .pp{font-size:32px;font-weight:700;margin:10px 0}
+.pinfo hr{border:0;border-top:1px solid var(--line);margin:14px 0}
+.pinfo .ds{color:#333;line-height:1.65}
+.buy{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:18px;position:sticky;top:140px;display:grid;gap:10px}
+.buy .pp{font-size:28px;font-weight:700}
+.buy .sat{font-size:13px;color:var(--mute);display:grid;gap:4px}
+.pdet{padding:6px 0 34px;display:grid;gap:16px}
+.sec{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:22px 24px}
+.sec h2{font-family:Inter,system-ui,sans-serif;font-size:21px;font-weight:700;margin-bottom:12px}
+.sec p,.sec li{line-height:1.7;color:#2a2c2e}
+.sec ul{margin:0 0 0 20px;display:grid;gap:4px}
+.uz{border-left:4px solid var(--cta);background:#fff8f1;border-radius:6px;padding:16px 18px}
+.uz q{display:block;font-size:17px;line-height:1.7;color:#222;quotes:"“" "”"}
+.uz .kim{margin-top:10px;font-size:14px;color:var(--mute)}.uz .kim b{color:#111}
+.stp{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin:18px 0 8px}
+.st{position:relative;text-align:center;font-size:12.5px;color:var(--mute)}
+.st::before{content:"";position:absolute;top:13px;left:-50%;width:100%;height:3px;background:#d5d9d9;z-index:0}
+.st:first-child::before{display:none}
+.st i{position:relative;z-index:1;display:grid;place-items:center;width:28px;height:28px;margin:0 auto 6px;border-radius:50%;background:#d5d9d9;color:#fff;font-style:normal;font-weight:700}
+.st.d i,.st.d::before{background:var(--ok)}.st.c i{background:var(--cta)}.st.d,.st.c{color:#111;font-weight:600}
+.so{max-width:980px;margin:0 auto;padding:22px 0 40px;display:grid;gap:16px}
+.so h1{font-size:34px}
+.card2{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:20px}
+.card2 h2{font-family:Inter,system-ui,sans-serif;font-size:19px;margin-bottom:12px}
+.fr{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}
+.fr label,.tf label{display:grid;gap:4px;font-size:13px;color:var(--mute)}
+.fr input,.tf input,.tf textarea,.tf select{min-height:44px;border:1px solid #c8cccc;border-radius:8px;padding:8px 12px;font-size:16px;background:#fff}
+.fr input:focus,.tf input:focus,.tf textarea:focus{outline:2px solid var(--cta);outline-offset:1px}
+.bdg{display:inline-block;padding:3px 12px;border-radius:20px;font-size:13px;font-weight:600;background:#e8eaeb;color:#444}
+.bdg.ok{background:#dff2e6;color:var(--ok)}.bdg.wr{background:#fff0dc;color:#b45b00}.bdg.er{background:#fde8e5;color:var(--err)}
+.kar{background:#f3f6ff;border:1px solid #d6e0ff;border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.it{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #eee}
+.it:last-child{border:0}
+.acts2{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.ac{border:1px solid #c8cccc;background:#fff;border-radius:10px;padding:12px 14px;text-align:left;display:grid;gap:2px}
+.ac b{font-size:15px}.ac span{font-size:12.5px;color:var(--mute)}
+.ac:hover:not([disabled]){border-color:var(--dk);box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.ac[disabled]{background:#f6f7f7;cursor:not-allowed;opacity:.75}
+.tf{display:grid;gap:12px;margin-top:14px;padding-top:14px;border-top:1px dashed #cfd3d3}
+.kl{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #eee}
+.kl input[type=checkbox]{width:20px;height:20px;accent-color:var(--dk)}.kl span{flex:1}.kl select{min-height:36px;border:1px solid #c8cccc;border-radius:6px}
+.tl3{display:grid;gap:10px}
+.tl3 div{border-left:3px solid #d5d9d9;padding:2px 0 2px 12px;font-size:14px}
+.tl3 small{color:var(--mute);display:block}
+.tq{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.tq .h{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.yn{background:#f1f8f3;border-left:3px solid var(--ok);padding:8px 12px;margin-top:8px;border-radius:6px;font-size:14px}
+@media(max-width:1100px){.pdp{grid-template-columns:1fr 1fr}.buy{grid-column:1/-1;position:static}}
+@media(max-width:700px){.pdp{grid-template-columns:1fr}.gal{grid-template-columns:1fr}.gthumbs{flex-direction:row;order:2;overflow-x:auto}.fr{grid-template-columns:1fr}.acts2{grid-template-columns:1fr 1fr}.so h1{font-size:26px}.sec{padding:16px}.hbtn span{display:none}}
 </style>
 </head>
 <body>
@@ -214,6 +277,7 @@ footer{background:var(--dk);color:#c7cacd;font-size:14px}
 <div class="wrap hd">
   <a href="#top" class="logo" id="logoA" aria-label="APRON Business"><svg class="lg" viewBox="0 0 700.64 314.72" role="img" aria-label="APRON Business"><use href="#apronLogo" width="700.64" height="314.72"/></svg></a>
   <form class="srch" id="srch" role="search"><select id="qm" aria-label="Marka"><option value="Tümü">Tümü</option></select><input id="q" type="search" placeholder="Ürün veya marka ara" aria-label="Ürün ara" autocomplete="off"><button type="submit" aria-label="Ara"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg></button></form>
+  <a class="hbtn" href="#siparis" id="sipBtn" aria-label="Siparişlerim"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/></svg><span>Siparişlerim</span></a>
   <button class="cartbtn" id="cartOpen" aria-label="Sepeti aç"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 3.5h3l2.4 11.2a1.5 1.5 0 0 0 1.5 1.2h8.2a1.5 1.5 0 0 0 1.5-1.1l1.6-6.6H6.4"/><circle cx="10" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/></svg><b id="cartN">0</b><span>Sepet</span></button>
 </div>
 <div class="sub"><div class="wrap subin" id="subin"><button id="hamb" type="button" aria-label="Menü">☰ Tümü</button><a data-m="Tümü">Tüm ürünler</a><span id="subm" style="display:contents"></span><span class="sp"></span><a href="#hakkimizda">Hakkımızda</a><a href="#iletisim">İletişim</a></div></div>
@@ -248,6 +312,9 @@ footer{background:var(--dk);color:#c7cacd;font-size:14px}
 </div>
 </div>
 
+<div id="vUrun" hidden></div>
+<div id="vSiparis" hidden></div>
+
 <section class="about" id="hakkimizda"><div class="wrap two">
   <div><h2>Salonun işçiliği, evde de</h2></div>
   <div><p>APRON, saç ve sakal bakımına odaklanan bir erkek kuaförüdür. Mağazada yalnızca salonda bizzat kullandığımız ve güvendiğimiz ürünleri satıyoruz. Hangi ürünün size uygun olduğunu bilmiyorsanız bize yazın.</p></div>
@@ -272,7 +339,6 @@ footer{background:var(--dk);color:#c7cacd;font-size:14px}
   <div class="df" id="dFoot"></div>
 </aside>
 
-<div class="modal" id="modal"><div class="mbox" id="mbox"></div></div>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
@@ -283,11 +349,13 @@ const SITE={
   tel:"", eposta:"", adres:"", whatsapp:"",   // boş bırakılanlar sitede gizlenir
   kargoUcreti:0                                // karar bekliyor
 };
+const _svg=(c,t)=>"data:image/svg+xml;utf8,"+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="${c}"/><text x="200" y="225" font-size="90" text-anchor="middle" fill="#fff" font-family="serif">${t}</text></svg>`);
 const DEMO=[
- {id:"d1",ad_tam:"Anti-Dandruff Şampuan",marka:"Wella",ml:"250 ml",fiyat:2472,stok:12,foto:"",aciklama:"Kepek karşıtı günlük şampuan."},
- {id:"d2",ad_tam:"Energy Refreshing Şampuan",marka:"Wella",ml:"250 ml",fiyat:2472,stok:3,foto:"",aciklama:"Ferahlatıcı günlük bakım."},
- {id:"d3",ad_tam:"Sakal Yağı",marka:"Morgans",ml:"50 ml",fiyat:1450,stok:8,foto:"",aciklama:"Sakal için besleyici yağ."},
- {id:"d4",ad_tam:"Pomad",marka:"Morgans",ml:"100 ml",fiyat:1200,stok:20,foto:"",aciklama:"Esnek tutuş, parlak görünüm."}
+ {id:"d1",ad_tam:"Anti-Dandruff Şampuan",marka:"Wella",ml:"250 ml",fiyat:2472,stok:12,foto:_svg("#4b6a88","1"),galeri:[_svg("#6a4b88","2"),_svg("#4b8872","3")],aciklama:"Kepek karşıtı günlük şampuan.",
+  uretici_bilgi:"Wella Professionals\nKepeği ve kaşıntıyı hedefleyen formül.\n- pH dengeli\n- Günlük kullanıma uygun",uzman_ad:"Ahmet Serdar",uzman_unvan:"Usta Berber",uzman_gorus:"Salonda en çok tercih ettiğimiz şampuanlardan. Kepeği kontrol ediyor ama saçı kurutmuyor.",kullanim:"Islak saça uygulayın, köpürtün ve durulayın. Gerekirse tekrarlayın.",icerik:"Aqua, Sodium Laureth Sulfate, Piroctone Olamine"},
+ {id:"d2",ad_tam:"Energy Refreshing Şampuan",marka:"Wella",ml:"250 ml",fiyat:2472,stok:3,foto:"",galeri:[],aciklama:"Ferahlatıcı günlük bakım.",uretici_bilgi:"",uzman_ad:"",uzman_unvan:"",uzman_gorus:"",kullanim:"",icerik:""},
+ {id:"d3",ad_tam:"Sakal Yağı",marka:"Morgans",ml:"50 ml",fiyat:1450,stok:8,foto:"",galeri:[],aciklama:"Sakal için besleyici yağ.",uretici_bilgi:"",uzman_ad:"",uzman_unvan:"",uzman_gorus:"",kullanim:"",icerik:""},
+ {id:"d4",ad_tam:"Pomad",marka:"Morgans",ml:"100 ml",fiyat:1200,stok:20,foto:"",galeri:[],aciklama:"Esnek tutuş, parlak görünüm.",uretici_bilgi:"",uzman_ad:"",uzman_unvan:"",uzman_gorus:"",kullanim:"",icerik:""}
 ];
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -378,11 +446,19 @@ $("#rows").onclick=e=>{
   const r=b.parentElement.querySelector(".row");r.scrollBy({left:(b.classList.contains("l")?-1:1)*r.clientWidth*.85,behavior:"smooth"});
 };
 /* --- gorunum / yonlendirme --- */
+const BASLIK="APRON | Erkek Kuaförü ve Bakım Ürünleri";
 function route(){
-  const h=location.hash;
-  if(h==="#liste")gorunum="liste";else if(h===""||h==="#"||h==="#top")gorunum="home";else return;
-  $("#vHome").hidden=gorunum!=="home";$("#vListe").hidden=gorunum!=="liste";
-  if(gorunum==="liste")cizGrid();
+  const h=location.hash;let g,arg="";
+  if(h==="#liste")g="liste";else if(h===""||h==="#"||h==="#top")g="home";
+  else if(h.startsWith("#urun/")){g="urun";arg=decodeURIComponent(h.slice(6))}
+  else if(h==="#siparis"||h.startsWith("#siparis/"))g="siparis";
+  else return;
+  gorunum=g;
+  $("#vHome").hidden=g!=="home";$("#vListe").hidden=g!=="liste";$("#vUrun").hidden=g!=="urun";$("#vSiparis").hidden=g!=="siparis";
+  document.title=BASLIK;
+  if(g==="liste")cizGrid();
+  if(g==="urun")cizUrun(arg);
+  if(g==="siparis")cizSiparisSayfasi();
   window.scrollTo(0,0);
 }
 addEventListener("hashchange",route);
@@ -418,28 +494,152 @@ const kartTik=e=>{
 };
 $("#grid").onclick=kartTik;$("#rows").addEventListener("click",kartTik);$("#tiles").addEventListener("click",e=>{const d=e.target.closest("[data-d]");if(d)detay(d.dataset.d)});
 
-/* ===== Urun detay ===== */
-function detay(id){
-  const u=urunler.find(x=>x.id===id);if(!u)return;
-  const mx=Math.min(u.stok,10);
-  $("#mbox").innerHTML=`<div class="ph">${u.foto?`<img src="${esc(u.foto)}" alt="${esc(u.ad_tam)}" style="height:100%">`:esc((u.marka||"A").slice(0,1))}</div>
-  <div class="md"><button class="x" id="mClose" style="align-self:flex-end" aria-label="Kapat">×</button>
-  <span style="color:var(--mute);letter-spacing:.1em;text-transform:uppercase;font-size:12px">${esc(u.marka)}</span>
-  <h3 style="font-size:30px">${esc(u.ad_tam)}</h3><span style="color:var(--mute)">${esc(u.ml)}</span>
-  <p style="color:var(--mute)">${esc(u.aciklama||"")}</p>
-  <b style="font-size:26px">${TL(u.fiyat)}</b>
-  ${!stokta(u)?`<span class="stk out">Tükendi</span>`:u.stok<=3?`<span class="stk low">Son ${u.stok} ürün</span>`:`<span class="stk">Stokta</span>`}
-  ${stokta(u)?`<div class="qty">Adet: <select id="mq">${Array.from({length:mx},(_,i)=>`<option>${i+1}</option>`).join("")}</select></div>
-  <div class="mbtns"><button class="btn" data-a="${esc(u.id)}">Sepete ekle</button><button class="btn now" data-now="${esc(u.id)}">Hemen al</button></div>`:`<button class="btn ghost" disabled>Tükendi</button>`}
-  <ul class="ul" style="margin-top:8px;font-size:13px;color:var(--mute)"><li>Orijinal ürün, salon stoğundan</li><li>14 gün yasal cayma hakkı</li></ul></div>`;
-  $("#modal").classList.add("on");
-}
-$("#modal").onclick=e=>{
-  if(e.target.id==="modal"||e.target.id==="mClose")return $("#modal").classList.remove("on");
-  const n=Number(($("#mq")||{}).value)||1;
-  const a=e.target.closest("[data-a]");if(a){ekle(a.dataset.a,n);$("#modal").classList.remove("on")}
-  const w=e.target.closest("[data-now]");if(w&&ekle(w.dataset.now,n)){$("#modal").classList.remove("on");cizSepet();cizOdeme();dac(true)}
+/* ===== Urun sayfasi ===== */
+const detay=id=>{location.hash="#urun/"+encodeURIComponent(id)};
+const par=t=>{
+  const sat=String(t||"").split("\n").map(x=>x.trim()).filter(Boolean);
+  if(!sat.length)return"";
+  const out=[];let li=[];
+  const flush=()=>{if(li.length){out.push("<ul>"+li.map(x=>"<li>"+esc(x)+"</li>").join("")+"</ul>");li=[]}};
+  sat.forEach(x=>{if(/^[-•*]\s+/.test(x))li.push(x.replace(/^[-•*]\s+/,""));else{flush();out.push("<p>"+esc(x)+"</p>")}});
+  flush();return out.join("");
 };
+const stokEt=u=>!stokta(u)?`<span class="stk out">Tükendi</span>`:u.stok<=3?`<span class="stk low">Son ${u.stok} ürün</span>`:`<span class="stk">Stokta</span>`;
+function cizUrun(id){
+  const u=urunler.find(x=>x.id===id);
+  if(!u){history.replaceState(null,"",location.pathname+location.search);return route()}
+  document.title=u.ad_tam+" | APRON";
+  const imgs=[...new Set([u.foto,...(Array.isArray(u.galeri)?u.galeri:[])].filter(Boolean))];
+  const mx=Math.min(u.stok,10);
+  const buy=stokta(u)?`<div class="qty">Adet: <select id="pq">${Array.from({length:mx},(_,i)=>`<option>${i+1}</option>`).join("")}</select></div>
+    <button class="btn" data-a="${esc(u.id)}">Sepete ekle</button><button class="btn now" data-now="${esc(u.id)}">Hemen al</button>`:`<button class="btn ghost" disabled>Tükendi</button>`;
+  const B=[];
+  if(u.aciklama)B.push(`<section class="sec"><h2>Ürün açıklaması</h2>${par(u.aciklama)}</section>`);
+  if(u.uzman_gorus)B.push(`<section class="sec"><h2>Salon uzmanımızın görüşü</h2><div class="uz"><q>${esc(u.uzman_gorus)}</q><div class="kim"><b>${esc(u.uzman_ad||"APRON salon ekibi")}</b>${u.uzman_unvan?" · "+esc(u.uzman_unvan):""} · ürünü salonda kullanıyor</div></div></section>`);
+  if(u.uretici_bilgi)B.push(`<section class="sec"><h2>Üretici firma bilgisi</h2>${par(u.uretici_bilgi)}</section>`);
+  if(u.kullanim)B.push(`<section class="sec"><h2>Kullanım önerisi</h2>${par(u.kullanim)}</section>`);
+  if(u.icerik)B.push(`<section class="sec"><h2>İçindekiler</h2>${par(u.icerik)}</section>`);
+  B.push(`<section class="sec"><h2>Satın aldıktan sonra</h2><ul><li>Sipariş durumunu ve kargo bilgisini <a href="#siparis" style="color:#0a58ca;text-decoration:underline">Siparişlerim</a> sayfasından sipariş numaranız ve telefonunuzla görebilirsiniz.</li><li>Kargoya verilmeden önce siparişinizi iptal edebilirsiniz.</li><li>Teslimden itibaren 14 gün içinde iade / cayma, değişim talebi oluşturabilirsiniz.</li><li>Hasarlı, hatalı veya eksik ürünü aynı sayfadan bildirebilirsiniz. Fatura talebi ve sorularınız için de aynı yeri kullanabilirsiniz.</li></ul></section>`);
+  $("#vUrun").innerHTML=`<div class="wrap crumb"><a id="uGeri">‹ Ürünlere dön</a> &nbsp;›&nbsp; <a data-m="${esc(u.marka)}">${esc(u.marka)}</a></div>
+  <div class="wrap pdp">
+    <div class="gal"><div class="gthumbs">${imgs.length>1?imgs.map((x,i)=>`<button class="gth${i?"":" on"}" data-g="${i}" aria-label="Görsel ${i+1}"><img src="${esc(x)}" alt=""></button>`).join(""):""}</div>
+      <div class="gmain" id="gmain">${imgs.length?`<img src="${esc(imgs[0])}" alt="${esc(u.ad_tam)}">`:esc((u.marka||"A").slice(0,1))}</div></div>
+    <div class="pinfo"><a class="bm" data-m="${esc(u.marka)}">${esc(u.marka)} markasının tüm ürünleri</a><h1>${esc(u.ad_tam)}</h1><span style="color:var(--mute)">${esc(u.ml)}</span>
+      <div class="pp">${TL(u.fiyat)}</div>${stokEt(u)}<hr><div class="ds">${par(u.aciklama)}</div></div>
+    <aside class="buy"><div class="pp">${TL(u.fiyat)}</div>${stokEt(u)}${buy}
+      <div class="sat"><span>Satıcı: APRON Business</span><span>Orijinal ürün, salon stoğundan</span><span>14 gün yasal cayma hakkı</span></div></aside>
+  </div>
+  <div class="wrap pdet">${B.join("")}</div>`;
+  $("#vUrun")._imgs=imgs;
+}
+$("#vUrun").addEventListener("click",e=>{
+  if(e.target.closest("#uGeri")){history.length>1?history.back():(location.hash="#liste");return}
+  const g=e.target.closest("[data-g]");
+  if(g){const im=$("#vUrun")._imgs[+g.dataset.g];$("#gmain").innerHTML=`<img src="${esc(im)}" alt="">`;document.querySelectorAll(".gth").forEach(b=>b.classList.toggle("on",b===g));return}
+  const n=Number(($("#pq")||{}).value)||1;
+  const a=e.target.closest("[data-a]");if(a)return ekle(a.dataset.a,n);
+  const w=e.target.closest("[data-now]");if(w&&ekle(w.dataset.now,n)){cizSepet();cizOdeme();dac(true)}
+});
+
+/* ===== Siparislerim (takip + musteri islemleri) ===== */
+const DURUM_AD={odeme_bekliyor:"Ödeme bekleniyor",odendi:"Ödendi",hazirlaniyor:"Hazırlanıyor",kargolandi:"Kargoya verildi",teslim:"Teslim edildi",iptal:"İptal edildi",iade:"İade edildi"};
+const TALEP_AD={iptal:"Sipariş iptali",iade:"İade / cayma",degisim:"Ürün değişimi",arizali:"Hasarlı / hatalı ürün",fatura:"Fatura talebi",soru:"Soru / destek"};
+const TALEP_DURUM={beklemede:["Beklemede","wr"],inceleniyor:["İnceleniyor","wr"],onaylandi:["Onaylandı","ok"],reddedildi:["Reddedildi","er"],tamamlandi:["Tamamlandı","ok"]};
+const HATA_AD={BULUNAMADI:"Sipariş bulunamadı. Sipariş numarasını ve siparişte verdiğiniz telefonu kontrol edin.",COK_DENEME:"Çok fazla hatalı deneme yapıldı. Lütfen 15 dakika sonra tekrar deneyin.",ISLEM_UYGUN_DEGIL:"Bu işlem siparişin şu anki durumunda yapılamıyor.",MESAJ_KISA:"Lütfen sorununuzu biraz daha ayrıntılı yazın (en az 10 karakter).",KALEM_SEC:"Lütfen en az bir ürün seçin.",KALEM_GECERSIZ:"Seçilen ürün/adet siparişle uyuşmuyor.",METIN_UZUN:"Mesaj çok uzun (en fazla 1000 karakter)."};
+const tarihTR=d=>d?new Date(d).toLocaleString("tr-TR",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}):"";
+let sip=null,sipTel="",sipEylem=null;
+const _demoSip=()=>{const z=Date.now()-3*864e5;return{no:"W-DEMO",durum:"teslim",olusturma:new Date(z-2*864e5).toISOString(),ad:"Demo Müşteri",il:"İstanbul",ilce:"Kadıköy",kalemler:[{id:"d1",ad:"Anti-Dandruff Şampuan 250 ml",adet:2,fiyat:2472}],ara_toplam:4944,kargo:0,toplam:4944,kargo_firma:"Yurtiçi Kargo",kargo_takip:"YK0000000000",teslim_tarih:new Date(z).toISOString(),
+  gecmis:[{durum:"odeme_bekliyor",zaman:new Date(z-2*864e5).toISOString(),not:"Sipariş alındı"},{durum:"odendi",zaman:new Date(z-2*864e5+36e5).toISOString(),not:""},{durum:"hazirlaniyor",zaman:new Date(z-864e5*1.5).toISOString(),not:""},{durum:"kargolandi",zaman:new Date(z-864e5).toISOString(),not:"Kargoya verildi"},{durum:"teslim",zaman:new Date(z).toISOString(),not:""}],
+  izin:{iptal:false,iade:true,degisim:true,arizali:true,fatura:true,soru:true,cayma_son:new Date(z+14*864e5).toISOString()},talepler:[]}};
+let _demoS=null;
+async function pubRpc(ad,args){
+  if(isDemo){
+    if(ad==="web_siparis_sorgu"){if(String(args.p_no).toUpperCase()!=="W-DEMO")return{hata:"BULUNAMADI"};_demoS=_demoS||_demoSip();return JSON.parse(JSON.stringify(_demoS))}
+    if(ad==="web_talep_olustur"){_demoS=_demoS||_demoSip();_demoS.talepler.unshift({id:"t"+Date.now(),tip:args.p_tip,durum:"beklemede",mesaj:args.p_mesaj,yanit:"",kalemler:args.p_kalemler,olusturma:new Date().toISOString()});_demoS.izin[args.p_tip]=false;return{id:"x",otomatik:false}}
+  }
+  const r=await fetch(SITE.supabaseUrl+"/rest/v1/rpc/"+ad,{method:"POST",headers:{apikey:SITE.anahtar,Authorization:"Bearer "+SITE.anahtar,"Content-Type":"application/json"},body:JSON.stringify(args)});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok){const m=String(j.message||"");const k=Object.keys(HATA_AD).find(x=>m.includes(x));throw new Error(k?HATA_AD[k]:"İşlem yapılamadı. Lütfen tekrar deneyin.")}
+  return j;
+}
+function cizSiparisSayfasi(){
+  let no="",tel="";
+  try{const k=JSON.parse(sessionStorage.getItem("apron_son")||"null");if(k){no=k.no||"";tel=k.tel||""}}catch(e){}
+  const hz=location.hash.startsWith("#siparis/")?decodeURIComponent(location.hash.slice(9)):"";if(hz)no=hz;
+  $("#vSiparis").innerHTML=`<div class="wrap so"><h1>Siparişlerim</h1>
+    <div class="card2"><h2>Siparişimi sorgula</h2><form class="fr" id="sf" novalidate>
+      <label>Sipariş numarası<input id="sNo" value="${esc(no)}" placeholder="W261110-1234" autocomplete="off" required></label>
+      <label>Sipariş verirken yazdığınız telefon<input id="sTel" type="tel" inputmode="tel" value="${esc(tel)}" placeholder="05xx xxx xx xx" required></label>
+      <button class="btn" id="sGo">Sorgula</button></form><div id="sHata"></div></div>
+    <div id="sSonuc"></div></div>`;
+  $("#sf").onsubmit=async e=>{e.preventDefault();await siparisSorgula($("#sNo").value.trim(),$("#sTel").value.trim())};
+  if(no&&tel&&!isDemo)siparisSorgula(no,tel);
+}
+async function siparisSorgula(no,tel){
+  const h=$("#sHata"),b=$("#sGo");h.innerHTML="";
+  if(!no||tel.replace(/\D/g,"").length<10){h.innerHTML=`<div class="msg err">Sipariş numarası ve telefon numarasını giriniz.</div>`;return}
+  b.disabled=true;b.textContent="Aranıyor…";
+  try{
+    const j=await pubRpc("web_siparis_sorgu",{p_no:no,p_tel:tel});
+    if(j.hata)throw new Error(HATA_AD[j.hata]||"Sipariş bulunamadı.");
+    sip=j;sipTel=tel;sipEylem=null;try{sessionStorage.setItem("apron_son",JSON.stringify({no:j.no,tel}))}catch(e){}
+    cizSiparisSonuc();
+  }catch(x){$("#sSonuc").innerHTML="";h.innerHTML=`<div class="msg err">${esc(x.message)}</div>`}
+  b.disabled=false;b.textContent="Sorgula";
+}
+const NEDEN={
+  iptal:s=>["iptal","iade"].includes(s.durum)?"Sipariş zaten kapalı":["kargolandi","teslim"].includes(s.durum)?"Kargoya verildi, teslimden sonra iade yapabilirsiniz":"İptal talebiniz zaten alındı",
+  iade:s=>["iptal","iade"].includes(s.durum)?"Sipariş kapalı":["kargolandi","teslim"].includes(s.durum)?"Süre doldu veya talep zaten açık":"Teslimden sonra yapılabilir",
+  degisim:s=>["iptal","iade"].includes(s.durum)?"Sipariş kapalı":["kargolandi","teslim"].includes(s.durum)?"Süre doldu veya talep zaten açık":"Teslimden sonra yapılabilir",
+  arizali:s=>["iptal","iade"].includes(s.durum)?"Sipariş kapalı":["kargolandi","teslim"].includes(s.durum)?"Süre doldu veya talep zaten açık":"Ürün elinize ulaştıktan sonra",
+  fatura:s=>s.durum==="iptal"?"İptal edilen sipariş için fatura yok":"Talebiniz zaten alındı"
+};
+const ACT=[["iptal","Siparişi iptal et","Kargoya verilmeden önce"],["iade","İade / cayma","Teslimden itibaren 14 gün"],["degisim","Ürün değişimi","Teslimden itibaren 14 gün"],["arizali","Hasarlı / hatalı ürün","Teslimden itibaren 30 gün"],["fatura","Fatura talebi","Fatura bilgisi iste"],["soru","Soru sor / destek","Her zaman"]];
+function cizSiparisSonuc(){
+  const s=sip,iz=s.izin||{};
+  const kapali=["iptal","iade"].includes(s.durum);
+  const pos={odeme_bekliyor:0,odendi:1,hazirlaniyor:2,kargolandi:3,teslim:4}[s.durum];
+  const adim=["Sipariş alındı","Ödeme","Hazırlık","Kargo","Teslim"];
+  const stp=kapali?`<div class="msg err" style="margin:6px 0 0"><b>${DURUM_AD[s.durum]}</b></div>`:`<div class="stp">${adim.map((a,i)=>`<div class="st${i<pos?" d":i===pos?(pos===4?" d":" c"):""}"><i>${i<pos||(i===pos&&pos===4)?"✓":i+1}</i>${a}</div>`).join("")}</div>`;
+  const bg=s.durum==="teslim"?"ok":kapali?"er":"wr";
+  const kargo=(s.kargo_firma||s.kargo_takip)?`<div class="kar"><div><b>Kargo:</b> ${esc(s.kargo_firma||"-")}<br><span style="color:var(--mute)">Takip no:</span> <b id="tkNo">${esc(s.kargo_takip||"henüz girilmedi")}</b></div>${s.kargo_takip?`<button class="btn ghost" id="tkKopya" type="button" style="min-height:36px">Takip no kopyala</button>`:""}</div>`:"";
+  const act=ACT.map(([k,ad,alt])=>`<button class="ac" data-ac="${k}"${iz[k]?"":" disabled"}><b>${ad}</b><span>${iz[k]?alt+(k==="iade"&&iz.cayma_son?" · son gün "+new Date(iz.cayma_son).toLocaleDateString("tr-TR"):""):NEDEN[k]?NEDEN[k](s):"Şu an yapılamaz"}</span></button>`).join("");
+  $("#sSonuc").innerHTML=`<div class="card2"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center"><div><h2 style="margin:0">Sipariş ${esc(s.no)}</h2><span style="color:var(--mute);font-size:14px">${tarihTR(s.olusturma)} · ${esc(s.ad||"")}${s.il?" · "+esc(s.il):""}</span></div><span class="bdg ${bg}">${DURUM_AD[s.durum]||esc(s.durum)}</span></div>${stp}${kargo}</div>
+  <div class="card2"><h2>Ürünler</h2>${(s.kalemler||[]).map(k=>`<div class="it"><span>${esc(k.ad)} × ${k.adet}</span><b>${TL(k.fiyat*k.adet)}</b></div>`).join("")}
+    ${s.kargo>0?`<div class="it"><span>Kargo</span><b>${TL(s.kargo)}</b></div>`:""}<div class="it"><b>Toplam</b><b>${TL(s.toplam)}</b></div></div>
+  <div class="card2"><h2>İşlemler</h2><div class="acts2">${act}</div><div id="sForm"></div></div>
+  <div class="card2"><h2>Taleplerim</h2>${(s.talepler||[]).length?s.talepler.map(t=>{const d=TALEP_DURUM[t.durum]||[t.durum,""];return `<div class="tq"><div class="h"><b>${TALEP_AD[t.tip]||esc(t.tip)}</b><span class="bdg ${d[1]}">${d[0]}</span></div><small style="color:var(--mute)">${tarihTR(t.olusturma)}</small>${t.kalemler&&t.kalemler.length?`<div style="font-size:14px;margin-top:4px">${t.kalemler.map(k=>esc(k.ad)+" × "+k.adet).join(", ")}</div>`:""}${t.mesaj?`<div style="margin-top:6px">${esc(t.mesaj)}</div>`:""}${t.yanit?`<div class="yn"><b>APRON yanıtı:</b> ${esc(t.yanit)}</div>`:""}</div>`}).join(""):`<span style="color:var(--mute)">Henüz talebiniz yok.</span>`}</div>
+  <div class="card2"><h2>Sipariş geçmişi</h2><div class="tl3">${(s.gecmis||[]).slice().reverse().map(g=>`<div><b>${DURUM_AD[g.durum]||esc(g.durum)}</b><small>${tarihTR(g.zaman)}${g.not?" · "+esc(g.not):""}</small></div>`).join("")}</div></div>`;
+}
+$("#vSiparis").addEventListener("click",async e=>{
+  if(e.target.closest("#tkKopya")){try{await navigator.clipboard.writeText(sip.kargo_takip);toast("Takip numarası kopyalandı")}catch(x){toast(sip.kargo_takip)}return}
+  const a=e.target.closest("[data-ac]");
+  if(a&&!a.disabled){sipEylem=a.dataset.ac;talepFormu();return}
+  if(e.target.closest("#tIptal")){sipEylem=null;$("#sForm").innerHTML="";return}
+});
+function talepFormu(){
+  const t=sipEylem,s=sip,kalemli=["iade","degisim","arizali"].includes(t);
+  const ipucu={iptal:"Siparişiniz henüz kargoya verilmediyse iptal edilir ve ücret iadeniz başlatılır.",iade:"Ürünleri kullanılmamış ve ambalajı açılmamış şekilde göndermeniz gerekir. Onaydan sonra iade adımlarını size ileteceğiz.",degisim:"Değiştirmek istediğiniz ürünü ve nedenini yazın.",arizali:"Lütfen sorunu açıklayın. Gerekirse fotoğraf için size ulaşacağız.",fatura:"Fatura için eklemek istediğiniz bilgileri (ünvan, vergi no/TCKN, adres) yazabilirsiniz.",soru:"Sorunuzu yazın, en kısa sürede yanıtlayalım."}[t];
+  $("#sForm").innerHTML=`<form class="tf" id="tf" novalidate><b>${TALEP_AD[t]}</b><span style="color:var(--mute);font-size:14px">${ipucu}</span>
+  ${kalemli?`<div>${(s.kalemler||[]).map((k,i)=>`<label class="kl"><input type="checkbox" data-k="${esc(k.id)}"><span>${esc(k.ad)}</span><select data-q="${esc(k.id)}">${Array.from({length:k.adet},(_,j)=>`<option>${j+1}</option>`).join("")}</select></label>`).join("")}</div>`:""}
+  <label>${t==="iptal"?"İptal nedeni (isteğe bağlı)":t==="fatura"?"Fatura bilgileri":t==="soru"?"Mesajınız":"Açıklama"}<textarea id="tMsg" rows="3" maxlength="1000"></textarea></label>
+  <div id="tHata"></div><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="tGo">${t==="iptal"?"Siparişi iptal et":"Talebi gönder"}</button><button class="btn ghost" id="tIptal" type="button">Vazgeç</button></div></form>`;
+  $("#tf").onsubmit=async e=>{
+    e.preventDefault();const h=$("#tHata"),b=$("#tGo");h.innerHTML="";
+    const kal=kalemli?[...document.querySelectorAll("#tf [data-k]")].filter(c=>c.checked).map(c=>({id:c.dataset.k,adet:Number(document.querySelector(`#tf [data-q="${CSS.escape(c.dataset.k)}"]`).value)})):[];
+    if(kalemli&&!kal.length)return h.innerHTML=`<div class="msg err">Lütfen en az bir ürün seçin.</div>`;
+    const m=$("#tMsg").value.trim();
+    if((t==="arizali"||t==="soru")&&m.length<10)return h.innerHTML=`<div class="msg err">${HATA_AD.MESAJ_KISA}</div>`;
+    b.disabled=true;b.textContent="Gönderiliyor…";
+    try{
+      const j=await pubRpc("web_talep_olustur",{p_no:s.no,p_tel:sipTel,p_tip:t,p_mesaj:m,p_kalemler:kal});
+      if(j.hata)throw new Error(HATA_AD[j.hata]||"İşlem yapılamadı.");
+      toast(j.otomatik?"Siparişiniz iptal edildi":"Talebiniz alındı");
+      await siparisSorgula(s.no,sipTel);
+    }catch(x){h.innerHTML=`<div class="msg err">${esc(x.message)}</div>`;b.disabled=false;b.textContent=t==="iptal"?"Siparişi iptal et":"Talebi gönder"}
+  };
+  $("#tf").scrollIntoView({behavior:"smooth",block:"center"});
+}
 
 /* ===== Sepet ===== */
 function ekle(id,n=1){
@@ -455,7 +655,7 @@ function sepetSay(){$("#cartN").textContent=sepet.reduce((t,s)=>t+s.adet,0)}
 function dac(on){$("#drawer").classList.toggle("on",on);$("#shade").classList.toggle("on",on);$("#drawer").setAttribute("aria-hidden",!on);document.body.style.overflow=on?"hidden":""}
 $("#cartOpen").onclick=()=>{cizSepet();dac(true)};
 $("#dClose").onclick=$("#shade").onclick=()=>{dac(false);mac(false)};
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){dac(false);mac(false);$("#modal").classList.remove("on")}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){dac(false);mac(false)}});
 
 function cizSepet(){
   $("#dTitle").textContent="Sepetiniz";
@@ -517,8 +717,10 @@ async function siparisGonder(){
     sepet=[];kaydet();sepetSay();
     $("#dTitle").textContent="Siparişiniz alındı";
     $("#dBody").innerHTML=`<div class="msg ok"><b>Sipariş no: ${esc(j.no)}</b><br>Toplam: ${TL(j.toplam)}</div>
-      <p style="color:var(--mute);margin-top:14px">Siparişiniz kaydedildi. Ödeme adımı için sizinle iletişime geçeceğiz. Bu numarayı saklayın.</p>`;
-    $("#dFoot").innerHTML=`<button class="btn" style="width:100%" id="tmm">Alışverişe devam et</button>`;
+      <p style="color:var(--mute);margin-top:14px">Siparişiniz kaydedildi. Ödeme adımı için sizinle iletişime geçeceğiz. Sipariş durumunu, kargo bilgisini, iptal ve iade işlemlerini <b>Siparişlerim</b> sayfasından sipariş numaranız ve telefonunuzla yapabilirsiniz. Bu numarayı saklayın.</p>`;
+    try{sessionStorage.setItem("apron_son",JSON.stringify({no:j.no,tel:v.tel.trim()}))}catch(e){}
+    $("#dFoot").innerHTML=`<button class="btn" style="width:100%" id="tkp">Siparişimi takip et</button><button class="btn ghost" style="width:100%;margin-top:8px" id="tmm">Alışverişe devam et</button>`;
+    $("#tkp").onclick=()=>{dac(false);location.hash="#siparis";route()};
     $("#tmm").onclick=()=>dac(false);
   }catch(e){hata(e.message||"Bir sorun oluştu.");b.disabled=false;b.textContent="Siparişi gönder"}
 }
