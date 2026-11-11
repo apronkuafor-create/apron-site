@@ -189,7 +189,7 @@ async function ac(){
       api("/rest/v1/web_site_icerik?id=eq.ana&select=veri").catch(()=>null)]);
     urunler=u;siparisler=s;talepler=t||[];partiler=pr||[];$("#app").dataset.partiYok=pr===null?"1":"";if(a&&a[0])ayar=a[0];
     $("#app").dataset.talepYok=t===null?"1":"";
-    siteYok=!si||!si[0];site=icBirlestir(si&&si[0]?si[0].veri:{});if(!siteDegisti)siteTaslak=null;
+    siteYok=!si||!si[0];siteIlk=!siteYok&&!Object.keys(si[0].veri||{}).length;site=icBirlestir(si&&si[0]?si[0].veri:{});if(!siteDegisti)siteTaslak=null;
     cizIskelet();
   }catch(e){if(e.message==="oturum")giris("Oturum süresi doldu, tekrar giriş yapın.");else $("#app").innerHTML=`<div class="wrap"><div class="msg e" style="margin-top:20px">${esc(e.message)}<br>Veritabanı dosyaları (02, 03 ve 04) çalıştırıldı mı?</div></div>`}
 }
@@ -934,7 +934,7 @@ function yasalTarih(ic,slug){const y=ic.yasal&&ic.yasal[slug];return y&&y.ozel&&
 /* ===== /ortak cekirdek ===== */
 /* ================= SITE ICERIGI (Site sekmesi) ================= */
 const SITE_ADRES="https://apronkuafor-create.github.io/apron-site/";
-let site=icBirlestir({}),siteTaslak=null,siteAlt="satici",siteYasal="on-bilgilendirme",siteDegisti=false,siteYok=false;
+let siteIlk=false,site=icBirlestir({}),siteTaslak=null,siteAlt="satici",siteYasal="on-bilgilendirme",siteDegisti=false,siteYok=false;
 const kopya=o=>JSON.parse(JSON.stringify(o));
 const yolAl=(o,y)=>y.split(".").reduce((a,k)=>a==null?undefined:a[k],o);
 function yolYaz(o,y,v){const p=y.split(".");let a=o;p.slice(0,-1).forEach(k=>{if(a[k]==null||typeof a[k]!=="object")a[k]={};a=a[k]});a[p[p.length-1]]=v}
@@ -1018,10 +1018,10 @@ function cizSite(){
   if(!siteTaslak)siteTaslak=kopya(site);
   $("#ic").innerHTML=`<div class="st-ust"><div class="st-alt">${SITE_ALT.map(([k,a])=>`<button type="button" class="${k===siteAlt?"on":""}" data-alt="${k}">${a}</button>`).join("")}</div></div>
     <div id="stB">${siteBolum()}</div>
-    <div class="st-kay"><span id="stDur">${siteDegisti?"● Kaydedilmemiş değişiklik var":"Tüm değişiklikler kayıtlı"}</span><span class="sp"></span>
-      <a class="btn g" href="${SITE_ADRES}" target="_blank" rel="noopener">Siteyi aç</a><button class="btn g" type="button" id="stVaz"${siteDegisti?"":" disabled"}>Vazgeç</button><button class="btn" type="button" id="stKay"${siteDegisti?"":" disabled"}>Kaydet ve yayınla</button></div>`;
+    <div class="st-kay"><span id="stDur"${siteDegisti||siteIlk?' class="deg"':""}>${siteDegisti?"● Kaydedilmemiş değişiklik var":siteIlk?"● Henüz ilk kayıt yapılmadı. Kaydet ve yayınla'ya basın.":"Tüm değişiklikler kayıtlı"}</span><span class="sp"></span>
+      <a class="btn g" href="${SITE_ADRES}" target="_blank" rel="noopener">Siteyi aç</a><button class="btn g" type="button" id="stVaz"${siteDegisti?"":" disabled"}>Vazgeç</button><button class="btn" type="button" id="stKay"${siteDegisti||siteIlk?"":" disabled"}>Kaydet ve yayınla</button></div>`;
 }
-function siteIsaret(v=true){siteDegisti=v;const d=$("#stDur");if(d){d.textContent=v?"● Kaydedilmemiş değişiklik var":"Tüm değişiklikler kayıtlı";d.classList.toggle("deg",v);$("#stKay").disabled=!v;$("#stVaz").disabled=!v}}
+function siteIsaret(v=true){siteDegisti=v;const d=$("#stDur");if(d){d.textContent=v?"● Kaydedilmemiş değişiklik var":siteIlk?"● Henüz ilk kayıt yapılmadı. Kaydet ve yayınla'ya basın.":"Tüm değişiklikler kayıtlı";d.classList.toggle("deg",v||siteIlk);$("#stKay").disabled=!(v||siteIlk);$("#stVaz").disabled=!v}}
 const siteYeniden=()=>{const y=scrollY;$("#stB").innerHTML=siteBolum();scrollTo(0,y)};
 function yasalOnizle(){const o=$("#yOn");if(o)o.innerHTML=md(siteTaslak.yasal[siteYasal].metin,yasalBaglam(siteTaslak,null,null,"apronkuafor-create.github.io"))}
 async function siteGorselYukle(file){
@@ -1082,7 +1082,7 @@ document.addEventListener("click",async e=>{
     if(S.kargo.limit&&S.kargo.ucret&&S.kargo.limit<S.kargo.ucret)return toast("Ücretsiz kargo sınırı kargo ücretinden küçük olamaz");
     b.disabled=true;b.textContent="Kaydediliyor…";
     try{await api("/rest/v1/web_site_icerik?id=eq.ana",{method:"PATCH",body:{veri:S,guncelleme:new Date().toISOString()},basliklar:{Prefer:"return=minimal"}});
-      site=icBirlestir(kopya(S));siteTaslak=kopya(site);siteIsaret(false);toast("Kaydedildi. Site yenilendiğinde yeni hâli görünür.");cizSite()}
+      siteIlk=false;site=icBirlestir(kopya(S));siteTaslak=kopya(site);siteIsaret(false);toast("Kaydedildi. Site yenilendiğinde yeni hâli görünür.");cizSite()}
     catch(x){b.disabled=false;b.textContent="Kaydet ve yayınla";oturumHata(x)}
   }
 });
