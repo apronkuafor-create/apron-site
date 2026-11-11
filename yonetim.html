@@ -102,6 +102,29 @@ label{display:grid;gap:4px;font-size:12.5px;color:var(--mute)}
 .toast.on{opacity:1}
 a{color:#0a58ca}
 @media(max-width:700px){.g2,.g3{grid-template-columns:1fr}.rh{grid-template-columns:44px 1fr}.rh>div:last-child{grid-column:1/-1;text-align:left!important}.hd small{display:none}}
+/* --- Site sekmesi --- */
+a.btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}label.btn{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink);font-size:14px}
+#stB .g2,#stB .g3{align-items:start}
+.st-ust{position:sticky;top:0;z-index:5;background:var(--bg);padding:12px 0 8px}
+.st-alt{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}.st-alt button{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font-weight:600;font-size:14px;color:var(--ink)}
+.st-alt button.on{background:var(--dk);color:#fff;border-color:var(--dk)}
+.st-bh{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.st-a{color:var(--mute);margin:4px 0 10px;font-size:14px}.st-i{font-size:12px;color:var(--mute)}
+.st-s{border:1px solid var(--line);border-radius:10px;padding:12px;margin:10px 0;display:grid;gap:10px;background:#fafbfb}
+.st-g{display:flex;gap:10px;align-items:flex-start}.st-g img,.st-gb{width:90px;height:64px;object-fit:contain;border-radius:8px;background:#2b2d30;flex:none}
+.st-gb{display:grid;place-items:center;color:#aaa;font-size:12px}
+.st-kay{position:sticky;bottom:0;z-index:5;display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0 20px;box-shadow:0 -4px 14px #0001}
+.st-kay .sp{flex:1}#stDur{font-size:14px;color:var(--mute)}#stDur.deg{color:#b35c00;font-weight:600}
+.st-y{margin-top:10px;font-size:14px}.st-y summary{cursor:pointer;color:#0a66c2}
+.st-yz{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}.st-yz>.box:only-child{grid-column:1/-1}
+.st-yt{display:flex;flex-wrap:wrap;gap:6px}.st-on{max-height:75vh;overflow:auto;border-top:1px solid var(--line);margin-top:8px;padding-top:4px}
+.ynav{display:flex;flex-wrap:wrap;gap:6px}.ynav button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-size:14px;color:var(--ink)}.ynav button.on{background:var(--dk);color:#fff;border-color:var(--dk)}
+.dd{background:#fff3cd;color:#7a5600;padding:0 4px;border-radius:3px;font-weight:600}
+.yasal{line-height:1.6;font-size:14.5px}.yasal h2{font-size:17px;margin:18px 0 6px}.yasal h3{font-size:15px;margin:14px 0 6px}.yasal p,.yasal ul,.yasal ol{margin:0 0 10px}.yasal ul,.yasal ol{padding-left:22px}.yasal a{color:#0a66c2}
+.yt{width:100%;border-collapse:collapse;margin:6px 0 12px;font-size:13.5px}.yt th,.yt td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}.yt th{background:#f6f7f7;width:34%}
+.ynot{background:#fff8ec;border:1px solid #f3d9a8;border-radius:8px;padding:10px 12px;margin:8px 0 12px}
+code{background:#f1f2f2;border-radius:4px;padding:0 4px;font-size:.92em}
+@media(max-width:800px){.st-yz{grid-template-columns:1fr}.st-kay .btn{flex:1}.st-kay .sp{display:none}#stDur{width:100%}}
 </style>
 </head>
 <body>
@@ -160,11 +183,13 @@ function giris(hata){
 async function ac(){
   try{
     $("#app").innerHTML=`<div class="wrap" style="padding:40px 0">Yükleniyor…</div>`;
-    const [u,s,a,t,pr]=await Promise.all([rpc("web_yonetim_liste"),api("/rest/v1/web_siparisler?select=*&order=olusturma.desc&limit=1000"),api("/rest/v1/web_ayar?id=eq.ana&select=*"),
+    const [u,s,a,t,pr,si]=await Promise.all([rpc("web_yonetim_liste"),api("/rest/v1/web_siparisler?select=*&order=olusturma.desc&limit=1000"),api("/rest/v1/web_ayar?id=eq.ana&select=*"),
       api("/rest/v1/web_talepler?select=*&order=olusturma.desc&limit=300").catch(()=>null),
-      api("/rest/v1/web_partiler?select=*&order=tarih.asc,olusturma.asc&limit=3000").catch(()=>null)]);
+      api("/rest/v1/web_partiler?select=*&order=tarih.asc,olusturma.asc&limit=3000").catch(()=>null),
+      api("/rest/v1/web_site_icerik?id=eq.ana&select=veri").catch(()=>null)]);
     urunler=u;siparisler=s;talepler=t||[];partiler=pr||[];$("#app").dataset.partiYok=pr===null?"1":"";if(a&&a[0])ayar=a[0];
     $("#app").dataset.talepYok=t===null?"1":"";
+    siteYok=!si||!si[0];site=icBirlestir(si&&si[0]?si[0].veri:{});if(!siteDegisti)siteTaslak=null;
     cizIskelet();
   }catch(e){if(e.message==="oturum")giris("Oturum süresi doldu, tekrar giriş yapın.");else $("#app").innerHTML=`<div class="wrap"><div class="msg e" style="margin-top:20px">${esc(e.message)}<br>Veritabanı dosyaları (02, 03 ve 04) çalıştırıldı mı?</div></div>`}
 }
@@ -174,15 +199,15 @@ function sayilar(){
 function cizIskelet(){
   const n=sayilar();
   $("#app").innerHTML=`<header><div class="wrap hd">${LOGO}<span class="ttl">MAĞAZA YÖNETİMİ</span><span class="sp"></span><small>${esc(oturum&&oturum.eposta||"")}</small><button class="btn g s" id="cik">Çıkış</button></div>
-  <div class="tabs"><div class="wrap"><button class="tab" data-s="urun">Ürünler</button><button class="tab" data-s="sip">Siparişler${n.sip?`<b>${n.sip}</b>`:""}</button><button class="tab" data-s="stok">Stok</button><button class="tab" data-s="tal">Talepler${n.tal?`<b>${n.tal}</b>`:""}</button><button class="tab" data-s="ayar">Ayarlar</button></div></div></header>
+  <div class="tabs"><div class="wrap"><button class="tab" data-s="urun">Ürünler</button><button class="tab" data-s="sip">Siparişler${n.sip?`<b>${n.sip}</b>`:""}</button><button class="tab" data-s="stok">Stok</button><button class="tab" data-s="tal">Talepler${n.tal?`<b>${n.tal}</b>`:""}</button><button class="tab" data-s="site">Site</button><button class="tab" data-s="ayar">Ayarlar</button></div></div></header>
   <div class="wrap"><div id="ic"></div></div>`;
   $("#cik").onclick=()=>{oturumYaz(null);giris()};
-  document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{sekme=b.dataset.s;ciz()});
+  document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{if(sekme==="site"&&b.dataset.s!=="site"&&siteDegisti&&!confirm("Site sekmesinde kaydedilmemiş değişiklik var. Yine de çıkılsın mı? (Değişiklikler siz Site sekmesine dönene kadar saklanır.)"))return;sekme=b.dataset.s;ciz()});
   ciz();
 }
 function ciz(){
   document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.s===sekme));
-  ({urun:cizUrun,sip:cizSip,stok:cizStok,tal:cizTal,ayar:cizAyar})[sekme]();
+  ({urun:cizUrun,sip:cizSip,stok:cizStok,tal:cizTal,site:cizSite,ayar:cizAyar})[sekme]();
 }
 const yenidenYukle=async(s)=>{await ac();sekme=s||sekme;ciz()};
 
@@ -666,6 +691,402 @@ function cizAyar(){
     catch(x){oturumHata(x)}
   };
 }
+
+/* ===== SITE ICERIGI — ortak cekirdek (index.html ve yonetim.html'de birebir aynidir) ===== */
+const IC_VARSAYILAN={
+  satici:{unvan:"Ahmet SERDAR – APRON BUSINESS",adres:"Caddebostan Mah. Gökçe Sk. Toksoy Apt. No:10/B Kadıköy / İstanbul",vergiDairesi:"Göztepe",vergiNo:"16703740952",mersis:"",tel:"0216 363 91 94",eposta:"apronkuafor@gmail.com",whatsapp:""},
+  kargo:{ucret:0,limit:0,firma:"",sure:"1–3 iş günü"},
+  genel:{baslik:"APRON | Erkek Kuaförü ve Bakım Ürünleri",aciklama:"APRON erkek kuaförü: profesyonel saç ve sakal bakım ürünleri, güvenli online alışveriş.",
+    duyuru:"",duyuruLink:"",renkUst:"#2b2d30",renkDugme:"#ff8a1f",renkZemin:"#eaeded",logo:""},
+  ana:{
+    slaytlar:[{baslik:"Salonun bakım ürünleri, kapınızda",metin:"Salonumuzda kullandığımız saç ve sakal bakım ürünleri, orijinal ve güvenle.",dugme:"Ürünleri keşfet",hedef:"tum",gorsel:""}],
+    markaSlayt:true,sonSlayt:true,
+    kutuMarka:{goster:true,baslik:"Markaya göre alışveriş"},
+    kutuUygun:{goster:true,baslik:"Uygun fiyatlılar"},
+    kutuSon:{goster:true,baslik:"Son adetler"},
+    kutuOneri:{goster:true,baslik:"Önerilenler"},
+    guvence:{goster:true,baslik:"APRON güvencesi",maddeler:"Orijinal ürün\nSalon stoğundan\nKart bilgisi sitemizde tutulmaz\n[14 gün yasal cayma hakkı](#yasal/iade-cayma)",dugme:"Alışverişe başla"}
+  },
+  hakkimizda:{baslik:"Salonun işçiliği, evde de",metin:"APRON, saç ve sakal bakımına odaklanan bir erkek kuaförüdür. Mağazada yalnızca salonda bizzat kullandığımız ve güvendiğimiz ürünleri satıyoruz. Hangi ürünün size uygun olduğunu bilmiyorsanız bize yazın."},
+  urun:{maddeler:"Satıcı: APRON Business\nOrijinal ürün, salon stoğundan\n[14 gün yasal cayma hakkı](#yasal/iade-cayma)"},
+  odeme:{
+    onay:"[Ön bilgilendirme formunu](#yasal/on-bilgilendirme) ve [mesafeli satış sözleşmesini](#yasal/mesafeli-satis) okudum, kabul ediyorum. Kişisel verilerimin [KVKK aydınlatma metni](#yasal/kvkk) kapsamında işleneceğini biliyorum.",
+    basari:"Siparişiniz kaydedildi. Ödeme adımı için sizinle iletişime geçeceğiz. Sipariş durumunu, kargo bilgisini, iptal ve iade işlemlerini **Siparişlerim** sayfasından sipariş numaranız ve telefonunuzla yapabilirsiniz. Bu numarayı saklayın."
+  },
+  yasal:{}   // { "<sayfa>": {ozel:true/false, metin:"...", tarih:"gg.aa.yyyy"} }
+};
+const YASAL=[["on-bilgilendirme","Ön Bilgilendirme Formu"],["mesafeli-satis","Mesafeli Satış Sözleşmesi"],["iade-cayma","İade ve Cayma Koşulları"],["kvkk","KVKK Aydınlatma Metni"],["gizlilik-cerez","Gizlilik ve Çerez Politikası"]];
+const YASAL_TARIH="11.11.2026";
+const YER_TUTUCULAR=[
+  ["SATICI_TABLOSU","Satıcı bilgileri tablosu (ayrı satıra yazın)"],["ALICI_BILGILERI","Müşterinin adı, telefonu, adresi (ayrı satıra)"],["SIPARIS_OZETI","Sepetteki ürünler ve toplam tablosu (ayrı satıra)"],
+  ["UNVAN","Ünvan"],["ADRES","Adres"],["TELEFON","Telefon"],["EPOSTA","E-posta"],["VERGI_DAIRESI","Vergi dairesi"],["VERGI_NO","Vergi no"],["MERSIS","MERSİS no"],
+  ["KARGO_METNI","Kargo ücreti cümlesi"],["KARGO_FIRMASI","Kargo firması"],["KARGOYA_VERME","Kargoya verilme süresi"],["SITE_ADRESI","Sitenin internet adresi"]
+];
+/* --- yasal metinlerin varsayilan hali (biçim: ## başlık, - madde, 1. madde, > not kutusu, **kalın**, [yazı](#adres)) --- */
+const _CAYMA=`Siparişinizi teslim aldığınız günden itibaren **14 gün** içinde, hiçbir gerekçe göstermeden ve ceza ödemeden sözleşmeden cayabilirsiniz.
+- Cayma bildirimini [Siparişlerim](#siparis) sayfasındaki **İade / cayma** formuyla ya da {{EPOSTA}} adresine yazarak yapabilirsiniz.
+- Ürünü, bildirimden itibaren **10 gün** içinde {{KARGO_FIRMASI}} ile, size bildireceğimiz iade kodunu kullanarak gönderin. Anlaşmalı kargo ile yapılan iadelerde gönderim ücretini biz öderiz.
+- Bildiriminiz bize ulaştıktan sonra en geç **14 gün** içinde ödediğiniz tutarın tamamını, varsa teslimat ücretiyle birlikte, ödemeyi yaptığınız yöntemle iade ederiz.
+- Cayma süresi içinde ürünün olağan kullanımı dışında oluşan değişiklik ve bozulmalardan alıcı sorumludur.
+
+> **Hijyen istisnası:** Pomad, wax, kil, tonik, sprey, serum ve benzeri kişisel bakım ürünlerinde; teslimden sonra ambalajı, bandı, mührü veya koruyucu kapağı açılmış ürünler, sağlık ve hijyen açısından iadeye uygun olmadığından cayma hakkı kapsamında değildir (Mesafeli Sözleşmeler Yönetmeliği md. 15/1-c). Açılmamış ve ambalajı bozulmamış ürünlerde cayma hakkınız geçerlidir.`;
+const _AYIP=`Ürün size hasarlı, hatalı ya da siparişinizden farklı ulaşırsa, 6502 sayılı Tüketicinin Korunması Hakkında Kanun'un 11. maddesine göre şu haklardan birini seçebilirsiniz: sözleşmeden dönme, ayıp oranında bedel indirimi, ücretsiz onarım veya ürünün ayıpsız olanıyla değiştirilmesi. Bu haklar teslimden itibaren 2 yıl süreyle geçerlidir.
+
+Kargo paketi hasarlı geldiyse, mümkünse teslim sırasında kargo görevlisine tutanak tutturun ve [Siparişlerim](#siparis) sayfasından **Hasarlı / hatalı ürün** talebi oluşturup fotoğraf ekleyin. Bu durumda tüm kargo masrafları bize aittir.`;
+const _UYUS=`Şikâyetlerinizi önce bize iletebilirsiniz. Uyuşmazlık hâlinde, Ticaret Bakanlığınca her yıl ilan edilen parasal sınırlar içinde yerleşim yerinizdeki veya işlemi yaptığınız yerdeki **Tüketici Hakem Heyeti**'ne, bu sınırların üzerindeki uyuşmazlıklarda ise ilgili mevzuattaki arabuluculuk şartı da gözetilerek **Tüketici Mahkemesi**'ne başvurabilirsiniz. Başvurular e-Devlet üzerinden (TÜBİS) de yapılabilir.`;
+const YASAL_VARSAYILAN={
+"on-bilgilendirme":`Bu form, 6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği uyarınca, siparişiniz kesinleşmeden önce sizi bilgilendirmek amacıyla hazırlanmıştır.
+
+## 1. Satıcı bilgileri
+{{SATICI_TABLOSU}}
+
+## 2. Alıcı bilgileri
+{{ALICI_BILGILERI}}
+
+## 3. Ürünler ve fiyat
+{{SIPARIS_OZETI}}
+Fiyatlara KDV dahildir. {{KARGO_METNI}} Sitede gösterilen fiyatlar, güncellenene kadar geçerlidir; sipariş anındaki fiyat esas alınır.
+
+## 4. Ödeme
+Ödeme, sipariş sırasında sunulan yöntemlerle yapılır. Kart bilgileriniz sitemizde saklanmaz; ödeme, lisanslı ödeme kuruluşunun güvenli altyapısında alınır. Ödeme onaylanmadan sipariş kesinleşmez.
+
+## 5. Teslimat
+Ürünler, ödemenin onaylanmasından sonra genellikle {{KARGOYA_VERME}} içinde kargoya verilir ve alıcının belirttiği adrese teslim edilir. Teslim süresi, siparişin kesinleşmesinden itibaren yasal üst sınır olan 30 günü geçmez. Kargo takip numarası [Siparişlerim](#siparis) sayfasında gösterilir.
+
+## 6. Cayma hakkı
+${_CAYMA}
+
+## 7. Hasarlı veya hatalı ürün
+${_AYIP}
+
+## 8. Şikâyet ve itiraz
+${_UYUS}
+
+Siparişi onayladığınızda bu formu okuduğunuzu kabul etmiş olursunuz. Form ve sözleşme, sipariş kaydıyla birlikte saklanır.`,
+"mesafeli-satis":`## Madde 1 – Taraflar
+**Satıcı:**
+{{SATICI_TABLOSU}}
+**Alıcı:**
+{{ALICI_BILGILERI}}
+
+## Madde 2 – Konu
+Bu sözleşmenin konusu, alıcının {{SITE_ADRESI}} adresindeki APRON online mağazasından elektronik ortamda sipariş verdiği aşağıdaki ürünlerin satışı ve teslimidir. Taraflar, 6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği hükümlerine tabidir.
+
+## Madde 3 – Ürünler, fiyat ve ödeme
+{{SIPARIS_OZETI}}
+Fiyatlara KDV dahildir. {{KARGO_METNI}} Ödeme, sipariş sırasında sunulan yöntemle yapılır; ödeme onaylanmadan sözleşme kurulmuş sayılmaz.
+
+## Madde 4 – Teslimat
+Ürünler, alıcının sipariş formunda belirttiği adrese kargo ile teslim edilir. Satıcı, ürünü siparişin kesinleşmesinden itibaren en geç 30 gün içinde teslim eder. Ürün stokta kalmadığı için teslim edilemezse satıcı alıcıyı derhâl bilgilendirir ve ödenen tutarın tamamını en geç 14 gün içinde iade eder.
+
+Alıcı, teslim sırasında paketi kontrol etmeli; hasarlı paketi kargo görevlisine tutanak tutturarak teslim almalı veya teslim almayı reddetmelidir.
+
+## Madde 5 – Cayma hakkı
+${_CAYMA}
+
+## Madde 6 – Ayıplı ürün
+${_AYIP}
+
+## Madde 7 – Satıcının yükümlülükleri
+Satıcı, ürünü siparişte belirtilen niteliklere uygun, orijinal ve sağlam olarak teslim etmekle; yasal belgeleri (fatura vb.) düzenlemekle yükümlüdür. Satıcı, ürünlerin yetkili dağıtıcıdan temin edilen orijinal ürünler olduğunu taahhüt eder.
+
+## Madde 8 – Kişisel veriler
+Alıcıya ait kişisel veriler [KVKK Aydınlatma Metni](#yasal/kvkk)'ne uygun olarak işlenir.
+
+## Madde 9 – Uyuşmazlıklar
+${_UYUS}
+
+## Madde 10 – Yürürlük
+Alıcı, siparişi onaylamadan önce [Ön Bilgilendirme Formu](#yasal/on-bilgilendirme)'nu okuduğunu ve bu sözleşmeyi elektronik ortamda kabul ettiğini beyan eder. Sözleşme, siparişin onaylanması ve ödemenin alınmasıyla yürürlüğe girer. Satıcı, sözleşmeyi ve sipariş kayıtlarını mevzuatta öngörülen süre boyunca saklar.`,
+"iade-cayma":`## Cayma hakkı (fikir değiştirme)
+${_CAYMA}
+
+## Hasarlı, hatalı veya yanlış ürün
+${_AYIP}
+
+## Değişim
+Açılmamış ürünlerde, teslimden itibaren 14 gün içinde başka bir ürünle değişim talep edebilirsiniz. [Siparişlerim](#siparis) sayfasından **Ürün değişimi** talebi oluşturmanız yeterlidir. Fiyat farkı varsa size bildirilir.
+
+## İade süreci adım adım
+1. [Siparişlerim](#siparis) sayfasında sipariş numaranız ve telefonunuzla giriş yapın.
+2. İlgili talep türünü seçip kısa bir açıklama yazın.
+3. Size iade kodu ve gönderim bilgisi iletilir.
+4. Ürünü orijinal ambalajıyla, faturası ile birlikte gönderin.
+5. Ürün bize ulaşıp kontrol edildikten sonra iadeniz en geç 14 gün içinde ödeme yaptığınız yönteme yapılır.
+
+## İletişim
+{{SATICI_TABLOSU}}`,
+"kvkk":`6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") kapsamında veri sorumlusu sıfatıyla, kişisel verilerinizi nasıl işlediğimizi aşağıda açıklıyoruz.
+
+## 1. Veri sorumlusu
+{{SATICI_TABLOSU}}
+
+## 2. İşlenen kişisel veriler
+- **Kimlik:** ad soyad
+- **İletişim:** telefon, e-posta, teslimat adresi
+- **Müşteri işlem:** sipariş içeriği, sipariş numarası, talepler (iade, değişim, soru vb.) ve yazışmalar
+- **Finans:** ödeme tutarı ve ödeme sonucu (kart bilgileri tarafımızca alınmaz ve saklanmaz)
+- **İşlem güvenliği:** IP adresi ve işlem zamanı gibi teknik kayıtlar
+
+## 3. İşleme amaçları
+- Siparişin alınması, ödemenin tahsili, ürünün teslimi ve faturalandırılması
+- İade, cayma, değişim, şikâyet ve sorularınızın yanıtlanması
+- Yasal yükümlülüklerin (vergi, ticaret ve tüketici mevzuatı) yerine getirilmesi
+- Sitenin güvenliğinin sağlanması ve kötüye kullanımın önlenmesi
+
+## 4. Hukuki sebepler
+Verileriniz, KVKK md. 5/2 kapsamında; **(c)** sözleşmenin kurulması ve ifası için gerekli olması, **(ç)** hukuki yükümlülüğümüzü yerine getirmek için zorunlu olması ve **(f)** temel hak ve özgürlüklerinize zarar vermemek kaydıyla meşru menfaatimiz için zorunlu olması hukuki sebeplerine dayanılarak işlenir. Verileriniz, sipariş formu ve talep formları aracılığıyla elektronik ortamda toplanır.
+
+## 5. Aktarım
+Verileriniz yalnızca yukarıdaki amaçlarla sınırlı olarak; teslimat için **kargo şirketine**, ödeme için **lisanslı ödeme kuruluşuna**, muhasebe ve vergi işlemleri için **mali müşavirimize**, talep hâlinde **yetkili kamu kurum ve kuruluşlarına** ve sitenin çalışması için kullanılan **barındırma ve veritabanı hizmet sağlayıcılarına** aktarılabilir.
+
+Site ve veritabanı altyapısı için kullanılan hizmet sağlayıcıların (GitHub, Supabase) sunucuları yurt dışında bulunabilir. Bu aktarımlar KVKK md. 9'da öngörülen şartlara ve güvencelere uygun olarak yapılır.
+
+## 6. Saklama süresi
+Verileriniz işleme amacının gerektirdiği süre ve ilgili mevzuatta öngörülen süreler (ör. vergi ve ticaret mevzuatı gereği 10 yıla kadar) boyunca saklanır; süre sonunda silinir, yok edilir veya anonim hâle getirilir.
+
+## 7. Haklarınız (KVKK md. 11)
+Kişisel verilerinizin işlenip işlenmediğini öğrenme, işlenmişse bilgi talep etme, işlenme amacını ve amaca uygun kullanılıp kullanılmadığını öğrenme, aktarıldığı üçüncü kişileri bilme, eksik veya yanlış işlenmişse düzeltilmesini, şartları oluştuğunda silinmesini veya yok edilmesini ve bu işlemlerin aktarılan kişilere bildirilmesini isteme, münhasıran otomatik sistemlerle analiz sonucu aleyhinize bir sonuç çıkmasına itiraz etme ve kanuna aykırı işleme nedeniyle zarara uğramanız hâlinde zararın giderilmesini talep etme haklarına sahipsiniz.
+
+Başvurularınızı {{EPOSTA}} adresine e-posta ile veya {{ADRES}} adresine yazılı olarak iletebilirsiniz. Başvurunuz en geç 30 gün içinde ücretsiz olarak sonuçlandırılır.`,
+"gizlilik-cerez":`## Gizlilik
+Sitemizde yalnızca siparişinizi tamamlamak ve taleplerinizi yanıtlamak için gerekli bilgileri isteriz. Kişisel verilerinizin işlenmesine ilişkin ayrıntılar [KVKK Aydınlatma Metni](#yasal/kvkk)'nde yer alır. Verilerinizi reklam amacıyla satmayız veya kiralamayız.
+
+Kart bilgileriniz sitemize girilmez ve sitemizde saklanmaz. Sipariş sorgulama yalnızca sipariş numarası ve sipariş verirken yazdığınız telefon numarası birlikte girildiğinde çalışır.
+
+## Çerezler ve tarayıcı depolaması
+Sitemiz reklam, takip veya istatistik çerezi **kullanmaz**. Yalnızca sitenin çalışması için zorunlu olan, cihazınızın tarayıcısında tutulan şu kayıtları kullanır:
+- **apron_sepet:** Sepetinizdeki ürünleri hatırlamak için. Sepeti boşaltana kadar durur.
+- **apron_son:** Son siparişinizin numarasını Siparişlerim sayfasında hazır göstermek için. Tarayıcı sekmesi kapanınca silinir.
+
+Bu kayıtlar zorunlu niteliktedir ve bizimle paylaşılmaz. Tarayıcı ayarlarınızdan dilediğiniz zaman silebilirsiniz; bu durumda sepetiniz boşalır.
+
+## Üçüncü taraf hizmetler
+Sayfa yazı tipleri Google Fonts hizmetinden yüklenir. Bu sırada IP adresiniz gibi teknik bilgiler Google'a iletilebilir. Ürün ve sipariş bilgileri, veritabanı hizmet sağlayıcımız Supabase üzerinden güvenli bağlantıyla işlenir.
+
+## Değişiklikler
+Bu metni gerektiğinde güncelleyebiliriz. Güncel metin her zaman bu sayfada yayımlanır.`
+};
+/* --- veritabanindan gelen icerigi varsayilanlarla birlestir (eksik alan varsayilandan gelir) --- */
+function icBirlestir(v){
+  const bir=(d,x)=>{
+    if(Array.isArray(d))return Array.isArray(x)?x:d;
+    if(d&&typeof d==="object"){const o={};const ks=new Set([...Object.keys(d),...Object.keys(x&&typeof x==="object"&&!Array.isArray(x)?x:{})]);
+      ks.forEach(k=>{o[k]=k in d?bir(d[k],x?x[k]:undefined):x[k]});return o}
+    if(x===undefined||x===null)return d;
+    if(typeof d==="number"){const n=parseFloat(x);return isFinite(n)?n:d}
+    if(typeof d==="boolean")return !!x;
+    return typeof x==="string"?x:String(x);
+  };
+  return bir(IC_VARSAYILAN,v||{});
+}
+const icTL=n=>{n=+n||0;const d=Math.round(n*100)%100?2:0;return new Intl.NumberFormat("tr-TR",{style:"currency",currency:"TRY",minimumFractionDigits:d,maximumFractionDigits:d}).format(n)};
+const BOS='<mark class="dd">[DOLDURULACAK]</mark>';
+/* --- biçimli yazi → sayfa (guvenli: once tum metin kacirilir, sonra yalniz izinli bicimler eklenir) --- */
+function mdSatir(t,ctx){
+  let h=esc(t);
+  h=h.replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");
+  h=h.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,(m,a,u)=>{const uu=u.replace(/&amp;/g,"&");
+    if(!/^(#|https?:\/\/|mailto:|tel:)/i.test(uu))return a;
+    return `<a href="${esc(uu)}"${/^https?:/i.test(uu)?' target="_blank" rel="noopener"':""}>${a}</a>`});
+  h=h.replace(/\{\{([A-Z_]+)\}\}/g,(m,k)=>ctx&&ctx.satir&&k in ctx.satir?ctx.satir[k]:(ctx&&ctx.blok&&k in ctx.blok?ctx.blok[k]:m));
+  return h;
+}
+function md(t,ctx){
+  const L=String(t||"").replace(/\r/g,"").split("\n"),o=[];let p=[],lst=null,nt=[];
+  const fp=()=>{if(p.length){o.push("<p>"+p.join("<br>")+"</p>");p=[]}};
+  const fl=()=>{if(lst){o.push(`<${lst.t}>${lst.i.map(x=>"<li>"+x+"</li>").join("")}</${lst.t}>`);lst=null}};
+  const fn=()=>{if(nt.length){o.push('<div class="ynot">'+nt.join("<br>")+"</div>");nt=[]}};
+  const fa=()=>{fp();fl();fn()};
+  for(const s of L){const x=s.trim();let m;
+    if(!x){fa();continue}
+    if((m=x.match(/^\{\{([A-Z_]+)\}\}$/))&&ctx&&ctx.blok&&m[1] in ctx.blok){fa();o.push(ctx.blok[m[1]]);continue}
+    if(m=x.match(/^(#{2,3})\s+(.*)$/)){fa();const n=m[1].length;o.push(`<h${n}>${mdSatir(m[2],ctx)}</h${n}>`);continue}
+    if(m=x.match(/^[-•]\s+(.*)$/)){fp();fn();if(!lst||lst.t!=="ul"){fl();lst={t:"ul",i:[]}}lst.i.push(mdSatir(m[1],ctx));continue}
+    if(m=x.match(/^\d+[.)]\s+(.*)$/)){fp();fn();if(!lst||lst.t!=="ol"){fl();lst={t:"ol",i:[]}}lst.i.push(mdSatir(m[1],ctx));continue}
+    if(m=x.match(/^>\s?(.*)$/)){fp();fl();nt.push(mdSatir(m[1],ctx));continue}
+    fl();fn();p.push(mdSatir(x,ctx));
+  }
+  fa();return o.join("");
+}
+const satirlarMd=(t,ctx)=>String(t||"").split("\n").map(x=>x.trim()).filter(Boolean).map(x=>mdSatir(x,ctx));
+/* --- yasal metin: yer tutucularin doldurulmasi --- */
+function kargoCumlesi(k){
+  const u=+k.ucret||0,l=+k.limit||0;
+  if(!u)return "Kargo ücretsizdir.";
+  return `Kargo ücreti ${icTL(u)}'dir`+(l?`; ${icTL(l)} ve üzeri siparişlerde kargo ücretsizdir.`:".");
+}
+function saticiTablosu(s){
+  const D=v=>v&&String(v).trim()?esc(v):BOS;
+  return `<table class="yt"><tr><th>Ünvan</th><td>${D(s.unvan)}</td></tr><tr><th>Adres</th><td>${D(s.adres)}</td></tr>
+  <tr><th>Telefon</th><td>${D(s.tel)}</td></tr><tr><th>E-posta</th><td>${D(s.eposta)}</td></tr>
+  <tr><th>Vergi dairesi / no</th><td>${D(s.vergiDairesi)} / ${D(s.vergiNo)}</td></tr>${s.mersis?`<tr><th>MERSİS no</th><td>${esc(s.mersis)}</td></tr>`:""}</table>`;
+}
+function yasalBaglam(ic,alici,siparis,host){
+  const s=ic.satici,k=ic.kargo,D=v=>v&&String(v).trim()?esc(v):BOS;
+  return {satir:{UNVAN:D(s.unvan),ADRES:D(s.adres),TELEFON:D(s.tel),EPOSTA:s.eposta?`<a href="mailto:${esc(s.eposta)}">${esc(s.eposta)}</a>`:BOS,
+      VERGI_DAIRESI:D(s.vergiDairesi),VERGI_NO:D(s.vergiNo),MERSIS:D(s.mersis),KARGO_METNI:esc(kargoCumlesi(k)),KARGO_FIRMASI:D(k.firma),KARGOYA_VERME:D(k.sure),SITE_ADRESI:esc(host||"")},
+    blok:{SATICI_TABLOSU:saticiTablosu(s),ALICI_BILGILERI:alici||"<p>Alıcı bilgileri, sipariş formunda yazdığınız ad soyad, telefon, e-posta ve teslimat adresidir.</p>",
+      SIPARIS_OZETI:siparis||"<p>Sözleşme konusu ürünler; adı, adedi ve vergiler dahil satış fiyatı sipariş özetinde gösterilen ürünlerdir.</p>"}};
+}
+function yasalMetin(ic,slug){const y=ic.yasal&&ic.yasal[slug];return y&&y.ozel&&String(y.metin||"").trim()?y.metin:YASAL_VARSAYILAN[slug]||""}
+function yasalTarih(ic,slug){const y=ic.yasal&&ic.yasal[slug];return y&&y.ozel&&y.tarih?y.tarih:YASAL_TARIH}
+/* ===== /ortak cekirdek ===== */
+/* ================= SITE ICERIGI (Site sekmesi) ================= */
+const SITE_ADRES="https://apronkuafor-create.github.io/apron-site/";
+let site=icBirlestir({}),siteTaslak=null,siteAlt="satici",siteYasal="on-bilgilendirme",siteDegisti=false,siteYok=false;
+const kopya=o=>JSON.parse(JSON.stringify(o));
+const yolAl=(o,y)=>y.split(".").reduce((a,k)=>a==null?undefined:a[k],o);
+function yolYaz(o,y,v){const p=y.split(".");let a=o;p.slice(0,-1).forEach(k=>{if(a[k]==null||typeof a[k]!=="object")a[k]={};a=a[k]});a[p[p.length-1]]=v}
+const bugun=()=>new Date().toLocaleDateString("tr-TR",{day:"2-digit",month:"2-digit",year:"numeric"});
+const SITE_ALT=[["satici","Satıcı ve iletişim"],["kargo","Kargo"],["gorunum","Görünüm"],["ana","Ana sayfa"],["sayfalar","Hakkımızda ve ürün sayfası"],["odeme","Ödeme ekranı"],["yasal","Yasal metinler"]];
+const BICIM_YARDIM=`<details class="st-y"><summary>Yazı biçimleri (nasıl kalın yazılır, madde nasıl eklenir?)</summary>
+  <table class="yt"><tr><th>Yazdığınız</th><th>Sitede görünen</th></tr>
+  <tr><td><code>## Başlık</code></td><td>Ara başlık</td></tr>
+  <tr><td><code>- madde</code></td><td>Madde işaretli liste</td></tr>
+  <tr><td><code>1. adım</code></td><td>Numaralı liste</td></tr>
+  <tr><td><code>**kalın yazı**</code></td><td><b>kalın yazı</b></td></tr>
+  <tr><td><code>[tıklanacak yazı](#siparis)</code></td><td>Bağlantı. Adres olarak <code>#siparis</code>, <code>#liste</code>, <code>#hakkimizda</code>, <code>#yasal/kvkk</code> veya <code>https://...</code> yazılabilir.</td></tr>
+  <tr><td><code>&gt; not</code></td><td>Sarı not kutusu</td></tr>
+  <tr><td>Boş satır</td><td>Yeni paragraf</td></tr></table></details>`;
+// --- form parcaciklari ---
+const fi=(y,et,{tip="text",ipucu="",yer=""}={})=>{const v=yolAl(siteTaslak,y);
+  return `<label>${et}<input data-k="${y}"${tip==="number"?' data-t="n" type="text" inputmode="decimal" autocomplete="off"':` type="${tip}"`} value="${esc(tip==="number"?String(v??"").replace(".",","):(v??""))}"${yer?` placeholder="${esc(yer)}"`:""}>${ipucu?`<span class="st-i">${ipucu}</span>`:""}</label>`};
+const ft=(y,et,{satir=4,ipucu=""}={})=>`<label>${et}<textarea data-k="${y}" rows="${satir}">${esc(yolAl(siteTaslak,y)??"")}</textarea>${ipucu?`<span class="st-i">${ipucu}</span>`:""}</label>`;
+const fc=(y,et)=>`<label class="sw"><input type="checkbox" data-k="${y}" data-t="b"${yolAl(siteTaslak,y)?" checked":""} style="width:20px;min-height:20px;height:20px">${et}</label>`;
+const frenk=(y,et)=>{const v=yolAl(siteTaslak,y)||yolAl(IC_VARSAYILAN,y);return `<label>${et}<div style="display:flex;gap:8px;align-items:center"><input type="color" data-k="${y}" value="${esc(v)}" style="width:64px;padding:2px"><code>${esc(v)}</code><button class="btn g s" type="button" data-vrenk="${y}">Varsayılan</button></div></label>`};
+const kutu=(baslik,ic,{aciklama="",bolum=""}={})=>`<div class="box"><div class="st-bh"><b>${baslik}</b>${bolum?`<button class="btn g s" type="button" data-vbolum="${bolum}">Bu bölümü varsayılana döndür</button>`:""}</div>${aciklama?`<p class="st-a">${aciklama}</p>`:""}${ic}</div>`;
+function gorselAlan(y,et,ipucu){
+  const v=yolAl(siteTaslak,y)||"";
+  return `<label>${et}<div class="st-g">${v?`<img src="${esc(v)}" alt="">`:`<span class="st-gb">Görsel yok</span>`}
+    <div style="display:grid;gap:6px;flex:1"><div class="flow" style="margin:0"><label class="btn g s" style="display:inline-flex">Görsel yükle<input type="file" accept="image/png,image/jpeg,image/webp" data-gy="${y}" hidden></label>${v?`<button class="btn d s" type="button" data-gs="${y}">Kaldır</button>`:""}</div>
+    <input data-k="${y}" value="${esc(v)}" placeholder="veya görsel adresi (https://...)"></div></div>${ipucu?`<span class="st-i">${ipucu}</span>`:""}</label>`;
+}
+function hedefSecenek(y){
+  const v=String(yolAl(siteTaslak,y)||"tum");
+  const sec=[["tum","Tüm ürünler"],["son","Son adetler (stokta az kalanlar)"],["#siparis","Siparişlerim sayfası"],["#hakkimizda","Hakkımızda bölümü"]];
+  [...new Set(urunler.map(u=>u.marka).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"tr")).forEach(m=>sec.push(["marka:"+m,"Marka: "+m]));
+  urunler.filter(u=>u.aktif).forEach(u=>sec.push(["urun:"+u.id,"Ürün: "+u.ad_tam+(u.ml?" "+u.ml:"")]));
+  const bilinen=sec.some(s=>s[0]===v);
+  return `<label>Düğmeye basınca nereye gitsin?<select data-hedef="${y}">${sec.map(([k,a])=>`<option value="${esc(k)}"${k===v?" selected":""}>${esc(a)}</option>`).join("")}<option value="__ozel"${bilinen?"":" selected"}>Başka bir adres (elle yazacağım)</option></select>
+    ${bilinen?"":`<input data-k="${y}" value="${esc(v)}" placeholder="https://... veya #liste">`}</label>`;
+}
+function kargoOrnek(k){const u=+k.ucret||0,l=+k.limit||0;
+  return `<b>Sitede şöyle görünecek:</b> ${esc(kargoCumlesi(k))}${u?`<br>Örnek: ${icTL(l?Math.max(1,l-250):300)} tutarındaki sepete ${icTL(u)} kargo eklenir${l?`; ${icTL(l)} ve üzerindeki sepette kargo ücretsizdir`:""}.`:""}`}
+// --- bolumler ---
+function siteBolum(){
+  const T=siteTaslak;
+  if(siteAlt==="satici")return kutu("Satıcı bilgileri",`<div class="g2">${fi("satici.unvan","Ünvan")}${fi("satici.adres","Açık adres")}${fi("satici.vergiDairesi","Vergi dairesi")}${fi("satici.vergiNo","Vergi no / T.C. kimlik no")}${fi("satici.mersis","MERSİS no",{ipucu:"Yoksa boş bırakın, sitede görünmez."})}</div>`,
+      {aciklama:"Sitenin en altında, sözleşmelerde ve KVKK metninde kullanılır. Boş bırakılan zorunlu alanlar yasal metinlerde <mark class=\"dd\">[DOLDURULACAK]</mark> olarak görünür.",bolum:"satici"})
+    +kutu("İletişim",`<div class="g3">${fi("satici.tel","Telefon",{tip:"tel"})}${fi("satici.eposta","E-posta",{tip:"email"})}${fi("satici.whatsapp","WhatsApp numarası",{tip:"tel",yer:"05xx xxx xx xx",ipucu:"Boş bırakırsanız WhatsApp bağlantısı gizlenir."})}</div>`);
+  if(siteAlt==="kargo"){const k=T.kargo;
+    return kutu("Kargo ücreti",`<div class="g2">${fi("kargo.ucret","Müşteriden alınacak kargo ücreti (₺, KDV dahil)",{tip:"number",ipucu:"0 yazarsanız kargo ücretsiz olur."})}${fi("kargo.limit","Ücretsiz kargo sınırı (₺)",{tip:"number",ipucu:"Bu tutar ve üzerindeki siparişlerde kargo ücretsiz olur. 0 = sınır yok."})}${fi("kargo.firma","Anlaşmalı kargo firması",{yer:"ör. Yurtiçi Kargo"})}${fi("kargo.sure","Kargoya verilme süresi",{yer:"ör. 1–3 iş günü"})}</div>
+      <div class="msg" id="stKP" style="background:#f3f7ff;border:1px solid #c9d8f3">${kargoOrnek(k)}</div>`,
+      {aciklama:"Kargo ücreti siparişe veritabanında, sunucu tarafında eklenir; müşteri bunu değiştiremez. Sizin kargo firmasına ödediğiniz bedel ise kâr hesabı için Ayarlar sekmesindeki <b>paketleme/kargo gideri</b> alanına yazılır.",bolum:"kargo"})}
+  if(siteAlt==="gorunum")return kutu("Renkler",`<div class="g3">${frenk("genel.renkUst","Üst bant ve koyu alanlar")}${frenk("genel.renkDugme","Düğmeler ve vurgu")}${frenk("genel.renkZemin","Sayfa zemini")}</div>`,{bolum:"renk"})
+    +kutu("Logo",gorselAlan("genel.logo","Logo görseli","Boş bırakırsanız mevcut APRON logosu kullanılır. Koyu zeminde görüneceği için arka planı şeffaf (PNG) bir logo önerilir."))
+    +kutu("Duyuru bandı",`<div class="g2">${fi("genel.duyuru","Duyuru yazısı",{yer:"ör. **Kasım kampanyası:** 750 TL üzeri kargo bedava",ipucu:"En üstte ince bir şerit olarak görünür. Boş bırakırsanız şerit gizlenir."})}${fi("genel.duyuruLink","Tıklanınca gideceği adres (isteğe bağlı)",{yer:"#liste veya https://..."})}</div>`)
+    +kutu("Tarayıcı ve Google",`<div class="g2">${fi("genel.baslik","Sayfa başlığı (tarayıcı sekmesinde görünür)")}${fi("genel.aciklama","Kısa site açıklaması (Google aramasında görünebilir)")}</div>`);
+  if(siteAlt==="ana"){const S=T.ana.slaytlar||[];
+    return kutu("Kayan vitrin (slaytlar)",`${S.map((x,i)=>`<div class="st-s"><div class="st-bh"><b>Slayt ${i+1}</b><span class="flow" style="margin:0"><button class="btn g s" type="button" data-sl="yukari" data-i="${i}"${i?"":" disabled"}>↑</button><button class="btn g s" type="button" data-sl="asagi" data-i="${i}"${i<S.length-1?"":" disabled"}>↓</button><button class="btn d s" type="button" data-sl="sil" data-i="${i}">Sil</button></span></div>
+        <div class="g2">${fi(`ana.slaytlar.${i}.baslik`,"Başlık")}${fi(`ana.slaytlar.${i}.dugme`,"Düğme yazısı",{ipucu:"Boş bırakırsanız düğme görünmez."})}</div>
+        ${fi(`ana.slaytlar.${i}.metin`,"Açıklama")}
+        <div class="g2">${hedefSecenek(`ana.slaytlar.${i}.hedef`)}${gorselAlan(`ana.slaytlar.${i}.gorsel`,"Sağdaki görsel","Boşsa logo görünür. Mobilde görsel gizlenir.")}</div></div>`).join("")||`<p class="st-a">Henüz özel slayt yok.</p>`}
+      <div class="flow"><button class="btn g" type="button" data-sl="ekle"${S.length>=8?" disabled":""}>+ Slayt ekle</button></div>
+      <div class="g2" style="margin-top:12px">${fc("ana.markaSlayt","Markalar için otomatik slayt ekle (ilk 2 marka)")}${fc("ana.sonSlayt","Stokta az kalan ürün varsa \"Son adetler\" slaytı ekle")}</div>`,
+      {aciklama:"Slaytlar sırayla değişir. Başlık ve açıklamada **kalın** yazı kullanılabilir.",bolum:"slayt"})
+    +kutu("Kutular",`<div class="g2">${[["kutuMarka","Markaya göre alışveriş"],["kutuUygun","En ucuz ürünler"],["kutuSon","Son adetler"],["kutuOneri","Önerilenler (son adet yoksa görünür)"]].map(([k,a])=>`<div class="st-s">${fc(`ana.${k}.goster`,"Göster: "+a)}${fi(`ana.${k}.baslik`,"Kutu başlığı")}</div>`).join("")}</div>
+      <div class="st-s">${fc("ana.guvence.goster","Güvence kutusunu göster")}<div class="g2">${fi("ana.guvence.baslik","Başlık")}${fi("ana.guvence.dugme","Düğme yazısı (boşsa gizli)")}</div>${ft("ana.guvence.maddeler","Maddeler (her satır bir madde)",{satir:5})}</div>`,{bolum:"kutu"});}
+  if(siteAlt==="sayfalar")return kutu("Hakkımızda bölümü",`${fi("hakkimizda.baslik","Başlık")}${ft("hakkimizda.metin","Metin",{satir:6})}${BICIM_YARDIM}`,{bolum:"hakkimizda"})
+    +kutu("Ürün sayfası — satıcı kutusu",ft("urun.maddeler","Her ürün sayfasında \"Sepete ekle\" düğmesinin altında görünen satırlar (her satır bir madde)",{satir:4}),{bolum:"urun"});
+  if(siteAlt==="odeme")return kutu("Ödeme ekranı",`${ft("odeme.onay","Onay kutusunun yazısı",{satir:3,ipucu:"Müşteri bu kutuyu işaretlemeden sipariş veremez. <code>[yazı](#yasal/mesafeli-satis)</code> şeklindeki bağlantılar, formu kapatmadan pencerede açılır."})}
+      ${ft("odeme.basari","Sipariş alındıktan sonra görünen yazı",{satir:4})}${BICIM_YARDIM}`,{bolum:"odeme"});
+  if(siteAlt==="yasal"){const y=T.yasal[siteYasal]||{},oz=!!y.ozel;
+    const ctx=yasalBaglam(T,null,null,"apronkuafor-create.github.io");
+    return `<div class="box"><div class="ynav">${YASAL.map(([s,b])=>`<button type="button" class="${s===siteYasal?"on":""}" data-ys="${s}">${b}${T.yasal[s]&&T.yasal[s].ozel?" ✎":""}</button>`).join("")}</div>
+      <div class="flow"><label class="sw"><input type="radio" name="yoz" value="0"${oz?"":" checked"} style="width:20px;min-height:20px;height:20px">Hazır metni kullan (önerilen)</label><label class="sw"><input type="radio" name="yoz" value="1"${oz?" checked":""} style="width:20px;min-height:20px;height:20px">Kendi metnimi yazacağım</label></div>
+      <p class="st-a">Hazır metin; satıcı, kargo ve iletişim bilgilerinizi kendiliğinden kullanır. Bunları değiştirmek için metne dokunmanız gerekmez; ilgili sekmeden güncellemeniz yeterlidir.</p></div>
+      <div class="st-yz">${oz?`<div class="box"><div class="st-bh"><b>Metin</b><button class="btn g s" type="button" id="yKopya">Hazır metni buraya kopyala</button></div>
+        <textarea id="yMetin" rows="24" style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px">${esc(y.metin||"")}</textarea>
+        <p class="st-a" style="margin-top:8px"><b>Hazır bilgi ekle</b> (imlecin olduğu yere eklenir):</p><div class="st-yt">${YER_TUTUCULAR.map(([k,a])=>`<button type="button" class="btn g s" data-yt="${k}" title="${esc(a)}">${esc(a)}</button>`).join("")}</div>${BICIM_YARDIM}</div>`:""}
+      <div class="box"><b>Önizleme</b>${oz?"":`<span class="st-i"> (hazır metin)</span>`}<div class="yasal st-on" id="yOn">${md(oz?y.metin:YASAL_VARSAYILAN[siteYasal],ctx)}</div><p class="st-i">Son güncelleme: ${esc(oz&&y.tarih?y.tarih:YASAL_TARIH)} · Müşteri bilgisi ve sepet tabloları sitede, sipariş sırasında dolar.</p></div></div>`;
+  }
+  return "";
+}
+function cizSite(){
+  if(siteYok){$("#ic").innerHTML=`<div class="box" style="margin-top:16px"><div class="msg e"><b>08_site_icerik.sql henüz çalıştırılmamış.</b><br>Supabase > SQL Editor'de bu dosyayı çalıştırıp sayfayı yenileyin.</div></div>`;return}
+  if(!siteTaslak)siteTaslak=kopya(site);
+  $("#ic").innerHTML=`<div class="st-ust"><div class="st-alt">${SITE_ALT.map(([k,a])=>`<button type="button" class="${k===siteAlt?"on":""}" data-alt="${k}">${a}</button>`).join("")}</div></div>
+    <div id="stB">${siteBolum()}</div>
+    <div class="st-kay"><span id="stDur">${siteDegisti?"● Kaydedilmemiş değişiklik var":"Tüm değişiklikler kayıtlı"}</span><span class="sp"></span>
+      <a class="btn g" href="${SITE_ADRES}" target="_blank" rel="noopener">Siteyi aç</a><button class="btn g" type="button" id="stVaz"${siteDegisti?"":" disabled"}>Vazgeç</button><button class="btn" type="button" id="stKay"${siteDegisti?"":" disabled"}>Kaydet ve yayınla</button></div>`;
+}
+function siteIsaret(v=true){siteDegisti=v;const d=$("#stDur");if(d){d.textContent=v?"● Kaydedilmemiş değişiklik var":"Tüm değişiklikler kayıtlı";d.classList.toggle("deg",v);$("#stKay").disabled=!v;$("#stVaz").disabled=!v}}
+const siteYeniden=()=>{const y=scrollY;$("#stB").innerHTML=siteBolum();scrollTo(0,y)};
+function yasalOnizle(){const o=$("#yOn");if(o)o.innerHTML=md(siteTaslak.yasal[siteYasal].metin,yasalBaglam(siteTaslak,null,null,"apronkuafor-create.github.io"))}
+async function siteGorselYukle(file){
+  if(!/^image\/(png|jpeg|webp)$/.test(file.type))throw new Error("Yalnızca PNG, JPG veya WEBP görsel yüklenebilir");
+  let blob=file,tur=file.type,uz={"image/png":"png","image/jpeg":"jpg","image/webp":"webp"}[file.type];
+  if(file.type==="image/jpeg"||file.size>2.5e6){blob=await kucult(file,1600);tur="image/jpeg";uz="jpg"}   // seffaf PNG/WEBP oldugu gibi kalir
+  const yol="site-"+Date.now()+"."+uz,t=await token();
+  const r=await fetch(SB+"/storage/v1/object/web-gorseller/"+yol,{method:"POST",headers:{apikey:KEY,Authorization:"Bearer "+t,"Content-Type":tur,"x-upsert":"true"},body:blob});
+  if(!r.ok)throw new Error("Görsel yüklenemedi");
+  return SB+"/storage/v1/object/public/web-gorseller/"+yol;
+}
+const BOLUM_YOL={satici:["satici"],kargo:["kargo"],renk:["genel.renkUst","genel.renkDugme","genel.renkZemin"],slayt:["ana.slaytlar","ana.markaSlayt","ana.sonSlayt"],kutu:["ana.kutuMarka","ana.kutuUygun","ana.kutuSon","ana.kutuOneri","ana.guvence"],hakkimizda:["hakkimizda"],urun:["urun"],odeme:["odeme"]};
+// --- olaylar (tek dinleyici, #app uzerinde) ---
+document.addEventListener("input",e=>{
+  if(sekme!=="site"||!siteTaslak)return;
+  const el=e.target;
+  if(el.id==="yMetin"){const y=siteTaslak.yasal[siteYasal];y.metin=el.value;y.tarih=bugun();siteIsaret();yasalOnizle();return}
+  const k=el.dataset&&el.dataset.k;if(!k)return;
+  let v=el.dataset.t==="b"?el.checked:el.value;
+  if(el.dataset.t==="n"){v=parseFloat(String(v).replace(",","."));if(!isFinite(v)||v<0)v=0}
+  yolYaz(siteTaslak,k,v);siteIsaret();
+  if(el.type==="color"){const c=el.parentElement.querySelector("code");if(c)c.textContent=el.value}
+  if(k.startsWith("kargo.")&&$("#stKP"))$("#stKP").innerHTML=kargoOrnek(siteTaslak.kargo);
+});
+document.addEventListener("change",async e=>{
+  if(sekme!=="site"||!siteTaslak)return;
+  const el=e.target;
+  if(el.dataset.t==="b"){yolYaz(siteTaslak,el.dataset.k,el.checked);siteIsaret();return}
+  if(el.name==="yoz"){const oz=el.value==="1";const y=siteTaslak.yasal[siteYasal]=siteTaslak.yasal[siteYasal]||{};
+    y.ozel=oz;if(oz&&!String(y.metin||"").trim()){y.metin=YASAL_VARSAYILAN[siteYasal];y.tarih=bugun()}siteIsaret();siteYeniden();return}
+  if(el.dataset.hedef){const y=el.dataset.hedef;yolYaz(siteTaslak,y,el.value==="__ozel"?"":el.value);siteIsaret();siteYeniden();return}
+  if(el.dataset.gy){const f=el.files&&el.files[0];if(!f)return;const y=el.dataset.gy;
+    try{toast("Görsel yükleniyor…");const u=await siteGorselYukle(f);yolYaz(siteTaslak,y,u);siteIsaret();siteYeniden();toast("Görsel yüklendi. Kaydetmeyi unutmayın.")}catch(x){oturumHata(x)}}
+});
+document.addEventListener("click",async e=>{
+  if(sekme!=="site"||!siteTaslak)return;
+  const b=e.target.closest("button,[data-alt]");if(!b)return;
+  if(b.dataset.alt){siteAlt=b.dataset.alt;cizSite();return}
+  if(b.dataset.ys){siteYasal=b.dataset.ys;siteYeniden();return}
+  if(b.dataset.vrenk){yolYaz(siteTaslak,b.dataset.vrenk,yolAl(IC_VARSAYILAN,b.dataset.vrenk));siteIsaret();siteYeniden();return}
+  if(b.dataset.gs){yolYaz(siteTaslak,b.dataset.gs,"");siteIsaret();siteYeniden();return}
+  if(b.dataset.vbolum){if(!confirm("Bu bölümdeki yazılar ilk hâline döner. Kaydet'e basana kadar sitede değişmez. Devam?"))return;
+    BOLUM_YOL[b.dataset.vbolum].forEach(y=>yolYaz(siteTaslak,y,kopya(yolAl(IC_VARSAYILAN,y))));siteIsaret();siteYeniden();return}
+  if(b.dataset.sl){const S=siteTaslak.ana.slaytlar,i=+b.dataset.i;
+    if(b.dataset.sl==="ekle")S.push({baslik:"Yeni slayt",metin:"",dugme:"Ürünleri keşfet",hedef:"tum",gorsel:""});
+    else if(b.dataset.sl==="sil"){if(!confirm("Slayt "+(i+1)+" silinsin mi?"))return;S.splice(i,1)}
+    else{const j=b.dataset.sl==="yukari"?i-1:i+1;if(j<0||j>=S.length)return;[S[i],S[j]]=[S[j],S[i]]}
+    siteIsaret();siteYeniden();return}
+  if(b.dataset.yt){const t=$("#yMetin");if(!t)return;const k=b.dataset.yt,blok=["SATICI_TABLOSU","ALICI_BILGILERI","SIPARIS_OZETI"].includes(k);
+    const ek=blok?"\n{{"+k+"}}\n":"{{"+k+"}}",a=t.selectionStart??t.value.length;t.value=t.value.slice(0,a)+ek+t.value.slice(t.selectionEnd??a);
+    t.focus();t.selectionStart=t.selectionEnd=a+ek.length;t.dispatchEvent(new Event("input",{bubbles:true}));return}
+  if(b.id==="yKopya"){if((siteTaslak.yasal[siteYasal].metin||"").trim()&&!confirm("Yazdığınız metin silinip yerine hazır metin konacak. Devam?"))return;
+    siteTaslak.yasal[siteYasal].metin=YASAL_VARSAYILAN[siteYasal];siteTaslak.yasal[siteYasal].tarih=bugun();siteIsaret();siteYeniden();return}
+  if(b.id==="stVaz"){if(!confirm("Kaydedilmemiş değişiklikler silinsin mi?"))return;siteTaslak=kopya(site);siteIsaret(false);cizSite();return}
+  if(b.id==="stKay"){
+    const S=siteTaslak;
+    if(S.satici.eposta&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(S.satici.eposta))return toast("E-posta adresi geçersiz görünüyor");
+    if(S.kargo.limit&&S.kargo.ucret&&S.kargo.limit<S.kargo.ucret)return toast("Ücretsiz kargo sınırı kargo ücretinden küçük olamaz");
+    b.disabled=true;b.textContent="Kaydediliyor…";
+    try{await api("/rest/v1/web_site_icerik?id=eq.ana",{method:"PATCH",body:{veri:S,guncelleme:new Date().toISOString()},basliklar:{Prefer:"return=minimal"}});
+      site=icBirlestir(kopya(S));siteTaslak=kopya(site);siteIsaret(false);toast("Kaydedildi. Site yenilendiğinde yeni hâli görünür.");cizSite()}
+    catch(x){b.disabled=false;b.textContent="Kaydet ve yayınla";oturumHata(x)}
+  }
+});
+addEventListener("beforeunload",e=>{if(siteDegisti){e.preventDefault();e.returnValue=""}});
 
 oturum?ac():giris();
 </script>
