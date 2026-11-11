@@ -141,6 +141,12 @@ table.tg{width:100%;border-collapse:collapse;font-size:14px}.tg th{position:stic
 .tg-s td,.tg-s th{font-size:12.5px}
 .tg-alt{position:sticky;bottom:0;z-index:5;display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0 20px;box-shadow:0 -4px 14px #0001;font-size:14px}.tg-alt .sp{flex:1}
 @media(max-width:800px){.g4{grid-template-columns:1fr 1fr}.g4 label[style*="span 2"]{grid-column:1/-1!important}.tg input.tn{width:80px}.tg td.ad{min-width:170px}.tg-alt .btn{flex:1}.tg-alt .sp{display:none}}
+/* --- Otomasyon --- */
+.oto-r{border:1px solid #ffffff33;background:#ffffff14;color:#fff;border-radius:999px;padding:6px 12px;font-size:13px;margin-right:10px;cursor:pointer;max-width:46vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.oto-r.bek{background:var(--cta);color:#1b1b1b;border-color:var(--cta)}.oto-d{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--cta);margin-right:6px;animation:otoN 1s infinite alternate}
+@keyframes otoN{from{opacity:.3}to{opacity:1}}
+.oto-s{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}.oto-s input{width:20px;height:20px;min-height:20px;flex:none;margin-top:2px}
+@media(max-width:700px){.oto-r{max-width:100%;order:9;margin:6px 0 0;width:100%}header .hd{flex-wrap:wrap}}
 /* --- Ayarlar --- */
 #sl_l .bar .chk{flex-direction:row;color:var(--ink);white-space:nowrap}#sl_l .bar .chk input{width:20px;min-height:20px;height:20px;flex:none}
 .ab-k>div{border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--mute)}.ab-k>div.on{border-color:var(--ok);background:#f1faf4;color:var(--ink)}.ab-k ul{margin:6px 0 0;padding-left:18px}.ab-k li{margin:3px 0}
@@ -222,7 +228,7 @@ async function ac(){
     urunler=u;siparisler=s;talepler=t||[];partiler=pr||[];$("#app").dataset.partiYok=pr===null?"1":"";if(a&&a[0])ayar=a[0];
     $("#app").dataset.talepYok=t===null?"1":"";
     siteYok=!si||!si[0];siteIlk=!siteYok&&!Object.keys(si[0].veri||{}).length;site=icBirlestir(si&&si[0]?si[0].veri:{});if(!siteDegisti)siteTaslak=null;
-    cizIskelet();
+    cizIskelet();if(!otoCalisti)setTimeout(otomatikCalistir,1200);else otoRozet();
   }catch(e){if(e.message==="oturum")giris("Oturum süresi doldu, tekrar giriş yapın.");else $("#app").innerHTML=`<div class="wrap"><div class="msg e" style="margin-top:20px">${esc(e.message)}<br>Veritabanı dosyaları (02, 03 ve 04) çalıştırıldı mı?</div></div>`}
 }
 function sayilar(){
@@ -447,6 +453,7 @@ $("#app").addEventListener("click",async e=>{
       const veri={ad_tam,marka,ml,aktif,fiyat,alis_fiyat:alis,alis_tarih:row.querySelector("#f_atarih").disabled?(u.alis_tarih||null):(row.querySelector("#f_atarih").value||null),sira:parseInt(row.querySelector("#f_sira").value,10)||0,aciklama:v("#f_ac"),uretici_bilgi:v("#f_ur"),uzman_ad:v("#f_uzad"),uzman_unvan:v("#f_uzun"),uzman_gorus:v("#f_uz"),kullanim:v("#f_ku"),icerik:v("#f_ic"),
         foto:edit.imgs[0]||"",galeri:edit.imgs.slice(1),guncelleme:new Date().toISOString()};
       if("kaynak_url" in u&&row.querySelector("#f_kaynak"))veri.kaynak_url=v("#f_kaynak");
+      if("oto_kapali" in u&&aktif!==!!u.aktif)veri.oto_kapali=!aktif;   // elle gizlendiyse otomatik yayina alinmasin
       if(!ayar.stok_koprusu){const s=parseInt(row.querySelector("#f_stok").value,10);if(!(s>=0))throw new Error("Stok geçersiz");veri.web_stok=s}
       await api("/rest/v1/web_urunler?id=eq."+encodeURIComponent(id),{method:"PATCH",body:veri,basliklar:{Prefer:"return=minimal"}});
       // listeden kaldirilan gorselleri depodan sil (en iyi gayretle)
@@ -690,6 +697,7 @@ function cizAyar(){
   <div class="g2 ab-k"><div class="${ayar.stok_koprusu?"on":""}"><b>Açık olursa</b><ul><li>Sitedeki stok, salon uygulamanızdaki stoktur.</li><li>İnternetten satılan ürün salon stoğundan düşer.</li><li>Mal girişini salon uygulamasından yaparsınız; panelin "Toplu giriş tablosu" site stoğunu artırmaz.</li></ul></div>
   <div class="${ayar.stok_koprusu?"":"on"}"><b>Kapalı olursa</b><ul><li>Site kendi stok sayısını tutar.</li><li>Salon stok defterine hiç dokunulmaz.</li><li>Site stoğunu paneldeki Ürünler ekranından ya da Toplu giriş tablosundan girersiniz.</li></ul></div></div>
   <div class="flow"><button class="btn ${ayar.stok_koprusu?"d":""}" id="kopru">${ayar.stok_koprusu?"Bağlantıyı kapat":"Bağlantıyı aç"}</button><span class="st-i">Değişiklik yeni siparişlerden itibaren geçerli olur; geçmiş siparişler, verildikleri andaki duruma göre işlenir.</span></div></div>
+  ${otoKutusu()}
   <div class="box"><b>Salon uygulamasındaki ürünleri siteye aktar</b>
   <p class="st-a">Salon stok defterinizdeki ürünler barkod, ad, marka ve son alış fiyatıyla siteye eklenir. Salon kayıtlarına dokunulmaz. Aktarılan ürünler <b>gizli ve fiyatsız</b> gelir; fiyatı girip “sitede göster” dediğinizde satışa çıkar.</p>
   <div class="flow"><button class="btn g" type="button" id="sl_getir">Salon ürünlerini listele</button></div><div id="sl_l"></div></div>
@@ -1236,7 +1244,7 @@ async function tgKaydet(b){
   for(const id of ids){
     const u=urunler.find(x=>x.id===id),d=tg.d[id];if(!u)continue;b.textContent=`Kaydediliyor ${++n}/${ids.length}…`;
     try{
-      const v={};if("aktif" in d)v.aktif=d.aktif;if(d.fiyat>0)v.fiyat=d.fiyat;if(d.birim>0&&!(d.adet>0))v.alis_fiyat=d.birim;
+      const v={};if("aktif" in d){v.aktif=d.aktif;if("oto_kapali" in u)v.oto_kapali=!d.aktif}if(d.fiyat>0)v.fiyat=d.fiyat;if(d.birim>0&&!(d.adet>0))v.alis_fiyat=d.birim;
       if(Object.keys(v).length){v.guncelleme=new Date().toISOString();await api("/rest/v1/web_urunler?id=eq."+encodeURIComponent(id),{method:"PATCH",body:v,basliklar:{Prefer:"return=minimal"}})}
       if(d.adet>0){if($("#app").dataset.partiYok)throw new Error("07 numaralı SQL çalıştırılmamış");
         await rpc("web_parti_ekle",{p_urun:id,p_tarih:tar,p_adet:d.adet,p_birim:d.birim>0?d.birim:num(u.alis_fiyat),p_fatura:tg.fatura||"",p_stoga_ekle:true})}
@@ -1642,8 +1650,8 @@ function slCiz(){
   const g=slOn.filter(x=>!ara||norm(x.ad+" "+x.marka+" "+x.barkod).includes(ara));
   el.innerHTML=slOn.length?`<div class="bar" style="margin:10px 0"><input id="sl_ara" placeholder="Ara" value="${esc(($("#sl_ara")||{}).value||"")}"><label class="chk"><input type="checkbox" id="sl_hep" checked>Görünenlerin hepsini seç</label></div>
    <div class="tg-k"><table class="tg"><thead><tr><th class="c">Aktar</th><th>Ürün</th><th class="r">Salon stoğu</th><th class="r">Son alış</th><th>Durum</th></tr></thead><tbody>
-   ${g.map(x=>`<tr><td class="c">${x.sitede?"":`<input type="checkbox" class="sl_c" value="${esc(x.barkod)}"${x._sec!==false?" checked":""}>`}</td><td class="ad"><b>${esc(x.ad||"(adsız)")}</b><small>${esc(x.marka||"marka yok")} · ${esc(x.barkod)}</small></td>
-     <td class="r">${Math.round(num(x.stok))}</td><td class="r">${num(x.son_alis)>0?TL(num(x.son_alis)):"—"}</td><td>${x.sitede?`<span class="tg-m">Zaten sitede</span>`:`<span class="tg-ok">Aktarılabilir</span>`}</td></tr>`).join("")}</tbody></table></div>
+   ${g.map(x=>`<tr><td class="c">${x.sitede?"":`<input type="checkbox" class="sl_c" value="${esc(x.barkod)}"${(x._sec??!x.haric)?" checked":""}>`}</td><td class="ad"><b>${esc(x.ad||"(adsız)")}</b><small>${esc(x.marka||"marka yok")} · ${esc(x.barkod)}</small></td>
+     <td class="r">${Math.round(num(x.stok))}</td><td class="r">${num(x.son_alis)>0?TL(num(x.son_alis)):"—"}</td><td>${x.sitede?`<span class="tg-m">Zaten sitede</span>`:x.haric?`<span class="tg-m">Siteden silinmiş</span>`:`<span class="tg-ok">Aktarılabilir</span>`}</td></tr>`).join("")}</tbody></table></div>
    <div class="flow"><b id="sl_say"></b><span class="sp"></span><button class="btn" type="button" id="sl_akt">Seçilenleri siteye aktar</button></div>`
    :`<div class="msg">Salon stok defterinde ürün bulunamadı.</div>`;
   slSay();
@@ -1674,6 +1682,92 @@ document.addEventListener("change",e=>{if(sekme!=="ayar")return;const t=e.target
   if(t.classList.contains("sl_c")){const x=slOn.find(y=>y.barkod===t.value);if(x)x._sec=t.checked;slSay()}
   if(t.id==="sl_hep"){document.querySelectorAll(".sl_c").forEach(c=>{c.checked=t.checked;const x=slOn.find(y=>y.barkod===c.value);if(x)x._sec=t.checked});slSay()}});
 document.addEventListener("input",e=>{if(sekme==="ayar"&&e.target.id==="sl_ara"){const p=e.target.selectionStart;slCiz();const i=$("#sl_ara");i.focus();i.setSelectionRange(p,p)}});
+
+/* ================= OTOMASYON (salon programi -> site) ================= */
+const otoVar=()=>"oto_urun_ekle" in ayar;
+let otoCalisti=false,otoDurum=null;   // {calisiyor,uygulanan,bekleyen,yayin,hata}
+function otoRozet(){
+  const hd=document.querySelector("header .hd");if(!hd)return;let r=$("#otoR");
+  if(!otoDurum){if(r)r.remove();return}
+  if(!r){r=document.createElement("button");r.id="otoR";r.type="button";r.className="oto-r";hd.insertBefore(r,hd.querySelector("small"))}
+  const d=otoDurum;
+  r.innerHTML=d.calisiyor?`<span class="oto-d"></span>Otomatik: ${esc(d.yazi||"çalışıyor…")}`
+    :`${d.uygulanan?`✔ ${d.uygulanan} ürüne bilgi eklendi`:"✔ Otomatik işler tamam"}${d.yayin?` · ${d.yayin} ürün yayında`:""}${d.bekleyen?` · <b>${d.bekleyen} ürün onayınızı bekliyor</b>`:""}`;
+  r.classList.toggle("bek",!!d.bekleyen&&!d.calisiyor);
+  r.title=d.bekleyen?"Onay bekleyen ürünleri görmek için tıklayın":"Otomatik işlemler";
+}
+document.addEventListener("click",e=>{if(e.target.closest("#otoR")&&otoDurum&&!otoDurum.calisiyor){sekme="urun";urunMod="cek";ck.bosGorsel=!!otoDurum.bekleyen;ck.marka="";ciz();scrollTo(0,0)}});
+async function otoYayin(){
+  if(!otoVar()||!ayar.oto_yayin)return 0;
+  try{return (await rpc("web_oto_yayin_kontrol"))||0}catch(x){return 0}
+}
+async function otoBilgiGetir(){
+  if(!otoVar()||!ayar.oto_bilgi)return;
+  let den={};try{den=JSON.parse(localStorage.getItem("apron_oto_denendi")||"{}")}catch(x){}
+  const simdi=Date.now(),hafta=7*864e5;
+  const l=urunler.filter(u=>!resimler(u).length&&(markaSite(u.marka)||adresGecerli(u.kaynak_url||""))&&!(den[u.id]>simdi-hafta)).slice(0,30);
+  if(!l.length)return;
+  otoDurum={calisiyor:true,uygulanan:0,bekleyen:0,yayin:0,yazi:`ürün bilgileri aranıyor 0/${l.length}`};otoRozet();
+  let n=0;
+  for(const u of l){
+    otoDurum.yazi=`ürün bilgileri aranıyor ${++n}/${l.length}`;otoRozet();
+    try{
+      const m=u.marka,site=markaSite(m);
+      if(!ck.harita[m]&&!adresGecerli(u.kaynak_url||"")){try{ck.harita[m]=(await cek("harita",site)).urunler||[]}catch(x){if(x.message==="oturum")throw x;ck.harita[m]=[]}}
+      const kayitli=adresGecerli(u.kaynak_url||"")?[{u:u.kaynak_url.trim(),t:"",puan:1}]:null;   // daha once kaydedilmis adres varsa onu kullan
+      let c=kayitli||eslestir(u,ck.harita[m]||[]);
+      if(!esEmin(c)&&site){try{const q=esKelime(u.ad_tam,u.marka).join(" ");if(q){const c2=eslestir(u,(await cek("ara",site,q)).urunler||[]);
+        c=[...c,...c2].reduce((a,x)=>{const o=a.find(y=>y.u===x.u);if(o)o.puan=Math.max(o.puan,x.puan);else a.push(x);return a},[]).sort((a,b)=>b.puan-a.puan).slice(0,6)}}catch(x){if(x.message==="oturum")throw x}}
+      den[u.id]=simdi;
+      if(!esEmin(c)){if(c.length){ck.aday[u.id]=c;ck.durum[u.id]="? Emin olunamadı. Doğru sayfayı seçin";otoDurum.bekleyen++}continue}
+      const s=await cek("sayfa",c[0].u);
+      const v={},yeni=[];
+      for(const g of s.gorseller.slice(0,4)){try{yeni.push(await fotoYukle(u.id,await cek("gorsel",g),yeni.length))}catch(x){if(x.message==="oturum")throw x}}
+      if(yeni.length){v.foto=yeni[0];v.galeri=yeni.slice(1)}
+      const grup={};if(s.kisa)grup.aciklama=[s.kisa];s.metinler.forEach(t=>(grup[t.alan]=grup[t.alan]||[]).push(t.metin));
+      if(!grup.aciklama&&grup.uretici_bilgi){const t=grup.uretici_bilgi[0];grup.aciklama=[t.length>320?t.slice(0,t.lastIndexOf(" ",320))+"…":t]}
+      Object.entries(grup).forEach(([k,arr])=>{if(!String(u[k]||"").trim())v[k]=arr.join("\n\n").slice(0,4000)});
+      if(kaynakVar())v.kaynak_url=c[0].u;
+      if(Object.keys(v).length){v.guncelleme=new Date().toISOString();await api("/rest/v1/web_urunler?id=eq."+encodeURIComponent(u.id),{method:"PATCH",body:v,basliklar:{Prefer:"return=minimal"}});Object.assign(u,v);otoDurum.uygulanan++;ck.durum[u.id]="✔ Otomatik eklendi"}
+    }catch(x){if(x.message==="oturum"){otoDurum=null;otoRozet();return}den[u.id]=simdi}
+  }
+  try{localStorage.setItem("apron_oto_denendi",JSON.stringify(den))}catch(x){}
+  otoDurum.calisiyor=false;
+}
+async function otomatikCalistir(){
+  if(otoCalisti||!otoVar())return;otoCalisti=true;
+  try{
+    await otoBilgiGetir();
+    const y=await otoYayin();
+    if(otoDurum||y){otoDurum=otoDurum||{uygulanan:0,bekleyen:0};otoDurum.calisiyor=false;otoDurum.yayin=y;
+      if(otoDurum.uygulanan||y){const yeni=await rpc("web_yonetim_liste").catch(()=>null);if(yeni)urunler=yeni;
+        // duzenleme ekrani acikken ya da kaydedilmemis tablo varken ekrani yenileme (yazdiklariniz kaybolmasin)
+        if(sekme==="urun"&&!acik&&!(urunMod==="toplu"&&Object.keys(tg.d).length))ciz()}
+      otoRozet();}
+  }catch(x){otoDurum=null;otoRozet()}
+}
+function otoKutusu(){
+  if(!otoVar())return `<div class="box"><b>Otomasyon</b><div class="msg e" style="margin-top:8px">Otomasyonu açmak için Supabase'de <code>12_otomasyon.sql</code> dosyasını çalıştırın.</div></div>`;
+  const c=(k,a,i)=>`<label class="oto-s"><input type="checkbox" id="o_${k}"${ayar[k]?" checked":""}><span><b>${a}</b><br><span class="st-i">${i}</span></span></label>`;
+  return `<div class="box"><div class="st-bh"><b>Otomasyon</b><span class="st-i">Salon programında stok girdiğinizde site kendiliğinden güncellenir. Panel kapalı olsa da çalışır.</span></div>
+   ${c("oto_urun_ekle","Salonda yeni ürün girilince siteye ekle","Ürün siteye gizli olarak eklenir. Siteden sildiğiniz ürün geri eklenmez.")}
+   ${c("oto_alis","Alış fiyatını salondaki son girişten al","Kâr hesapları her zaman güncel maliyetle yapılır.")}
+   ${c("oto_bilgi","Görsel ve bilgileri markanın sitesinden otomatik getir","Panel her açıldığında görseli olmayan ürünler aranır. Emin olunanlar eklenir, emin olunamayanlar onayınıza bırakılır. Marka sitelerinin girilmiş olması gerekir.")}
+   ${c("oto_fiyat","Yeni ürünlere satış fiyatını kâr oranıyla otomatik ver","Yalnız fiyatı 0 olan ürünlere uygulanır. Girdiğiniz fiyata dokunulmaz.")}
+   <label style="max-width:320px;margin:4px 0 8px 32px">Hedef kâr oranı (%)<input id="o_oran" inputmode="decimal" value="${esc(sayiYaz(num(ayar.oto_fiyat_oran,100)))}"><span class="st-i">Örnek: %100 → KDV hariç ${TL(310)} alışa ${TL(yuvarla(oneriOran(310,{...AYAR(),dahil:false},100)))} satış fiyatı.</span></label>
+   ${c("oto_fiyat_artis","Alış fiyatı artınca satış fiyatını da yükselt","Aynı kâr oranını korumak için fiyatı yükseltir; hiçbir zaman düşürmez.")}
+   ${c("oto_yayin","Fiyatı, görseli ve stoğu olan ürünü otomatik yayına al","Elle gizlediğiniz ürünler kendiliğinden yayına alınmaz.")}
+   <div class="flow"><button class="btn" type="button" id="o_kay">Otomasyon ayarlarını kaydet</button></div></div>`;
+}
+document.addEventListener("click",async e=>{
+  if(sekme!=="ayar"||e.target.id!=="o_kay")return;const b=e.target;
+  const v={};["oto_urun_ekle","oto_alis","oto_bilgi","oto_fiyat","oto_fiyat_artis","oto_yayin"].forEach(k=>v[k]=$("#o_"+k).checked);
+  const o=sayiTR($("#o_oran").value);if(!(o>=0&&o<=1000))return toast("Kâr oranı 0 ile 1000 arasında olmalı");v.oto_fiyat_oran=o;
+  b.disabled=true;
+  try{await api("/rest/v1/web_ayar?id=eq.ana",{method:"PATCH",body:v,basliklar:{Prefer:"return=minimal"}});Object.assign(ayar,v);
+    let msg="Otomasyon ayarları kaydedildi";const y=await otoYayin();if(y){msg+=` · ${y} ürün yayına alındı`;await yenidenYukle("ayar")}
+    toast(msg)}catch(x){oturumHata(x)}finally{b.disabled=false}
+});
 
 oturum?ac():giris();
 </script>
