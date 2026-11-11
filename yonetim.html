@@ -141,6 +141,8 @@ table.tg{width:100%;border-collapse:collapse;font-size:14px}.tg th{position:stic
 .tg-s td,.tg-s th{font-size:12.5px}
 .tg-alt{position:sticky;bottom:0;z-index:5;display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0 20px;box-shadow:0 -4px 14px #0001;font-size:14px}.tg-alt .sp{flex:1}
 @media(max-width:800px){.g4{grid-template-columns:1fr 1fr}.g4 label[style*="span 2"]{grid-column:1/-1!important}.tg input.tn{width:80px}.tg td.ad{min-width:170px}.tg-alt .btn{flex:1}.tg-alt .sp{display:none}}
+/* --- Barkod --- */
+.bk-s{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.bk-f{margin-top:8px;padding:10px;border:1px dashed var(--line);border-radius:10px;background:#fafbfb}
 /* --- Ureticiden getir --- */
 .st-on2{display:block;margin-top:4px;border:0;background:none;color:#0a66c2;font-size:12px;padding:0;text-align:left;cursor:pointer;text-decoration:underline}details.box>summary{cursor:pointer}
 .cek-s{display:flex;gap:8px}.cek-s input{flex:1}
@@ -338,7 +340,14 @@ function govde(u){
   const kopru=ayar.stok_koprusu;
   edit={id:u.id,imgs:resimler(u),orig:resimler(u)};setTimeout(karGuncelle,0);
   const T=(id,ad,deger,sat,ipucu,max=4000)=>`<label>${ad}<textarea id="${id}" rows="${sat}" maxlength="${max}">${esc(deger||"")}</textarea>${ipucu?`<span style="font-size:12px">${ipucu}</span>`:""}</label>`;
+  const mkl=[...new Set(urunler.map(x=>x.marka).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"tr"));
   return `<div class="bl"><h3>Genel</h3><label class="sw"><input type="checkbox" id="f_aktif"${u.aktif?" checked":""}>Sitede göster</label>
+  <div class="g3" style="margin-top:10px"><label>Ürün adı<input id="f_ad" maxlength="160" value="${esc(u.ad_tam)}"></label>
+  <label>Marka<input id="f_marka" maxlength="60" list="f_mkl" value="${esc(u.marka)}"><datalist id="f_mkl">${mkl.map(m=>`<option value="${esc(m)}">`).join("")}</datalist></label>
+  <label>Boyut<input id="f_ml" maxlength="30" placeholder="ör. 100 ml" value="${esc(u.ml||"")}"></label></div>
+  <div class="bk-s" style="margin-top:8px"><span class="st-i">Barkod: <b>${esc(u.id)}</b></span><button class="btn g s" type="button" data-bkac="1">Barkodu değiştir</button></div>
+  <div class="bk-f" hidden><label>Yeni barkod<div class="cek-s"><input id="f_ybk" autocomplete="off" inputmode="text" placeholder="Barkodu okutun veya yazın"><button class="btn s" type="button" data-bkdeg="1">Değiştir</button><button class="btn g s" type="button" data-bkkap="1">Vazgeç</button></div></label>
+    <span class="st-i">Ürünün bilgileri, görselleri, stok girişleri ve geçmiş siparişleri yeni barkoda taşınır. Bu bölümde kaydetmediğiniz başka değişiklik varsa önce <b>Kaydet</b>'e basın.</span></div>
   <div class="g3" style="margin-top:10px"><label>Satış fiyatı (₺, KDV dahil)<input id="f_fiyat" type="number" inputmode="decimal" step="0.01" min="0" value="${esc(u.fiyat)}"></label>
   <label>${kopru?"Salon stoğu (köprü açık)":"Site stoğu (köprü kapalı)"}<input id="f_stok" type="number" inputmode="numeric" min="0" value="${kopru?Math.max(0,Math.floor(u.salon_stok)):u.web_stok}"${kopru?" disabled":""}></label>
   <label>Sıra (küçük olan önde)<input id="f_sira" type="number" inputmode="numeric" value="${esc(u.sira||0)}"></label></div></div>
@@ -431,7 +440,8 @@ $("#app").addEventListener("click",async e=>{
       if(aktif&&!(fiyat>0))throw new Error("Sitede göstermek için fiyat girin");
       const v=k=>row.querySelector(k).value.trim();
       const alis=num(row.querySelector("#f_alis").value);if(alis<0)throw new Error("Alış fiyatı geçersiz");
-      const veri={aktif,fiyat,alis_fiyat:alis,alis_tarih:row.querySelector("#f_atarih").disabled?(u.alis_tarih||null):(row.querySelector("#f_atarih").value||null),sira:parseInt(row.querySelector("#f_sira").value,10)||0,aciklama:v("#f_ac"),uretici_bilgi:v("#f_ur"),uzman_ad:v("#f_uzad"),uzman_unvan:v("#f_uzun"),uzman_gorus:v("#f_uz"),kullanim:v("#f_ku"),icerik:v("#f_ic"),
+      const ad_tam=v("#f_ad"),marka=v("#f_marka"),ml=v("#f_ml");if(ad_tam.length<2)throw new Error("Ürün adı boş olamaz");
+      const veri={ad_tam,marka,ml,aktif,fiyat,alis_fiyat:alis,alis_tarih:row.querySelector("#f_atarih").disabled?(u.alis_tarih||null):(row.querySelector("#f_atarih").value||null),sira:parseInt(row.querySelector("#f_sira").value,10)||0,aciklama:v("#f_ac"),uretici_bilgi:v("#f_ur"),uzman_ad:v("#f_uzad"),uzman_unvan:v("#f_uzun"),uzman_gorus:v("#f_uz"),kullanim:v("#f_ku"),icerik:v("#f_ic"),
         foto:edit.imgs[0]||"",galeri:edit.imgs.slice(1),guncelleme:new Date().toISOString()};
       if("kaynak_url" in u&&row.querySelector("#f_kaynak"))veri.kaynak_url=v("#f_kaynak");
       if(!ayar.stok_koprusu){const s=parseInt(row.querySelector("#f_stok").value,10);if(!(s>=0))throw new Error("Stok geçersiz");veri.web_stok=s}
@@ -1371,7 +1381,7 @@ async function cek(islem,url,q){
   if(islem==="gorsel"){if(!r.ok){let m="";try{m=(await r.json()).hata}catch(e){}throw new Error(m||"Görsel alınamadı")}return await r.blob()}
   const j=await r.json().catch(()=>({hata:"Yanıt okunamadı"}));if(!r.ok||j.hata)throw new Error(j.hata||("Hata "+r.status));return j;
 }
-const kaynakVar=()=>urunler.length&&"kaynak_url" in urunler[0];
+const kaynakVar=()=>urunler.length?"kaynak_url" in urunler[0]:"marka_siteleri" in ayar;   // urun yoksa 09 kontrolu ayardan
 const adresGecerli=s=>/^https?:\/\/[^\s/]+\.[^\s/]+/i.test(String(s||"").trim());
 /* ---------- tek urun (urun duzenleme ekraninda) ---------- */
 function cekBlok(u){
@@ -1584,6 +1594,26 @@ function markaKutusu(){
    <div class="g3">${markalar.map(m=>`<label>${esc(m)} <span class="st-i">(${urunler.filter(u=>u.marka===m).length} ürün)</span><input data-ms="${esc(m)}" inputmode="url" placeholder="https://..." value="${esc(ms[m]||ck.msite[m]||"")}">${!ms[m]&&MARKA_ONERI[m]?`<button type="button" class="st-on2" data-msoner="${esc(m)}">Öneri: ${esc(MARKA_ONERI[m])}</button>`:""}</label>`).join("")}</div>
    <div class="flow"><button class="btn g" type="button" id="msKay">Marka sitelerini kaydet</button>${"marka_siteleri" in ayar?"":`<span class="st-i">Kalıcı kayıt için <code>09_urun_kaynak_adresi.sql</code> çalıştırılmalı.</span>`}</div></details>`;
 }
+
+/* ---------- barkod degistirme ---------- */
+document.addEventListener("click",async e=>{
+  if(sekme!=="urun")return;const b=e.target.closest("[data-bkac],[data-bkdeg],[data-bkkap]");if(!b)return;e.stopPropagation();
+  const kutu=b.closest(".rb"),f=kutu.querySelector(".bk-f");
+  if(b.dataset.bkac){f.hidden=false;kutu.querySelector("#f_ybk").focus();return}
+  if(b.dataset.bkkap){f.hidden=true;return}
+  const eski=edit&&edit.id,yeni=kutu.querySelector("#f_ybk").value.replace(/\s/g,"");
+  if(!eski)return;
+  if(!/^[0-9A-Za-z_-]{3,40}$/.test(yeni))return toast("Barkod geçersiz: yalnız harf, rakam, - ve _ (3–40 karakter)");
+  if(yeni===eski)return toast("Yeni barkod eskisiyle aynı");
+  if(urunler.some(x=>x.id===yeni))return toast("Bu barkod başka bir üründe kayıtlı");
+  if(!confirm(`Barkod ${eski} → ${yeni} olarak değiştirilecek. Devam?`))return;
+  b.disabled=true;b.textContent="Değiştiriliyor…";
+  try{await rpc("web_urun_barkod_degistir",{p_eski:eski,p_yeni:yeni});
+    await yenidenYukle("urun");acik=yeni;ciz();const r=document.querySelector(`.row[data-id="${CSS.escape(yeni)}"]`);if(r)r.scrollIntoView({block:"start"});toast("Barkod değiştirildi")}
+  catch(x){b.disabled=false;b.textContent="Değiştir";if(x.message==="oturum")return oturumHata(x);
+    const m=x.message;toast(/BARKOD_VAR/.test(m)?"Bu barkod başka bir üründe kayıtlı":/BARKOD_GECERSIZ/.test(m)?"Barkod geçersiz":/URUN_YOK/.test(m)?"Ürün bulunamadı, sayfayı yenileyin":/function|schema cache|404/i.test(m)?"Önce Supabase'de 10_barkod_degistir.sql dosyasını çalıştırın":m)}
+},true);
+document.addEventListener("keydown",e=>{if(e.target.id==="f_ybk"&&e.key==="Enter"){e.preventDefault();const d=e.target.closest(".rb").querySelector("[data-bkdeg]");if(d)d.click()}});
 
 oturum?ac():giris();
 </script>
