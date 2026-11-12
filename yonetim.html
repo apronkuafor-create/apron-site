@@ -127,7 +127,7 @@ code{background:#f1f2f2;border-radius:4px;padding:0 4px;font-size:.92em}
 @media(max-width:800px){.st-yz{grid-template-columns:1fr}.st-kay .btn{flex:1}.st-kay .sp{display:none}#stDur{width:100%}}
 /* --- Urunler: 2 ekran + salon listesi --- */
 .tg td.ri,.tg th.ri{width:72px;padding-right:0}.sl-im{display:grid;place-items:center;width:60px;height:60px;border:1px solid var(--line);border-radius:8px;background:#fff;overflow:hidden;padding:0;cursor:zoom-in}
-.sl-im img{width:100%;height:100%;object-fit:contain}.sl-im.bos{cursor:default;background:#f4f5f5;font-size:10.5px;color:var(--mute);text-align:center;line-height:1.2}
+.sl-im img{width:100%;height:100%;object-fit:contain}.sl-yk{cursor:pointer!important;display:flex!important;flex-direction:column;justify-content:center;gap:2px}.sl-yk b{color:#0a66c2;font-size:10.5px}.sl-yk:hover{border-color:#0a66c2}.sl-im.bos{cursor:default;background:#f4f5f5;font-size:10.5px;color:var(--mute);text-align:center;line-height:1.2}
 .sl-buyuk{position:fixed;inset:0;background:#000a;z-index:300;display:grid;place-items:center;padding:16px}.sl-bk{background:#fff;border-radius:12px;max-width:760px;width:100%;max-height:90vh;overflow:auto;padding:14px}
 .sl-bh{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}.sl-bg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:8px}.sl-bg img{width:100%;aspect-ratio:1;object-fit:contain;border:1px solid var(--line);border-radius:8px}
 .sl-or{display:flex;align-items:center;gap:6px;white-space:nowrap;font-size:13px;color:var(--mute)}.sl-or input{width:80px;min-height:40px}
@@ -1319,7 +1319,8 @@ async function cizSalonEkle(){
    <div class="bar" style="margin:0"><input id="sl_ara" placeholder="Ürün, marka veya barkod ara" value="${esc(slF.ara)}">
    <select id="sl_mk"><option value="">Tüm markalar</option>${mk.map(m=>`<option${m===slF.marka?" selected":""}>${esc(m)}</option>`).join("")}</select>
    <label class="sl-or">Kâr oranı (%)<input id="sl_oran" inputmode="decimal" value="${esc(sayiYaz(slOran()))}"></label>
-   <button class="btn g s" type="button" id="sl_yen">Listeyi yenile</button></div>
+   <button class="btn g s" type="button" id="sl_yen">Listeyi yenile</button><button class="btn g s" type="button" id="sl_ra" title="Bulunamayan görselleri yeniden ara">Görselleri yeniden ara</button></div>
+   <div id="slFn"></div>
    <div class="st-i" style="margin-top:6px">Öneri fiyatı = alış fiyatı + %${esc(sayiYaz(slOran()))} kâr; KDV, ödeme komisyonu ve paketleme gideri (Ayarlar › Maliyet ve vergi) eklenir, 5 TL'ye yuvarlanır. Örnek: ${TL(1000)} alış → ${TL(yuvarla(oneriOran(1000,AYAR(),slOran())))}</div></div>
   ${l.length?`<div class="tg-k"><table class="tg slt"><thead><tr><th class="c"><input type="checkbox" id="sl_hep" aria-label="Hepsini seç"${l.length&&l.every(x=>slSec[x.barkod])?" checked":""}></th><th class="ri">Görsel</th><th>Ürün</th><th class="r">Salon stoğu</th><th class="r">Son alış</th><th>Satış fiyatı ₺<small>KDV dahil</small></th></tr></thead>
    <tbody>${l.map(x=>{const s=slSec[x.barkod],o=slOneri(x);return `<tr data-b="${esc(x.barkod)}" class="${s?"sec":""}"><td class="c"><input type="checkbox" data-sls${s?" checked":""} aria-label="Seç"></td><td class="ri">${slResimHTML(x.barkod)}</td>
@@ -1345,6 +1346,8 @@ document.addEventListener("input",e=>{if(sekme!=="urun"||urunMod!=="salon")retur
 document.addEventListener("click",async e=>{if(sekme!=="urun"||urunMod!=="salon")return;const t=e.target;
   if(t.matches("[data-slo]")){const tr=t.closest("tr"),i=tr.querySelector("[data-slf]");i.value=sayiYaz(+t.dataset.slo);tr.querySelector("[data-sls]").checked=true;slSatir(tr);return}
   if(t.id==="sl_yen"){slOn=null;return cizSalonEkle()}
+  if(t.id==="sl_ra"){try{const o=onizOku();Object.keys(o).forEach(k=>{if(!o[k].u||!o[k].u.length)delete o[k]});localStorage.setItem(ONIZ_ANAHTAR,JSON.stringify(o))}catch(x){}
+    Object.keys(slResim).forEach(k=>{if(!slResim[k].u||!slResim[k].u.length)delete slResim[k]});slFnKontrol=false;slFnHata=null;ck.harita={};return cizSalonEkle()}
   if(t.id==="sl_vaz"){slSec={};return cizSalonEkle()}
   if(t.id==="sl_ekle"){const s=Object.values(slSec);if(!s.length)return;
     if(!confirm(`${s.length} ürün siteye eklenecek. Devam?`))return;t.disabled=true;t.textContent="Ekleniyor…";
@@ -1365,12 +1368,12 @@ document.addEventListener("click",async e=>{if(sekme!=="urun"||urunMod!=="salon"
 
 /* ---------- Salon listesinde resim: depodaki eski resimler, marka sitesi, barkod veritabani ---------- */
 let slResim={},slDepo=null,slOnizNo=0;
-const ONIZ_ANAHTAR="apron_onizleme";
+const ONIZ_ANAHTAR="apron_onizleme2";   // surum 2: arama hatalari artik "yok" diye saklanmaz
 function onizOku(){try{return JSON.parse(localStorage.getItem(ONIZ_ANAHTAR)||"{}")}catch(x){return {}}}
 function onizYaz(b,r){try{const o=onizOku();o[b]={...r,z:Date.now()};const k=Object.keys(o);if(k.length>1500)k.sort((a,c)=>o[a].z-o[c].z).slice(0,300).forEach(x=>delete o[x]);localStorage.setItem(ONIZ_ANAHTAR,JSON.stringify(o))}catch(x){}}
 function slResimHTML(b){const r=slResim[b];
-  if(!r)return `<div class="sl-im bos" data-im="${esc(b)}"><span>…</span></div>`;
-  if(!r.u||!r.u.length)return `<div class="sl-im bos" data-im="${esc(b)}" title="Görsel bulunamadı"><span>Görsel yok</span></div>`;
+  if(!r)return `<div class="sl-im bos" data-im="${esc(b)}"><span>aranıyor…</span></div>`;
+  if(!r.u||!r.u.length)return `<label class="sl-im bos sl-yk" data-im="${esc(b)}" title="${r.tur==="hata"?"Arama yapılamadı: "+esc(r.neden||""):"İnternette bulunamadı"}. Bilgisayardan resim seçmek için tıklayın"><input type="file" accept="image/*" data-slyk="${esc(b)}" hidden><span>${r.tur==="hata"?"Arama<br>yapılamadı":"Bulunamadı"}</span><b>+ Yükle</b></label>`;
   return `<button type="button" class="sl-im" data-im="${esc(b)}" data-imb="${esc(b)}" title="Büyütmek için tıklayın"><img src="${esc(r.u[0])}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add('bos');this.replaceWith(Object.assign(document.createElement('span'),{textContent:'Görsel yok'}))"></button>`}
 function slResimYenile(b){const el=document.querySelector(`[data-im="${CSS.escape(b)}"]`);if(el){const t=document.createElement("div");t.innerHTML=slResimHTML(b);el.replaceWith(t.firstElementChild)}}
 async function slDepoYukle(){
@@ -1387,15 +1390,21 @@ async function slDepoYukle(){
 async function slResimBul(x){
   if(slDepo&&slDepo[x.barkod]&&slDepo[x.barkod].length)return {u:slDepo[x.barkod],tur:"depo"};
   const c=onizOku()[x.barkod];if(c&&(c.u&&c.u.length?Date.now()-c.z<14*864e5:Date.now()-c.z<3*864e5))return c;
-  let r={u:[],tur:"yok"};const site=markaSite(x.marka);
+  if(slFnHata)return {u:[],tur:"hata",neden:slFnHata};
+  let r={u:[],tur:"yok"},hata="";const site=markaSite(x.marka);
   if(site){if(!ck.harita[x.marka]){try{ck.harita[x.marka]=(await cek("harita",site)).urunler||[]}catch(e){if(e.message==="oturum")throw e;ck.harita[x.marka]=[]}}
     const a=eslestir({ad_tam:x.ad||"",marka:x.marka},ck.harita[x.marka]);
     if(esEmin(a)){try{const s=await cek("sayfa",a[0].u);if(s.gorseller.length)r={u:s.gorseller.slice(0,4),tur:"site",kaynak:a[0].u}}catch(e){if(e.message==="oturum")throw e}}}
-  if(!r.u.length){try{const s=await cek("barkod","",x.barkod);if(s.gorseller&&s.gorseller.length)r={u:s.gorseller.slice(0,3),tur:"barkod"}}catch(e){if(e.message==="oturum")throw e}}
+  if(!r.u.length){try{const s=await cek("barkod","",x.barkod);if(s.gorseller&&s.gorseller.length)r={u:s.gorseller.slice(0,3),tur:"barkod"}}catch(e){if(e.message==="oturum")throw e;hata=e.message}}
+  if(!r.u.length&&hata)return {u:[],tur:"hata",neden:hata};   // arama yapilamadiysa hatirlama, sonra tekrar dene
   onizYaz(x.barkod,r);return r;
 }
+let slFnHata=null,slFnKontrol=false;
+async function slFnDene(){if(slFnKontrol)return;slFnKontrol=true;
+  try{await cek("barkod","","00000000");slFnHata=null}catch(e){if(e.message==="oturum")throw e;slFnHata=e.message}
+  const k=$("#slFn");if(k)k.innerHTML=slFnHata?`<div class="msg e" style="margin-top:8px"><b>Görsel arama çalışmıyor:</b> ${esc(slFnHata)}<br>Supabase › Edge Functions › urun-bilgi-cek fonksiyonunu kontrol edin. Resimleri bu arada satırlardaki “+ Yükle” ile bilgisayardan ekleyebilirsiniz.</div>`:""}
 async function slOnizleBaslat(l){
-  const no=++slOnizNo;await slDepoYukle();
+  const no=++slOnizNo;await slDepoYukle();try{await slFnDene()}catch(e){return}
   l.forEach(x=>{if(!slResim[x.barkod]&&slDepo[x.barkod]&&slDepo[x.barkod].length)slResim[x.barkod]={u:slDepo[x.barkod],tur:"depo"};
     else if(!slResim[x.barkod]){const c=onizOku()[x.barkod];if(c&&c.u&&c.u.length)slResim[x.barkod]=c}
     if(slResim[x.barkod])slResimYenile(x.barkod)});
@@ -1403,6 +1412,12 @@ async function slOnizleBaslat(l){
   const is=async x=>{if(no!==slOnizNo||sekme!=="urun"||urunMod!=="salon")return;try{slResim[x.barkod]=await slResimBul(x)}catch(e){slResim[x.barkod]={u:[],tur:"yok"};if(e.message==="oturum")return}slResimYenile(x.barkod)};
   for(let i=0;i<kalan.length;i+=2){if(no!==slOnizNo)return;await Promise.all(kalan.slice(i,i+2).map(is))}
 }
+document.addEventListener("change",async e=>{const f=e.target.closest&&e.target.closest("[data-slyk]");if(!f||sekme!=="urun")return;
+  const b=f.dataset.slyk,dosya=f.files&&f.files[0];if(!dosya)return;
+  if(!/^image\//.test(dosya.type))return toast("Lütfen bir resim dosyası seçin");
+  const el=f.closest(".sl-im");if(el)el.innerHTML="<span>yükleniyor…</span>";
+  try{const u=await fotoYukle(b,dosya,0);slDepo=slDepo||{};slDepo[b]=[u];slResim[b]={u:[u],tur:"depo"};slResimYenile(b);toast("Görsel yüklendi. Ürünü eklediğinizde bu görsel kullanılır.")}
+  catch(x){if(x.message==="oturum")return oturumHata(x);toast(x.message);slResimYenile(b)}});
 document.addEventListener("click",e=>{const b=e.target.closest("[data-imb]");if(!b||sekme!=="urun")return;const r=slResim[b.dataset.imb];if(!r||!r.u.length)return;
   const x=(slOn||[]).find(y=>y.barkod===b.dataset.imb)||{};
   const d=document.createElement("div");d.className="sl-buyuk";d.innerHTML=`<div class="sl-bk"><div class="sl-bh"><b>${esc(x.ad||"")}</b><button class="btn g s" type="button" data-kapat>Kapat</button></div>
