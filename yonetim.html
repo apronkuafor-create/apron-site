@@ -1219,8 +1219,14 @@ document.addEventListener("click",async e=>{
     hedef.classList.add("cek-yeni");setTimeout(()=>hedef.classList.remove("cek-yeni"),1500);toast("Eklendi. Kaydet'e basmayı unutmayın.")}
 },true);
 /* ================= URUN ADINDAN URETICI SAYFASINI OTOMATIK BULMA ================= */
-const MARKA_ONERI={"Uppercut":"https://uppercutdeluxe.com","TT":"https://www.tangleteezer.com","Tangle Teezer":"https://www.tangleteezer.com"};
-const ES_SOZ={"şampuan":"shampoo","şampuanı":"shampoo","sampuan":"shampoo","krem":"cream","kremi":"cream","bakım":"care","sprey":"spray","spreyi":"spray","jöle":"gel","jölesi":"gel","jel":"gel","tonik":"tonic","toniği":"tonic","maske":"mask","maskesi":"mask","yağ":"oil","yağı":"oil","köpük":"mousse","köpüğü":"mousse","kil":"clay","tarak":"comb","tarağı":"comb","fırça":"brush","fırçası":"brush","losyon":"lotion","losyonu":"lotion","man":"men","mens":"men","men's":"men","matt":"matte","mat":"matte","parlak":"shine","saç":"hair","sakal":"beard","pomat":"pomade","pomad":"pomade","pomadı":"pomade","vaks":"wax","siyah":"black","lacivert":"navy","pembe":"pink","beyaz":"white","kırmızı":"red","mavi":"blue","yeşil":"green","gri":"grey","gray":"grey","mor":"purple","sarı":"yellow","colour":"color","şekillendirici":"styling","dökülme":"loss","kepek":"dandruff","onarıcı":"repair","nemlendirici":"hydrate","hacim":"volume","hacimlendirici":"volumize","ıslak":"wet","kuru":"dry","parfüm":"fragrance","traş":"shave","tıraş":"shave","serum":"serum","bıyık":"moustache"};
+const MARKA_ONERI={"Uppercut":"https://uppercutdeluxe.com","TT":"https://www.tangleteezer.com","Tangle Teezer":"https://www.tangleteezer.com","Morgans":"https://morganspomade.com.tr","Morgan's":"https://morganspomade.com.tr"};
+const MARKA_EK={"morgans":["https://morganspomade.co.uk"]};   // ilk sitede emin olunamazsa bakilacak ek siteler
+const markaOneri=m=>{const k=katla(String(m||"").toLocaleLowerCase("tr")).replace(/[^a-z0-9]/g,"");const e=Object.entries(MARKA_ONERI).find(([a])=>katla(a.toLocaleLowerCase("tr")).replace(/[^a-z0-9]/g,"")===k);return e?e[1]:""};
+const ES_SOZ={"şampuan":"shampoo","şampuanı":"shampoo","sampuan":"shampoo","krem":"cream","kremi":"cream","bakım":"care","sprey":"spray","spreyi":"spray","jöle":"gel","jölesi":"gel","jel":"gel","tonik":"tonic","toniği":"tonic","maske":"mask","maskesi":"mask","yağ":"oil","yağı":"oil","köpük":"mousse","köpüğü":"mousse","kil":"clay","tarak":"comb","tarağı":"comb","fırça":"brush","fırçası":"brush","losyon":"lotion","losyonu":"lotion","man":"men","mens":"men","men's":"men","matt":"matte","mat":"matte","parlak":"shine","saç":"hair","sakal":"beard","pomat":"pomade","pomad":"pomade","pomadı":"pomade","vaks":"wax","siyah":"black","lacivert":"navy","pembe":"pink","beyaz":"white","kırmızı":"red","mavi":"blue","yeşil":"green","gri":"grey","gray":"grey","mor":"purple","sarı":"yellow","colour":"color","şekillendirici":"styling","dökülme":"loss","kepek":"dandruff","onarıcı":"repair","nemlendirici":"hydrate","hacim":"volume","hacimlendirici":"volumize","ıslak":"wet","kuru":"dry","parfüm":"fragrance","traş":"shave","tıraş":"shave","serum":"serum","bıyık":"moustache",
+  "sac":"hair","bakim":"care","sampuani":"shampoo","kremi":"cream","sekillendirici":"styling","sekillendirme":"styling","serumu":"serum","macun":"paste","macunu":"paste","pasta":"paste","pastasi":"paste",
+  "mati":"matte","parlaklik":"shine","parlatici":"shine","portakal":"orange","portakali":"orange","brezilya":"brazilian","yaslanma":"age","karsiti":"defying","geciktirici":"defying","lif":"fibre","lifli":"fibre","fiber":"fibre",
+  "bukle":"curl","kivircik":"curl","elektriklenme":"frizz","kabarma":"frizz","tonigi":"tonic","toniği":"tonic","canlandirici":"refreshing","ferahlatici":"cooling","mentollu":"menthol","mentol":"menthol","yagi":"oil","sakal":"beard",
+  "pomadi":"pomade","pomati":"pomade","kili":"clay","agda":"wax","waxi":"wax","jolesi":"gel","kopugu":"mousse","spreyi":"spray","tarak":"comb","taragi":"comb","fircasi":"brush","firca":"brush","tutus":"hold","guclu":"strong","sert":"firm","dusuk":"low"};
 const ES_DUR=new Set(["the","and","ve","for","ile","with","by","de","di","la","le","of","a","an","new","yeni","professional","professionals","pro","deluxe","system","official","original","orijinal","adet","pcs","set"]);
 const ES_GENEL=new Set(["shampoo","conditioner","cream","spray","gel","oil","mask","hair","men","care","tonic","serum","lotion","wax","pomade","clay","brush","comb","mousse","styling","treatment","beard"]);
 const katla=s=>s.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/ı/g,"i").replace(/İ/g,"i");
@@ -1229,7 +1235,7 @@ function esKelime(s,marka){
   if(mk.has("tt")){mk.add("tangle");mk.add("teezer")}if(mk.has("morgans")){mk.add("morgan");mk.add("s")}
   const BIRIM=/^(ml|g|gr|l|lt|oz|mg|cl|kg)$/,ham=String(s||"").toLocaleLowerCase("tr").replace(/[’']/g,"").split(/[^0-9a-zçğıöşüâîû]+/i).filter(Boolean);
   return [...new Set(ham.filter((w,i)=>!(/^\d+([.,]\d+)?(ml|g|gr|l|lt|oz|mg|cl|kg)$/.test(w))&&!BIRIM.test(w)&&!(/^\d+$/.test(w)&&BIRIM.test(ham[i+1]||"")))   // boyutu (100 ml) at, model numarasini (CR-12) tut
-    .map(w=>katla(ES_SOZ[w]||w)).filter(w=>w&&!ES_DUR.has(w)&&!mk.has(w)))];
+    .map(w=>katla(ES_SOZ[w]||ES_SOZ[katla(w)]||w)).filter(w=>w&&!ES_DUR.has(w)&&!mk.has(w)))];
 }
 function adayKelime(a,marka){
   let yol="";try{const p=new URL(a.u).pathname.replace(/\.(html?|php|aspx)$/i,"").split("/").filter(Boolean);yol=p.slice(-1)[0]||"";if(yol.length<12&&p.length>1)yol=p.slice(-2).join(" ")}catch(e){}
@@ -1246,7 +1252,8 @@ function eslestir(u,liste){
     return {u:a.u,t:a.t||"",puan:Math.round((0.7*bul+0.3*kes)*100)/100}}).filter(x=>x&&x.puan>0.2).sort((a,b)=>b.puan-a.puan).slice(0,6);
 }
 const esEmin=c=>c.length&&c[0].puan>=0.72&&(!c[1]||c[0].puan-c[1].puan>=0.08||adayKelime(c[0],"").join()===adayKelime(c[1],"").join());
-const markaSite=m=>{const s=(ayar.marka_siteleri||{})[m]||"";return adresGecerli(s)?s.trim():""};
+const markaSite=m=>{const s=(ayar.marka_siteleri||{})[m]||markaOneri(m);return adresGecerli(s)?s.trim():""};   // girilmemisse bilinen site
+const markaSiteleri=m=>{const k=katla(String(m||"").toLocaleLowerCase("tr")).replace(/[^a-z0-9]/g,"");return [...new Set([markaSite(m),...(MARKA_EK[k]||[])].filter(adresGecerli))]};
 /* ---------- barkod degistirme ---------- */
 document.addEventListener("click",async e=>{
   if(sekme!=="urun")return;const b=e.target.closest("[data-bkac],[data-bkdeg],[data-bkkap]");if(!b)return;e.stopPropagation();
@@ -1345,7 +1352,7 @@ document.addEventListener("input",e=>{if(sekme!=="urun"||urunMod!=="salon")retur
   if(t.matches("[data-slf]")){const tr=t.closest("tr");if(sayiTR(t.value)>0)tr.querySelector("[data-sls]").checked=true;slSatir(tr)}});
 document.addEventListener("click",async e=>{if(sekme!=="urun"||urunMod!=="salon")return;const t=e.target;
   if(t.matches("[data-slo]")){const tr=t.closest("tr"),i=tr.querySelector("[data-slf]");i.value=sayiYaz(+t.dataset.slo);tr.querySelector("[data-sls]").checked=true;slSatir(tr);return}
-  if(t.id==="sl_yen"){slOn=null;return cizSalonEkle()}
+  if(t.id==="sl_yen"){slOn=null;slDepo=null;slResim={};return cizSalonEkle()}
   if(t.id==="sl_ra"){try{const o=onizOku();Object.keys(o).forEach(k=>{if(!o[k].u||!o[k].u.length)delete o[k]});localStorage.setItem(ONIZ_ANAHTAR,JSON.stringify(o))}catch(x){}
     Object.keys(slResim).forEach(k=>{if(!slResim[k].u||!slResim[k].u.length)delete slResim[k]});slFnKontrol=false;slFnHata=null;ck.harita={};return cizSalonEkle()}
   if(t.id==="sl_vaz"){slSec={};return cizSalonEkle()}
@@ -1356,9 +1363,10 @@ document.addEventListener("click",async e=>{if(sekme!=="urun"||urunMod!=="salon"
       toast(`${n} ürün siteye eklendi. Görseller bağlanıyor…`);
       for(const b of eklenen){const u=urunler.find(x=>x.id===b),r=slResim[b];if(!u||!r||!r.u||!r.u.length)continue;
         try{let v=null;
-          if(r.tur==="depo")v={foto:r.u[0],galeri:r.u.slice(1)};
+          if(r.tur==="depo"){const y=[];for(const g of r.u){if(/^data:/i.test(g)){try{y.push(await fotoYukle(b,await (await fetch(g)).blob(),y.length))}catch(x){if(x.message==="oturum")throw x}}else y.push(g)}if(y.length)v={foto:y[0],galeri:y.slice(1)}}
           else if(r.tur==="site"&&kaynakVar())v={kaynak_url:r.kaynak};
           else if(r.tur==="barkod"){const y=[];for(const g of r.u.slice(0,3)){try{y.push(await fotoYukle(b,await cek("gorsel",g),y.length))}catch(x){if(x.message==="oturum")throw x}}if(y.length)v={foto:y[0],galeri:y.slice(1)}}
+          const sa=slSalon[b];if(v&&sa&&sa.aciklama&&!(u.aciklama||"").trim())v.aciklama=sa.aciklama;
           if(v){v.guncelleme=new Date().toISOString();await api("/rest/v1/web_urunler?id=eq."+encodeURIComponent(b),{method:"PATCH",body:v,basliklar:{Prefer:"return=minimal"}});Object.assign(u,v)}}
         catch(x){if(x.message==="oturum")return oturumHata(x)}}
       if(sekme==="urun"&&urunMod==="liste"&&!acik)ciz();
@@ -1367,7 +1375,7 @@ document.addEventListener("click",async e=>{if(sekme!=="urun"||urunMod!=="salon"
 });
 
 /* ---------- Salon listesinde resim: depodaki eski resimler, marka sitesi, barkod veritabani ---------- */
-let slResim={},slDepo=null,slOnizNo=0;
+let slResim={},slDepo=null,slOnizNo=0,slSalon={},slSalonHata=null;
 const ONIZ_ANAHTAR="apron_onizleme2";   // surum 2: arama hatalari artik "yok" diye saklanmaz
 function onizOku(){try{return JSON.parse(localStorage.getItem(ONIZ_ANAHTAR)||"{}")}catch(x){return {}}}
 function onizYaz(b,r){try{const o=onizOku();o[b]={...r,z:Date.now()};const k=Object.keys(o);if(k.length>1500)k.sort((a,c)=>o[a].z-o[c].z).slice(0,300).forEach(x=>delete o[x]);localStorage.setItem(ONIZ_ANAHTAR,JSON.stringify(o))}catch(x){}}
@@ -1386,14 +1394,34 @@ async function slDepoYukle(){
       if(!l||l.length<1000)break}
   }catch(x){}
   for(const b in ham){const a=ham[b],son=Math.max(...a.map(x=>x.ts));slDepo[b]=a.filter(x=>x.ts>son-600000).sort((x,y)=>x.i-y.i).map(x=>x.u).slice(0,8)}   // en son yuklenen grup
+  // salon programinin yukledigi resimler: web-gorseller/salon/<barkod>.jpg veya <barkod>-2.jpg ... (bunlar onceliklidir)
+  try{const t=await token(),sal={};
+    for(let off=0;off<10000;off+=1000){
+      const r=await fetch(SB+"/storage/v1/object/list/web-gorseller",{method:"POST",headers:{apikey:KEY,Authorization:"Bearer "+t,"Content-Type":"application/json"},body:JSON.stringify({prefix:"salon/",limit:1000,offset:off,sortBy:{column:"name",order:"asc"}})});
+      if(!r.ok)break;const l=await r.json();
+      (l||[]).forEach(o=>{const m=/^([0-9A-Za-z_]+?)(?:-(\d{1,2}))?\.(jpe?g|png|webp)$/i.exec(o.name||"");if(m)(sal[m[1]]=sal[m[1]]||[]).push({i:+(m[2]||0),u:SB+"/storage/v1/object/public/web-gorseller/salon/"+o.name+"?v="+encodeURIComponent(o.updated_at||"")})});
+      if(!l||l.length<1000)break}
+    for(const b in sal)slDepo[b]=sal[b].sort((x,y)=>x.i-y.i).map(x=>x.u).slice(0,8);
+  }catch(x){}
+  // salon programinin kendi urun resimleri (ayarlar › urunler › img): en oncelikli kaynak
+  slSalon={};
+  try{const l=(await rpc("web_salon_resimleri"))||[];
+    l.forEach(r=>{const b=String(r.barkod||"").trim();if(!b)return;slSalon[b]={img:r.img||"",aciklama:r.aciklama||""};
+      if(r.img)slDepo[b]=[r.img].concat((slDepo[b]||[]).filter(u=>u!==r.img)).slice(0,8)});
+    slSalonHata=null}
+  catch(x){if(x.message==="oturum")throw x;slSalonHata=/function|schema cache|404/i.test(x.message)?"14_salon_resimleri.sql henüz çalıştırılmamış":x.message}
 }
 async function slResimBul(x){
   if(slDepo&&slDepo[x.barkod]&&slDepo[x.barkod].length)return {u:slDepo[x.barkod],tur:"depo"};
+  const pk=typeof PAKET!=="undefined"&&PAKET.find(p=>p.id===x.barkod);if(pk&&pk.galeri&&pk.galeri.length)return {u:pk.galeri.slice(0,4),tur:"site",kaynak:pk.kaynak,paket:true};
   const c=onizOku()[x.barkod];if(c&&(c.u&&c.u.length?Date.now()-c.z<14*864e5:Date.now()-c.z<3*864e5))return c;
   if(slFnHata)return {u:[],tur:"hata",neden:slFnHata};
-  let r={u:[],tur:"yok"},hata="";const site=markaSite(x.marka);
-  if(site){if(!ck.harita[x.marka]){try{ck.harita[x.marka]=(await cek("harita",site)).urunler||[]}catch(e){if(e.message==="oturum")throw e;ck.harita[x.marka]=[]}}
-    const a=eslestir({ad_tam:x.ad||"",marka:x.marka},ck.harita[x.marka]);
+  let r={u:[],tur:"yok"},hata="";
+  for(const site of markaSiteleri(x.marka)){if(r.u.length)break;
+    const hk="site:"+site;
+    if(!ck.harita[hk]){try{ck.harita[hk]=(await cek("harita",site)).urunler||[]}catch(e){if(e.message==="oturum")throw e;ck.harita[hk]=[]}}
+    let a=eslestir({ad_tam:x.ad||"",marka:x.marka},ck.harita[hk]);
+    if(!esEmin(a)){try{const q=esKelime(x.ad||"",x.marka).join(" ");if(q){const a2=eslestir({ad_tam:x.ad||"",marka:x.marka},(await cek("ara",site,q)).urunler||[]);if(esEmin(a2))a=a2}}catch(e){if(e.message==="oturum")throw e}}
     if(esEmin(a)){try{const s=await cek("sayfa",a[0].u);if(s.gorseller.length)r={u:s.gorseller.slice(0,4),tur:"site",kaynak:a[0].u}}catch(e){if(e.message==="oturum")throw e}}}
   if(!r.u.length){try{const s=await cek("barkod","",x.barkod);if(s.gorseller&&s.gorseller.length)r={u:s.gorseller.slice(0,3),tur:"barkod"}}catch(e){if(e.message==="oturum")throw e;hata=e.message}}
   if(!r.u.length&&hata)return {u:[],tur:"hata",neden:hata};   // arama yapilamadiysa hatirlama, sonra tekrar dene
@@ -1402,10 +1430,11 @@ async function slResimBul(x){
 let slFnHata=null,slFnKontrol=false;
 async function slFnDene(){if(slFnKontrol)return;slFnKontrol=true;
   try{await cek("barkod","","00000000");slFnHata=null}catch(e){if(e.message==="oturum")throw e;slFnHata=e.message}
-  const k=$("#slFn");if(k)k.innerHTML=slFnHata?`<div class="msg e" style="margin-top:8px"><b>Görsel arama çalışmıyor:</b> ${esc(slFnHata)}<br>Supabase › Edge Functions › urun-bilgi-cek fonksiyonunu kontrol edin. Resimleri bu arada satırlardaki “+ Yükle” ile bilgisayardan ekleyebilirsiniz.</div>`:""}
+  const k=$("#slFn");if(k)k.innerHTML=slFnHata?`<div class="msg e" style="margin-top:8px"><b>Görsel arama çalışmıyor:</b> ${esc(slFnHata)}<br>Supabase › Edge Functions › urun-bilgi-cek fonksiyonunu kontrol edin. Resimleri bu arada satırlardaki “+ Yükle” ile bilgisayardan ekleyebilirsiniz.</div>`:"";
+  if(k&&slSalonHata)k.innerHTML+=`<div class="msg e" style="margin-top:8px"><b>Salon programındaki resimler okunamadı:</b> ${esc(slSalonHata)}<br>Supabase › SQL Editor'de 14_salon_resimleri.sql dosyasını çalıştırın.</div>`}
 async function slOnizleBaslat(l){
   const no=++slOnizNo;await slDepoYukle();try{await slFnDene()}catch(e){return}
-  l.forEach(x=>{if(!slResim[x.barkod]&&slDepo[x.barkod]&&slDepo[x.barkod].length)slResim[x.barkod]={u:slDepo[x.barkod],tur:"depo"};
+  l.forEach(x=>{if((!slResim[x.barkod]||(slSalon[x.barkod]&&slSalon[x.barkod].img))&&slDepo[x.barkod]&&slDepo[x.barkod].length)slResim[x.barkod]={u:slDepo[x.barkod],tur:"depo"};
     else if(!slResim[x.barkod]){const c=onizOku()[x.barkod];if(c&&c.u&&c.u.length)slResim[x.barkod]=c}
     if(slResim[x.barkod])slResimYenile(x.barkod)});
   const kalan=l.filter(x=>!slResim[x.barkod]).slice(0,60);
@@ -1461,9 +1490,22 @@ async function otoGorselGetir(liste){
   otoDurum.calisiyor=false;otoRozet();
   if(sekme==="urun"&&urunMod==="liste"&&!acik)ciz();
 }
+/* Sitede gorseli olmayan urunlere salon programindaki resmi (ve bos ise aciklamasini) otomatik koy */
+async function salonResimEsitle(){
+  let l=[];try{l=(await rpc("web_salon_resimleri"))||[]}catch(x){return}
+  const m={};l.forEach(r=>{const b=String(r.barkod||"").trim();if(b)m[b]=r});
+  let n=0;
+  for(const u of urunler){const r=m[u.id];if(!r||!r.img||(u.foto||"").trim())continue;
+    try{let f=r.img;if(/^data:/i.test(f))f=await fotoYukle(u.id,await (await fetch(f)).blob(),0);
+      const v={foto:f,guncelleme:new Date().toISOString()};if(r.aciklama&&!(u.aciklama||"").trim())v.aciklama=r.aciklama;
+      await api("/rest/v1/web_urunler?id=eq."+encodeURIComponent(u.id),{method:"PATCH",body:v,basliklar:{Prefer:"return=minimal"}});Object.assign(u,v);n++}
+    catch(x){if(x.message==="oturum")return}}
+  if(n){toast(n+" ürüne salon programındaki resim eklendi");if(sekme==="urun"&&urunMod==="liste"&&!acik)ciz()}
+}
 async function otomatikCalistir(){
   if(otoCalisti)return;otoCalisti=true;
   await degisimYukle();if(degisim.length&&sekme==="urun"&&urunMod==="liste"&&!acik)ciz();
+  await salonResimEsitle();
   let den={};try{den=JSON.parse(localStorage.getItem("apron_oto_denendi")||"{}")}catch(x){}
   const hafta=7*864e5,l=urunler.filter(u=>!(den[u.id]>Date.now()-hafta)).slice(0,30);
   l.forEach(u=>den[u.id]=Date.now());try{localStorage.setItem("apron_oto_denendi",JSON.stringify(den))}catch(x){}
