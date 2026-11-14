@@ -361,15 +361,42 @@ function liste(){
         return (u.aktif?ek.map(x=>`<span class="pill wr">${esc(x)} yok</span>`):[]).concat(r).join("")?`<div class="eks">${(u.aktif?ek.map(x=>`<span class="pill wr">${esc(x)} yok</span>`):[]).concat(r).join("")}</div>`:""})()}</div>
       <div style="text-align:right">${(()=>{const bk=u.id in gsBek,on=bk?gsBek[u.id]:!!u.aktif;return `<label class="gs${on?" on":""}${bk?" bek":""}" data-gsl title="${bk?"Kaydedilmedi: sayfanın altındaki düğmeye basın":on?"Müşteriler bu ürünü görüyor":"Bu ürün sitede gizli"}"><input type="checkbox" data-gs="${esc(u.id)}"${on?" checked":""}>Sitede göster</label>`})()}<div class="b">${TL(u.fiyat)} · stok ${stok}</div>${num(u.alis_fiyat)>0?(()=>{const h=karHesap(num(u.fiyat),num(u.alis_fiyat),AYAR(),stokYas(u)||0);return `<div class="b" style="color:${h.gercek>=0?"var(--ok)":"var(--err)"}">gerçek kâr ${para(h.gercek)}/adet</div>`})():`<div class="b" style="color:#b45b00">alış fiyatı yok</div>`}</div></div>
     <div class="rb">${acik===u.id?govde(u):""}</div></div>`}).join("");
+  if(acik)kaynakOner(acik);
 }
+/* Urun kartindaki "Uretici sitesinden getir" adresi bossa: salon programindaki gibi markanin sitesinde urunu ara, bulunan sayfayi kutuya yaz */
+const kaynakAranan={};
+async function kaynakBul(u){
+  let aday=[];
+  for(const site of markaSiteleri(u.marka)){
+    const hk="site:"+site;
+    if(!ck.harita[hk]){try{ck.harita[hk]=(await cek("harita",site)).urunler||[]}catch(e){if(e.message==="oturum")throw e;ck.harita[hk]=[]}}
+    let a=eslestir({ad_tam:u.ad_tam,marka:u.marka},ck.harita[hk]);
+    if(!esEmin(a)){try{const q=esKelime(u.ad_tam,u.marka).join(" ");if(q){const a2=eslestir({ad_tam:u.ad_tam,marka:u.marka},(await cek("ara",site,q)).urunler||[]);if(esEmin(a2)||(a2[0]&&(!a[0]||a2[0].puan>a[0].puan)))a=a2}}catch(e){if(e.message==="oturum")throw e}}
+    aday=aday.concat(a);if(esEmin(a))return {u:a[0].u,emin:true,diger:[]};
+  }
+  aday.sort((x,y)=>y.puan-x.puan);aday=aday.filter((x,i)=>aday.findIndex(y=>y.u===x.u)===i);
+  return aday[0]&&aday[0].puan>=0.5?{u:aday[0].u,emin:false,diger:aday.slice(1,4).filter(x=>x.puan>=0.4).map(x=>x.u)}:null;
+}
+async function kaynakOner(id){
+  const u=urunler.find(x=>x.id===id),inp=$("#f_kaynak"),ip=$("#f_kaynak_ip");if(!u||!inp||!ip||inp.value.trim()||adresGecerli(u.kaynak_url||""))return;
+  if(!markaSiteleri(u.marka).length){ip.innerHTML="Bu marka için site adresi tanımlı değil (Ayarlar › Üretici bilgileri). Ürün sayfasının adresini yapıştırıp <b>Getir</b>'e basın.";return}
+  const yaz=r=>{const i2=$("#f_kaynak"),p2=$("#f_kaynak_ip");if(acik!==id||!i2||!p2||i2.value.trim())return;
+    if(r){i2.value=r.u;p2.innerHTML=(r.emin?"Markanın sitesinde bulundu. Doğru ürünse <b>Getir</b>'e basın.":"Markanın sitesinde en yakın sayfa bu, <b>emin değilim</b>: adrese bakıp doğruysa <b>Getir</b>'e basın.")+
+      (r.diger.length?`<br>Diğer olasılıklar: ${r.diger.map(x=>`<a href="#" data-ka="${esc(x)}">${esc(decodeURIComponent(x.split("/").filter(Boolean).pop()||x))}</a>`).join(" · ")}`:"")}
+    else p2.innerHTML="Markanın sitesinde otomatik bulunamadı. Ürün sayfasının adresini yapıştırıp <b>Getir</b>'e basın."};
+  if(id in kaynakAranan)return kaynakAranan[id]===1?(ip.innerHTML="Markanın sitesinde aranıyor…"):yaz(kaynakAranan[id]);
+  kaynakAranan[id]=1;ip.innerHTML="Markanın sitesinde aranıyor…";
+  let r=null;try{r=await kaynakBul(u)}catch(e){if(e.message==="oturum"){delete kaynakAranan[id];return}}
+  kaynakAranan[id]=r||0;yaz(r);
+}
+document.addEventListener("click",e=>{const a=e.target.closest("[data-ka]");if(!a)return;e.preventDefault();const i=$("#f_kaynak");if(i)i.value=a.dataset.ka});
 const resimler=u=>[...new Set([u.foto,...(Array.isArray(u.galeri)?u.galeri:[])].filter(Boolean))];
 function govde(u){
   const kopru=ayar.stok_koprusu;
   edit={id:u.id,imgs:resimler(u),orig:resimler(u)};setTimeout(karGuncelle,0);
   const T=(id,ad,deger,sat,ipucu,max=4000)=>`<label>${ad}<textarea id="${id}" rows="${sat}" maxlength="${max}">${esc(deger||"")}</textarea>${ipucu?`<span style="font-size:12px">${ipucu}</span>`:""}</label>`;
   const mkl=[...new Set(urunler.map(x=>x.marka).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"tr"));
-  const sa=slSalon[u.id];
-  return `${sa&&sa.img?`<div class="tanima"><img src="${esc(sa.img)}" alt="" referrerpolicy="no-referrer"><div><b>Salon programındaki resim</b><br>Yalnız ürünü tanımanız için; sitede <b>gösterilmez</b>. Sitede görünecek resimler aşağıdaki <b>Ürün görselleri</b>dir${resimler(u).length?"":" (henüz yok: “Üretici sitesinden getir”i kullanın)"}.</div></div>`:""}<div class="bl"><h3>Genel</h3><label class="sw"><input type="checkbox" id="f_aktif"${u.aktif?" checked":""}>Sitede göster</label>
+  return `<div class="bl"><h3>Genel</h3><label class="sw"><input type="checkbox" id="f_aktif"${u.aktif?" checked":""}>Sitede göster</label>
   <div class="g3" style="margin-top:10px"><label>Ürün adı<input id="f_ad" maxlength="160" value="${esc(u.ad_tam)}"></label>
   <label>Marka<input id="f_marka" maxlength="60" list="f_mkl" value="${esc(u.marka)}"><datalist id="f_mkl">${mkl.map(m=>`<option value="${esc(m)}">`).join("")}</datalist></label>
   <label>Boyut<input id="f_ml" maxlength="30" placeholder="ör. 100 ml" value="${esc(u.ml||"")}"></label></div>
@@ -1215,7 +1242,7 @@ const adresGecerli=s=>/^https?:\/\/[^\s/]+\.[^\s/]+/i.test(String(s||"").trim())
 /* ---------- tek urun (urun duzenleme ekraninda) ---------- */
 function cekBlok(u){
   return `<div class="bl"><h3>Üretici sitesinden getir <small>Markanın sitesindeki ürün sayfasının adresini yapıştırın; görselleri ve metinleri seçip ekleyin</small></h3>
-  ${(()=>{const sy=salonSayfa(u.id);return !adresGecerli(u.kaynak_url||"")&&sy?`<div class="st-i" style="margin-bottom:6px">Adres salon programından hazır geldi. <b>Getir</b>'e basın.</div>`:""})()}
+  <div class="st-i" id="f_kaynak_ip" style="margin-bottom:6px">${(()=>{const sy=salonSayfa(u.id);return !adresGecerli(u.kaynak_url||"")&&sy?`Adres salon programından hazır geldi. <b>Getir</b>'e basın.`:""})()}</div>
   <div class="cek-s"><input id="f_kaynak" inputmode="url" placeholder="https://www.marka.com/urun-sayfasi" value="${esc(adresGecerli(u.kaynak_url||"")?u.kaynak_url:salonSayfa(u.id))}"><button class="btn g" type="button" data-cek="1">Getir</button></div>
   ${ck.aday[u.id]?`<div class="cek-aday"><b>Sistem bu ürünün sayfasından emin olamadı.</b> Doğru olanı seçin, sonra görsel ve metinleri ekleyin:${ck.aday[u.id].map(c=>`<button type="button" class="btn g s" data-cad="${esc(c.u)}">%${Math.round(c.puan*100)} · ${esc(c.t||decodeURIComponent(c.u.replace(/^https?:\/\/[^/]+/,"")))}</button>`).join("")}</div>`:""}
   ${kaynakVar()?"":`<div class="st-i" style="margin-top:4px">Adresin ürünle birlikte saklanması için <code>09_urun_kaynak_adresi.sql</code> dosyasını çalıştırın (getirme onsuz da çalışır).</div>`}
