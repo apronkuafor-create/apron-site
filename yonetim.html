@@ -62,6 +62,7 @@ label{display:grid;gap:4px;font-size:12.5px;color:var(--mute)}
 .gs.bek{border-color:#f08c2e;box-shadow:0 0 0 3px #f08c2e33}
 .tg-alt[hidden]{display:none!important}
 .cek-i{position:relative}.cek-sil{position:absolute;top:4px;right:4px;z-index:2;width:26px;height:26px;border-radius:50%;border:1px solid #d5d9d9;background:#fff;color:var(--err);font-size:13px;font-weight:700;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0;box-shadow:0 1px 3px #0002}.cek-sil:hover{background:#fdecea;border-color:var(--err)}
+.sl-bil{display:block;margin-top:3px;font-size:12px;color:#1e7b3c}.sl-bil.yok{color:var(--mute)}
 .geri-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff8ec;border:1px solid #f3d3a3;border-radius:10px;padding:8px 12px;margin:8px 0;font-size:14px}
 .im.yeni{border-color:#f08c2e;box-shadow:0 0 0 3px #f08c2e33}
 .tn{position:relative}.tn img{opacity:.85}.tn-e{position:absolute;left:3px;bottom:3px;background:#2b2d31;color:#fff;font-style:normal;font-size:10px;font-weight:600;line-height:1;padding:3px 5px;border-radius:5px;letter-spacing:.2px}
@@ -337,7 +338,7 @@ function cizUrun(){
   $("#ic").innerHTML=`${modBar()}<div class="bar"><input id="ar" placeholder="Ürün, marka veya barkod ara" value="${esc(ara)}">
   <select id="mf"><option value="">Tüm markalar</option>${markalar.map(m=>`<option${m===markaF?" selected":""}>${esc(m)}</option>`).join("")}</select>
   <label class="chk" style="display:flex;flex-direction:row;align-items:center;color:var(--ink)"><input type="checkbox" id="sa"${sadeceAktif?" checked":""}>Yalnız sitedekiler</label></div>
-  <div class="bulk" id="bulk"></div><div style="color:var(--mute);font-size:13px;margin-bottom:10px">${urunler.length} ürün · ${sitede} tanesi sitede${eksik?` · <b style="color:#b45b00">${eksik} sitedeki üründe eksik bilgi var</b>`:""}</div><div id="lst"></div><div class="tg-alt" id="gsAlt" hidden></div>`;
+  <div class="bulk" id="bulk"></div><div style="color:var(--mute);font-size:13px;margin-bottom:10px">${urunler.length} ürün · ${sitede} tanesi sitede${eksik?` · <b style="color:#b45b00">${eksik} sitedeki üründe eksik bilgi var</b>`:""}</div>${sonEklenen&&sonEklenen.ids.some(i=>urunler.some(u=>u.id===i))?`<div class="geri-bar"><span><b>${sonEklenen.ids.filter(i=>urunler.some(u=>u.id===i)).length} ürün salon programından eklendi</b> (gizli). Bilgileri ve görselleri kendiliğinden geldi; kontrol edip <b>Sitede göster</b>'i işaretleyin.</span><span class="sp" style="flex:1"></span><button type="button" class="btn g s" data-ekgeri="1">Geri al (eklenenleri sil)</button><button type="button" class="btn g s" data-ekkapat="1">Tamam</button></div>`:""}<div id="lst"></div><div class="tg-alt" id="gsAlt" hidden></div>`;
   $("#ar").oninput=e=>{ara=e.target.value;liste()};$("#mf").onchange=e=>{markaF=e.target.value;liste()};$("#sa").onchange=e=>{sadeceAktif=e.target.checked;liste()};
   liste();bulkCiz();gsAltCiz();
 }
@@ -543,6 +544,13 @@ $("#app").addEventListener("click",async e=>{
     if(c.checked&&!(num(u.fiyat)>0)){c.checked=false;return toast("Önce fiyat girin: ürüne tıklayıp “Satış fiyatı”nı yazın ve kaydedin")}
     if(c.checked===!!u.aktif)delete gsBek[id];else gsBek[id]=c.checked;
     gl.classList.toggle("on",c.checked);gl.classList.toggle("bek",id in gsBek);gl.title=id in gsBek?"Kaydedilmedi: sayfanın altındaki düğmeye basın":c.checked?"Müşteriler bu ürünü görüyor":"Bu ürün sitede gizli";gsAltCiz();return}
+  if(e.target.closest("[data-ekkapat]")){e.stopPropagation();sonEklenen=null;cizUrun();return}
+  if(e.target.closest("[data-ekgeri]")){e.stopPropagation();const ids=(sonEklenen&&sonEklenen.ids||[]).filter(i=>urunler.some(u=>u.id===i));if(!ids.length){sonEklenen=null;return cizUrun()}
+    if(!confirm(`Az önce salon programından eklenen ${ids.length} ürün siteden silinecek. Salon programınız etkilenmez; ürünler “Salon programından ekle” listesine geri döner. Devam?`))return;
+    const b=e.target.closest("[data-ekgeri]");b.disabled=true;b.textContent="Siliniyor…";
+    try{for(let i=0;i<ids.length;i+=50){const p=ids.slice(i,i+50);await api("/rest/v1/web_urunler?id=in.("+p.map(x=>'"'+x.replace(/"/g,"")+'"').join(",")+")",{method:"DELETE",basliklar:{Prefer:"return=minimal"}})}
+      sonEklenen=null;slOn=null;await yenidenYukle("urun");cizUrun();toast(ids.length+" ürün geri alındı (siteden silindi)")}
+    catch(x){b.disabled=false;b.textContent="Geri al (eklenenleri sil)";oturumHata(x)}return}
   if(e.target.id==="gs_vaz"){e.stopPropagation();gsBek={};liste();gsAltCiz();return}
   if(e.target.id==="gs_kay"){e.stopPropagation();const b=e.target,k=Object.keys(gsBek).filter(id=>urunler.some(u=>u.id===id));if(!k.length)return gsAltCiz();
     const g=k.filter(id=>gsBek[id]),h=k.filter(id=>!gsBek[id]);b.disabled=true;b.textContent="Kaydediliyor…";
@@ -1408,6 +1416,9 @@ document.addEventListener("click",e=>{const m=e.target.closest("[data-umod]");if
 /* ---------- Salon programindan ekle ---------- */
 const slOran=()=>{const o=sayiTR(sonOran());return o>=0&&o!==null&&!Number.isNaN(o)?o:100};   // girilmemisse %100
 const slOneri=x=>{const A=num(x.son_alis);return A>0?yuvarla(oneriOran(A,AYAR(),slOran())):null};
+const slFiyat=x=>{const d=slDetay[x.barkod];return d&&d.satis>0?d.satis:slOneri(x)};   // fiyat yazilmazsa: salon satis fiyati, yoksa oneri
+const slBilgiHTML=b=>{if(slDetayHata)return "";const d=slDetay[b]||{gorseller:[]};const l=[d.aciklama&&"açıklama",d.kullanim&&"kullanım",d.icerik&&"içerik",d.gorseller.length&&d.gorseller.length+" orijinal görsel",d.kaynak&&"üretici sayfası"].filter(Boolean);
+  return l.length?`<span class="sl-bil" title="Ürün eklenince salon programından gelecek bilgiler">Salondan gelecek: ${l.join(" · ")}</span>`:`<span class="sl-bil yok" title="Salon programında bu ürün için açıklama/görsel yok; ekledikten sonra Üretici sitesinden getir ile tamamlayabilirsiniz">Salonda ek bilgi yok</span>`};
 function slGorunen(){const q=norm(slF.ara);return (slOn||[]).filter(x=>(slF.dr==="hepsi"||(slF.dr==="var"?slVar(x):!slVar(x)))&&(!slF.marka||(x.marka||"")===slF.marka)&&(!q||norm((x.ad||"")+" "+(x.marka||"")+" "+x.barkod).includes(q)))}
 async function slYukle(){try{slOn=(await rpc("web_salon_urun_onizle"))||[]}catch(x){if(x.message==="oturum")return oturumHata(x);slOn=[];slOn.hata=/function|schema cache|404/i.test(x.message)?"Önce Supabase'de 13_sadelestirme.sql dosyasını çalıştırın.":x.message}}
 async function cizSalonEkle(){
@@ -1417,7 +1428,7 @@ async function cizSalonEkle(){
     mkSay=m=>slOn.filter(x=>(x.marka||"")===m&&araUy(x)&&drUy(x)).length,mk=[...new Set(slOn.map(x=>x.marka||"").filter(Boolean))].sort((a,b)=>a.localeCompare(b,"tr"));
   $("#ic").innerHTML=`${modBar()}
   ${slOn.hata?`<div class="msg e">${esc(slOn.hata)}</div>`:""}
-  <div class="box"><p class="st-a" style="margin:0 0 10px">Salon programınızdaki ürünler. Sitede olanlar <span class="sl-et">✓ Sitede</span> ile gösterilir ve tekrar eklenemez; barkodu farklı ama sitede benzeri olan ürünler <span class="sl-et uy">Sitede benzeri var</span> ile uyarılır. Siteye eklemek istediklerinizi işaretleyin ve satış fiyatını yazın. Fiyatı yazılanlar hemen satışa çıkar; fiyatsız eklenenler gizli kalır, fiyatı sonra girersiniz. Küçük resimde <b>salon</b> yazıyorsa bu, salon programınızdaki resimdir: yalnız ürünü tanımanız içindir, siteye gitmez. Sitede gösterilecek orijinal görseller markanın sitesinden (salon programında kayıtlı sayfa adresi varsa önce oradan) kendiliğinden aranır; resmin köşesindeki nokta <b style="color:#1e7b3c">yeşil</b> ise bulundu, <b style="color:#c0392b">kırmızı</b> ise bulunamadı. Büyütmek için resme tıklayın.</p>
+  <div class="box"><p class="st-a" style="margin:0 0 10px">Salon programınızdaki ürünler. Sitede olanlar <span class="sl-et">✓ Sitede</span> ile gösterilir ve tekrar eklenemez; barkodu farklı ama sitede benzeri olan ürünler <span class="sl-et uy">Sitede benzeri var</span> ile uyarılır. Siteye eklemek istediklerinizi işaretleyin. Ürün <b>salon programındaki tüm bilgileriyle</b> (ad, boyut, fiyat, açıklama, kullanım, içerik, orijinal görseller) <b>gizli</b> eklenir; <b>Sitedeki ürünler</b>'de <b>Sitede göster</b>'i işaretleyince sitede görünür. Fiyat yazmazsanız salon programındaki satış fiyatı, o da yoksa öneri fiyatı kullanılır. Küçük resimde <b>salon</b> yazıyorsa bu, salon programınızdaki resimdir: yalnız ürünü tanımanız içindir, siteye gitmez. Sitede gösterilecek orijinal görseller markanın sitesinden (salon programında kayıtlı sayfa adresi varsa önce oradan) kendiliğinden aranır; resmin köşesindeki nokta <b style="color:#1e7b3c">yeşil</b> ise bulundu, <b style="color:#c0392b">kırmızı</b> ise bulunamadı. Büyütmek için resme tıklayın.</p>
    <div class="bar" style="margin:0"><input id="sl_ara" placeholder="Ürün, marka veya barkod ara" value="${esc(slF.ara)}">
    <select id="sl_dr"><option value=""${slF.dr===""?" selected":""}>Sitede olmayanlar (${nYok})</option><option value="var"${slF.dr==="var"?" selected":""}>Sitedekiler (${nVar})</option><option value="hepsi"${slF.dr==="hepsi"?" selected":""}>Tümü (${taban.length})</option></select>
    <select id="sl_mk"><option value="">Tüm markalar (${slOn.filter(x=>araUy(x)&&drUy(x)).length})</option>${mk.map(m=>`<option value="${esc(m)}"${m===slF.marka?" selected":""}>${esc(m)} (${mkSay(m)})</option>`).join("")}</select>
@@ -1432,8 +1443,8 @@ async function cizSalonEkle(){
      <td><div class="sl-sf">${u&&num(u.fiyat)>0?TL(num(u.fiyat)):"fiyat yok"}</div><button type="button" class="btn g s" data-slduz="${esc(x.barkod)}">Sitede düzenle</button></td></tr>`}
      const bz=slBenzer(x);
      return `<tr data-b="${esc(x.barkod)}" class="${s?"sec":""}${bz?" bnz":""}"><td class="c"><input type="checkbox" data-sls${s?" checked":""} aria-label="Seç"></td><td class="ri">${slResimHTML(x.barkod)}</td>
-     <td class="ad"><b>${esc(x.ad||"(adsız)")}</b><small>${esc(x.marka||"marka yok")}${x.ml?" · "+esc(x.ml):""} · ${esc(x.barkod)}</small>${bz?`<div class="sl-bnz"><span class="sl-et uy">Sitede benzeri var</span> <b>${esc(bz.ad_tam)}</b> <small>barkod ${esc(bz.id)}</small><span class="sl-bd"><button type="button" class="btn s" data-slbag="${esc(x.barkod)}" data-slbagu="${esc(bz.id)}" title="Yeni ürün eklenmez. Sitedeki ürünün barkodu salon programındaki barkodla değiştirilir; ikinci bir kopya oluşmaz">Sitedekiyle birleştir</button><button type="button" class="btn g s" data-slduz="${esc(bz.id)}">Sitede gör</button></span></div>`:""}</td><td class="r" data-et="Salon stoğu">${Math.round(num(x.stok))}</td><td class="r" data-et="Son alış">${num(x.son_alis)>0?TL(num(x.son_alis)):"—"}</td>
-     <td><input class="tn" data-slf inputmode="decimal" value="${esc(s&&s.fiyat?sayiYaz(s.fiyat):"")}" placeholder="${o?"öneri "+sayiYaz(o):""}">${o?`<button type="button" class="st-on2" data-slo="${o}">öneri: ${TL(o)}</button>`:""}</td></tr>`}).join("")}</tbody></table></div>`
+     <td class="ad"><b>${esc(x.ad||"(adsız)")}</b><small>${esc(x.marka||"marka yok")}${x.ml?" · "+esc(x.ml):""} · ${esc(x.barkod)}</small>${slBilgiHTML(x.barkod)}${bz?`<div class="sl-bnz"><span class="sl-et uy">Sitede benzeri var</span> <b>${esc(bz.ad_tam)}</b> <small>barkod ${esc(bz.id)}</small><span class="sl-bd"><button type="button" class="btn s" data-slbag="${esc(x.barkod)}" data-slbagu="${esc(bz.id)}" title="Yeni ürün eklenmez. Sitedeki ürünün barkodu salon programındaki barkodla değiştirilir; ikinci bir kopya oluşmaz">Sitedekiyle birleştir</button><button type="button" class="btn g s" data-slduz="${esc(bz.id)}">Sitede gör</button></span></div>`:""}</td><td class="r" data-et="Salon stoğu">${Math.round(num(x.stok))}</td><td class="r" data-et="Son alış">${num(x.son_alis)>0?TL(num(x.son_alis)):"—"}</td>
+     <td><input class="tn" data-slf inputmode="decimal" value="${esc(s&&s.fiyat?sayiYaz(s.fiyat):"")}" placeholder="${slDetay[x.barkod]&&slDetay[x.barkod].satis>0?"salon fiyatı "+sayiYaz(slDetay[x.barkod].satis):o?"öneri "+sayiYaz(o):""}" title="Boş bırakırsanız ${slDetay[x.barkod]&&slDetay[x.barkod].satis>0?"salon programındaki satış fiyatı":"öneri fiyatı"} kullanılır">${o?`<button type="button" class="st-on2" data-slo="${o}">öneri: ${TL(o)}</button>`:""}</td></tr>`}).join("")}</tbody></table></div>`
    :`<div class="box"><div class="st-i">${slOn.length?(slF.dr===""&&!slF.ara&&!slF.marka?"Salon programındaki ürünlerin hepsi zaten sitede.":"Bu seçime uyan ürün yok."):"Salon programında ürün bulunamadı."}</div></div>`}
   <div class="tg-alt" id="slAlt"></div>`;
   slAltCiz();slOnizleBaslat(l);
@@ -1482,15 +1493,19 @@ document.addEventListener("click",async e=>{if(sekme!=="urun"||urunMod!=="salon"
   if(t.id==="sl_ekle"){const s=Object.values(slSec);if(!s.length)return;
     const bzl=s.map(y=>(slOn||[]).find(z=>z.barkod===y.barkod)).filter(z=>z&&slBenzer(z));
     if(!confirm(`${s.length} ürün siteye eklenecek.${bzl.length?`\n\nDİKKAT: ${bzl.length} ürünün sitede benzeri var (${bzl.slice(0,3).map(z=>z.ad).join(", ")}${bzl.length>3?"…":""}). Aynı ürünse eklemek yerine satırdaki “Sitedekiyle birleştir” düğmesini kullanın; yoksa sitede iki kopya olur.\n\nYine de ayrı ürün olarak eklensin mi?`:" Devam?"}`))return;t.disabled=true;t.textContent="Ekleniyor…";
-    try{const n=await rpc("web_salon_urun_ekle",{p_liste:s.map(x=>({barkod:x.barkod,fiyat:x.fiyat||0,goster:x.fiyat>0}))});
-      const eklenen=s.map(x=>x.barkod);slSec={};slOn=null;await yenidenYukle("urun");urunMod="liste";acik=null;ciz();
-      toast(`${n} ürün siteye eklendi. Görseller bağlanıyor…`);
-      for(const b of eklenen){const u=urunler.find(x=>x.id===b),r=slResim[b]||{u:[]},sa=slSalon[b];if(!u)continue;
+    try{const fy=x=>x.fiyat>0?x.fiyat:(slFiyat((slOn||[]).find(z=>z.barkod===x.barkod)||{barkod:x.barkod})||0);
+      const n=await rpc("web_salon_urun_ekle",{p_liste:s.map(x=>({barkod:x.barkod,fiyat:fy(x),goster:false}))});
+      const eklenen=s.map(x=>x.barkod).filter(b=>!urunler.some(u=>u.id===b));slSec={};slOn=null;await yenidenYukle("urun");urunMod="liste";acik=null;
+      sonEklenen={ids:eklenen.filter(b=>urunler.some(u=>u.id===b)),t:Date.now()};ciz();
+      toast(`${n} ürün eklendi (gizli). Bilgileri salon programından alındı, görseller yükleniyor…`);
+      for(const b of eklenen){const u=urunler.find(x=>x.id===b),r=slResim[b]||{u:[]},sa=slSalon[b],d=slDetay[b];if(!u)continue;
         try{let v=null;
+          if(d&&d.gorseller.length){const y=await salonGorselYukle(b,d.gorseller);if(y.length){v={foto:y[0],galeri:y.slice(1)};v.guncelleme=new Date().toISOString();
+            await api("/rest/v1/web_urunler?id=eq."+encodeURIComponent(b),{method:"PATCH",body:v,basliklar:{Prefer:"return=minimal"}});Object.assign(u,v);continue}}
           if(salonSayfa(b)&&kaynakVar()&&!adresGecerli(u.kaynak_url||""))v={kaynak_url:salonSayfa(b)};
           if(!r.u||!r.u.length){if(v){v.guncelleme=new Date().toISOString();await api("/rest/v1/web_urunler?id=eq."+encodeURIComponent(b),{method:"PATCH",body:v,basliklar:{Prefer:"return=minimal"}});Object.assign(u,v)}continue}
           if(r.tur==="depo"){const y=[];for(const g of r.u.filter(g=>!salonResmiMi(g,b))){if(/^data:/i.test(g)){try{y.push(await fotoYukle(b,await (await fetch(g)).blob(),y.length))}catch(x){if(x.message==="oturum")throw x}}else y.push(g)}if(y.length)v=Object.assign(v||{},{foto:y[0],galeri:y.slice(1)})}
-          else if(r.tur==="site"&&kaynakVar()&&!(v&&v.kaynak_url))v={kaynak_url:r.kaynak};
+          else if(r.tur==="site"){if(kaynakVar()&&!(v&&v.kaynak_url))v=Object.assign(v||{},{kaynak_url:r.kaynak});const y=await salonGorselYukle(b,r.u.slice(0,4));if(y.length)v=Object.assign(v||{},{foto:y[0],galeri:y.slice(1)})}
           else if(r.tur==="barkod"){const y=[];for(const g of r.u.slice(0,3)){try{y.push(await fotoYukle(b,await cek("gorsel",g),y.length))}catch(x){if(x.message==="oturum")throw x}}if(y.length)v=Object.assign(v||{},{foto:y[0],galeri:y.slice(1)})}
           if(v&&sa&&sa.aciklama&&!(u.aciklama||"").trim())v.aciklama=sa.aciklama;
           if(v){v.guncelleme=new Date().toISOString();await api("/rest/v1/web_urunler?id=eq."+encodeURIComponent(b),{method:"PATCH",body:v,basliklar:{Prefer:"return=minimal"}});Object.assign(u,v)}}
@@ -1508,9 +1523,14 @@ async function salonVeriYukle(zorla){
   const l=(await rpc("web_salon_resimleri"))||[],m={};
   l.forEach(r=>{const b=String(r.barkod||"").trim();if(b)m[b]={img:r.img||"",aciklama:r.aciklama||"",sayfa:adresGecerli(r.sayfa||"")?String(r.sayfa).trim():""}});
   slSalon=m;slSalonYuklendi=true;
+  try{const d=(await rpc("web_salon_urun_detay"))||[],dm={};d.forEach(r=>{const b=String(r.barkod||"").trim();if(b)dm[b]={satis:num(r.satis),aciklama:r.aciklama||"",kullanim:r.kullanim||"",icerik:r.icerik||"",kaynak:adresGecerli(r.kaynak||"")?r.kaynak:"",gorseller:(Array.isArray(r.kaynak_gorseller)?r.kaynak_gorseller:[]).filter(g=>/^https?:\/\//i.test(g)&&!salonResmiMi(g,b)).slice(0,8)}});slDetay=dm;slDetayHata=null}
+  catch(x){if(x.message==="oturum")throw x;slDetay={};slDetayHata=/function|schema cache|404/i.test(x.message)?"18_salon_tum_bilgiler.sql henüz çalıştırılmamış":x.message}
 }
+let slDetay={},slDetayHata=null,sonEklenen=null;
+/* salon programindaki bilgilerle urune gidecek orijinal gorselleri yukle (en fazla 8) */
+async function salonGorselYukle(b,liste){const y=[];for(const g of liste.slice(0,8)){try{y.push(await fotoYukle(b,await cek("gorsel",g),y.length))}catch(x){if(x.message==="oturum")throw x}}return y}
 /* urunun uretici sayfa adresi: salon programindaki kayit, yoksa hazir paket (salon programindakiyle ayni liste) */
-const salonSayfa=b=>(slSalon[b]&&slSalon[b].sayfa)||((typeof PAKET!=="undefined"&&PAKET.find(p=>p.id===b))||{}).kaynak||"";
+const salonSayfa=b=>(slDetay[b]&&slDetay[b].kaynak)||(slSalon[b]&&slSalon[b].sayfa)||((typeof PAKET!=="undefined"&&PAKET.find(p=>p.id===b))||{}).kaynak||"";
 const salonResmiMi=(url,b)=>!!url&&(/\/urun-resimleri\/|\/web-gorseller\/salon\//.test(url)||(slSalon[b]&&slSalon[b].img===url));
 const TANIMA_IPUCU="Salon programındaki resim: yalnız ürünü tanımanız için. Sitede gösterilmez.";
 const ONIZ_ANAHTAR="apron_onizleme2";   // surum 2: arama hatalari artik "yok" diye saklanmaz
@@ -1566,6 +1586,7 @@ let slFnHata=null,slFnKontrol=false;
 async function slFnDene(){if(slFnKontrol)return;slFnKontrol=true;
   try{await cek("barkod","","00000000");slFnHata=null}catch(e){if(e.message==="oturum")throw e;slFnHata=e.message}
   const k=$("#slFn");if(k)k.innerHTML=slFnHata?`<div class="msg e" style="margin-top:8px"><b>Görsel arama çalışmıyor:</b> ${esc(slFnHata)}<br>Supabase › Edge Functions › urun-bilgi-cek fonksiyonunu kontrol edin. Resimleri bu arada satırlardaki “+ Yükle” ile bilgisayardan ekleyebilirsiniz.</div>`:"";
+  if(k&&slDetayHata)k.innerHTML+=`<div class="msg e" style="margin-top:8px"><b>Salon programındaki ürün bilgileri (açıklama, fiyat, orijinal görseller) okunamadı:</b> ${esc(slDetayHata)}<br>Supabase › SQL Editor'de 18_salon_tum_bilgiler.sql dosyasını çalıştırın.</div>`;
   if(k&&slSalonHata)k.innerHTML+=`<div class="msg e" style="margin-top:8px"><b>Salon programındaki resimler okunamadı:</b> ${esc(slSalonHata)}<br>Supabase › SQL Editor'de 14_salon_resimleri.sql dosyasını çalıştırın.</div>`}
 async function slOnizleBaslat(l){
   const no=++slOnizNo;await slDepoYukle();try{await slFnDene()}catch(e){return}
@@ -1634,15 +1655,19 @@ async function otoGorselGetir(liste){
    salon programindaki sayfa adresini "Uretici sitesinden getir" adresine yaz. Orijinal gorseller ardindan getirilir. */
 async function salonResimEsitle(){
   try{await salonVeriYukle(true)}catch(x){return []}
-  const temiz=[];let nr=0,na=0;
+  const temiz=[];let nr=0,na=0,nd=0,nGor=0;
   for(const u of urunler){const sy=salonSayfa(u.id),v={};
     const once=resimler(u),sonra=once.filter(g=>!salonResmiMi(g,u.id));
     if(sonra.length!==once.length){v.foto=sonra[0]||"";v.galeri=sonra.slice(1);nr++}
     if(sy&&kaynakVar()&&!adresGecerli(u.kaynak_url||"")){v.kaynak_url=sy;na++}
+    const d=slDetay[u.id];if(d){let dol=false;for(const k of ["aciklama","kullanim","icerik"])if(d[k]&&!(u[k]||"").trim()){v[k]=d[k];dol=true}
+      if(d.satis>0&&!(num(u.fiyat)>0)){v.fiyat=d.satis;dol=true}
+      if(!sonra.length&&!(v.foto)&&d.gorseller.length&&nGor<10){try{const y=await salonGorselYukle(u.id,d.gorseller);if(y.length){v.foto=y[0];v.galeri=y.slice(1);dol=true;nGor++}}catch(x){if(x.message==="oturum")return temiz}}
+      if(dol)nd++}
     if(!Object.keys(v).length)continue;
     try{v.guncelleme=new Date().toISOString();await api("/rest/v1/web_urunler?id=eq."+encodeURIComponent(u.id),{method:"PATCH",body:v,basliklar:{Prefer:"return=minimal"}});Object.assign(u,v);if(!resimler(u).length)temiz.push(u)}
     catch(x){if(x.message==="oturum")return temiz}}
-  if(nr||na){toast([nr?nr+" üründen salon resmi siteden kaldırıldı":"",na?na+" ürüne üretici sayfa adresi yazıldı":""].filter(Boolean).join(" · ")+(temiz.length?". Orijinal görseller getiriliyor…":""));
+  if(nr||na||nd){toast([nr?nr+" üründen salon resmi siteden kaldırıldı":"",na?na+" ürüne üretici sayfa adresi yazıldı":"",nd?nd+" ürünün boş bilgileri salon programından dolduruldu":""].filter(Boolean).join(" · ")+(temiz.length?". Orijinal görseller getiriliyor…":""));
   }
   if(sekme==="urun"&&urunMod==="liste"&&!acik)ciz();
   return temiz;
