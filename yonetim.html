@@ -217,11 +217,15 @@ async function api(yol,{method="GET",body,basliklar={}}={}){
   const t=await token();
   const r=await fetch(SB+yol,{method,headers:{apikey:KEY,Authorization:"Bearer "+t,"Content-Type":"application/json",...basliklar},body:body===undefined?undefined:JSON.stringify(body)});
   const txt=await r.text();let j=null;try{j=txt?JSON.parse(txt):null}catch(e){}
-  if(!r.ok){if(r.status===401){oturumYaz(null);throw new Error("oturum")}throw new Error((j&&(j.message||j.hint))||"İşlem başarısız ("+r.status+")")}
+  if(!r.ok){if(r.status===401){oturumYaz(null);throw new Error("oturum")}
+    if(j&&/YETKI_YOK/.test(j.message||"")){oturumYaz(null);yetkiYok=true;throw new Error("oturum")}   // salon personeli vb.: site paneline yetkisi yok
+    throw new Error((j&&(j.message||j.hint))||"İşlem başarısız ("+r.status+")")}
   return j;
 }
 const rpc=(ad,args)=>api("/rest/v1/rpc/"+ad,{method:"POST",body:args||{}});
-const oturumHata=x=>{if(x.message==="oturum")giris("Oturum süresi doldu, tekrar giriş yapın.");else toast(x.message)};
+let yetkiYok=false;
+const YETKI_MESAJ="Bu hesap site yönetim paneline yetkili değil. Salon programı hesapları (personel dahil) site paneline giremez; site yöneticisi hesabınızla giriş yapın.";
+const oturumHata=x=>{if(x.message==="oturum"){giris(yetkiYok?YETKI_MESAJ:"Oturum süresi doldu, tekrar giriş yapın.");yetkiYok=false}else toast(x.message)};
 
 /* ---- durum ---- */
 let sekme="urun",urunler=[],siparisler=[],talepler=[],partiler=[],ayar={stok_koprusu:true};
@@ -249,7 +253,7 @@ async function ac(){
     {const ESKI={renkUst:"#2b2d30",renkDugme:"#ff8a1f",renkZemin:"#eaeded"};Object.keys(ESKI).forEach(k=>{if(String(site.genel[k]||"").toLowerCase()===ESKI[k])site.genel[k]=IC_VARSAYILAN.genel[k]})}   // eski varsayilan renkler = degistirilmemis: yeni duzen
     if(!siteDegisti)siteTaslak=null;
     cizIskelet();if(!otoCalisti)setTimeout(otomatikCalistir,1200);else otoRozet();
-  }catch(e){if(e.message==="oturum")giris("Oturum süresi doldu, tekrar giriş yapın.");else $("#app").innerHTML=`<div class="wrap"><div class="msg e" style="margin-top:20px">${esc(e.message)}<br>Veritabanı dosyaları (02, 03 ve 04) çalıştırıldı mı?</div></div>`}
+  }catch(e){if(e.message==="oturum")oturumHata(e);else $("#app").innerHTML=`<div class="wrap"><div class="msg e" style="margin-top:20px">${esc(e.message)}<br>Veritabanı dosyaları (02, 03 ve 04) çalıştırıldı mı?</div></div>`}
 }
 function sayilar(){
   return{sip:siparisler.filter(s=>s.durum==="odeme_bekliyor"||s.durum==="odendi").length,tal:talepler.filter(t=>t.durum==="beklemede").length};
