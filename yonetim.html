@@ -245,7 +245,9 @@ async function ac(){
       api("/rest/v1/web_site_icerik?id=eq.ana&select=veri").catch(()=>null)]);
     urunler=u;siparisler=s;talepler=t||[];partiler=pr||[];$("#app").dataset.partiYok=pr===null?"1":"";if(a&&a[0])ayar=a[0];
     $("#app").dataset.talepYok=t===null?"1":"";
-    siteYok=!si||!si[0];siteIlk=!siteYok&&!Object.keys(si[0].veri||{}).length;site=icBirlestir(si&&si[0]?si[0].veri:{});if(!siteDegisti)siteTaslak=null;
+    siteYok=!si||!si[0];siteIlk=!siteYok&&!Object.keys(si[0].veri||{}).length;site=icBirlestir(si&&si[0]?si[0].veri:{});
+    {const ESKI={renkUst:"#2b2d30",renkDugme:"#ff8a1f",renkZemin:"#eaeded"};Object.keys(ESKI).forEach(k=>{if(String(site.genel[k]||"").toLowerCase()===ESKI[k])site.genel[k]=IC_VARSAYILAN.genel[k]})}   // eski varsayilan renkler = degistirilmemis: yeni duzen
+    if(!siteDegisti)siteTaslak=null;
     cizIskelet();if(!otoCalisti)setTimeout(otomatikCalistir,1200);else otoRozet();
   }catch(e){if(e.message==="oturum")giris("Oturum süresi doldu, tekrar giriş yapın.");else $("#app").innerHTML=`<div class="wrap"><div class="msg e" style="margin-top:20px">${esc(e.message)}<br>Veritabanı dosyaları (02, 03 ve 04) çalıştırıldı mı?</div></div>`}
 }
@@ -838,7 +840,7 @@ const IC_VARSAYILAN={
   satici:{unvan:"Ahmet SERDAR – APRON BUSINESS",adres:"Caddebostan Mah. Gökçe Sk. Toksoy Apt. No:10/B Kadıköy / İstanbul",vergiDairesi:"Göztepe",vergiNo:"16703740952",mersis:"",tel:"0216 363 91 94",eposta:"apronkuafor@gmail.com",whatsapp:""},
   kargo:{ucret:0,limit:0,firma:"",sure:"1–3 iş günü"},
   genel:{baslik:"APRON | Erkek Kuaförü ve Bakım Ürünleri",aciklama:"APRON erkek kuaförü: profesyonel saç ve sakal bakım ürünleri, güvenli online alışveriş.",
-    duyuru:"",duyuruLink:"",renkUst:"#2b2d30",renkDugme:"#ff8a1f",renkZemin:"#eaeded",logo:""},
+    duyuru:"",duyuruLink:"",renkUst:"#1f1c19",renkDugme:"#e3a042",renkZemin:"#f5f2ed",logo:""},
   ana:{
     slaytlar:[{baslik:"Salonun bakım ürünleri, kapınızda",metin:"Salonumuzda kullandığımız saç ve sakal bakım ürünleri, orijinal ve güvenle.",dugme:"Ürünleri keşfet",hedef:"tum",gorsel:""}],
     markaSlayt:true,sonSlayt:true,
@@ -968,15 +970,18 @@ Açılmamış ürünlerde, teslimden itibaren 14 gün içinde başka bir ürünl
 - **Müşteri işlem:** sipariş içeriği, sipariş numarası, talepler (iade, değişim, soru vb.) ve yazışmalar
 - **Finans:** ödeme tutarı ve ödeme sonucu (kart bilgileri tarafımızca alınmaz ve saklanmaz)
 - **İşlem güvenliği:** IP adresi ve işlem zamanı gibi teknik kayıtlar
+- **Üyelik (üye olursanız):** e-posta adresiniz ve şifrenizin geri döndürülemez şifrelenmiş hâli (şifrenizi biz de göremeyiz), kayıtlı teslimat adresleriniz, favori ürünleriniz ve ticari ileti izni tercihiniz
 
 ## 3. İşleme amaçları
 - Siparişin alınması, ödemenin tahsili, ürünün teslimi ve faturalandırılması
 - İade, cayma, değişim, şikâyet ve sorularınızın yanıtlanması
 - Yasal yükümlülüklerin (vergi, ticaret ve tüketici mevzuatı) yerine getirilmesi
 - Sitenin güvenliğinin sağlanması ve kötüye kullanımın önlenmesi
+- Üye olursanız; hesabınızın oluşturulması ve yönetilmesi (siparişlerim, adreslerim, favorilerim)
+- Yalnızca açıkça izin verdiyseniz; kampanya ve fırsatlarla ilgili ticari elektronik ileti gönderilmesi (izninizi Hesabım › Giriş ve güvenlik bölümünden ya da bize yazarak her zaman geri alabilirsiniz)
 
 ## 4. Hukuki sebepler
-Verileriniz, KVKK md. 5/2 kapsamında; **(c)** sözleşmenin kurulması ve ifası için gerekli olması, **(ç)** hukuki yükümlülüğümüzü yerine getirmek için zorunlu olması ve **(f)** temel hak ve özgürlüklerinize zarar vermemek kaydıyla meşru menfaatimiz için zorunlu olması hukuki sebeplerine dayanılarak işlenir. Verileriniz, sipariş formu ve talep formları aracılığıyla elektronik ortamda toplanır.
+Verileriniz, KVKK md. 5/2 kapsamında; **(c)** sözleşmenin kurulması ve ifası için gerekli olması, **(ç)** hukuki yükümlülüğümüzü yerine getirmek için zorunlu olması ve **(f)** temel hak ve özgürlüklerinize zarar vermemek kaydıyla meşru menfaatimiz için zorunlu olması hukuki sebeplerine dayanılarak işlenir. Ticari elektronik ileti gönderimi yalnızca **açık rızanıza** (md. 5/1) ve 6563 sayılı Kanun kapsamındaki onayınıza dayanır. Verileriniz, sipariş formu, üyelik formu ve talep formları aracılığıyla elektronik ortamda toplanır.
 
 ## 5. Aktarım
 Verileriniz yalnızca yukarıdaki amaçlarla sınırlı olarak; teslimat için **kargo şirketine**, ödeme için **lisanslı ödeme kuruluşuna**, muhasebe ve vergi işlemleri için **mali müşavirimize**, talep hâlinde **yetkili kamu kurum ve kuruluşlarına** ve sitenin çalışması için kullanılan **barındırma ve veritabanı hizmet sağlayıcılarına** aktarılabilir.
@@ -984,7 +989,7 @@ Verileriniz yalnızca yukarıdaki amaçlarla sınırlı olarak; teslimat için *
 Site ve veritabanı altyapısı için kullanılan hizmet sağlayıcıların (GitHub, Supabase) sunucuları yurt dışında bulunabilir. Bu aktarımlar KVKK md. 9'da öngörülen şartlara ve güvencelere uygun olarak yapılır.
 
 ## 6. Saklama süresi
-Verileriniz işleme amacının gerektirdiği süre ve ilgili mevzuatta öngörülen süreler (ör. vergi ve ticaret mevzuatı gereği 10 yıla kadar) boyunca saklanır; süre sonunda silinir, yok edilir veya anonim hâle getirilir.
+Verileriniz işleme amacının gerektirdiği süre ve ilgili mevzuatta öngörülen süreler (ör. vergi ve ticaret mevzuatı gereği 10 yıla kadar) boyunca saklanır; süre sonunda silinir, yok edilir veya anonim hâle getirilir. Üyeliğinizi Hesabım › Giriş ve güvenlik bölümünden dilediğiniz zaman silebilirsiniz; bu durumda hesap bilgileriniz, kayıtlı adresleriniz ve favorileriniz hemen silinir, sipariş kayıtları ise yasal saklama süreleri boyunca tutulur.
 
 ## 7. Haklarınız (KVKK md. 11)
 Kişisel verilerinizin işlenip işlenmediğini öğrenme, işlenmişse bilgi talep etme, işlenme amacını ve amaca uygun kullanılıp kullanılmadığını öğrenme, aktarıldığı üçüncü kişileri bilme, eksik veya yanlış işlenmişse düzeltilmesini, şartları oluştuğunda silinmesini veya yok edilmesini ve bu işlemlerin aktarılan kişilere bildirilmesini isteme, münhasıran otomatik sistemlerle analiz sonucu aleyhinize bir sonuç çıkmasına itiraz etme ve kanuna aykırı işleme nedeniyle zarara uğramanız hâlinde zararın giderilmesini talep etme haklarına sahipsiniz.
@@ -999,6 +1004,7 @@ Kart bilgileriniz sitemize girilmez ve sitemizde saklanmaz. Sipariş sorgulama y
 Sitemiz reklam, takip veya istatistik çerezi **kullanmaz**. Yalnızca sitenin çalışması için zorunlu olan, cihazınızın tarayıcısında tutulan şu kayıtları kullanır:
 - **apron_sepet:** Sepetinizdeki ürünleri hatırlamak için. Sepeti boşaltana kadar durur.
 - **apron_son:** Son siparişinizin numarasını Siparişlerim sayfasında hazır göstermek için. Tarayıcı sekmesi kapanınca silinir.
+- **apron_uye:** Üye girişi yaptıysanız, oturumunuzun açık kalması için rastgele bir oturum anahtarı. Çıkış yapınca silinir; en geç 30 gün sonra geçersiz olur.
 
 Bu kayıtlar zorunlu niteliktedir ve bizimle paylaşılmaz. Tarayıcı ayarlarınızdan dilediğiniz zaman silebilirsiniz; bu durumda sepetiniz boşalır.
 
