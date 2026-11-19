@@ -826,6 +826,10 @@ img.lg,img.lgf{filter:none!important}
 footer .lgf{height:44px!important}
 @media(max-width:820px){.yh-in{height:74px!important}.yh .lg{height:60px!important}}
 
+.gal{grid-template-columns:72px minmax(0,1fr)!important;min-width:0}
+.gmain{min-width:0;overflow:hidden}
+.gmain img{min-width:0;max-width:100%;max-height:100%}
+@media(max-width:1000px){.gal{grid-template-columns:minmax(0,1fr)!important}}
 /* ===== mobil ===== */
 @media(max-width:1000px){
  .io-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
