@@ -61,6 +61,33 @@ label{display:grid;gap:4px;font-size:12.5px;color:var(--mute)}
 .gs.on{background:#e6f4ea;border-color:#9fd3ae;color:#1e7b3c}
 .gs.bek{border-color:#f08c2e;box-shadow:0 0 0 3px #f08c2e33}
 .tg-alt[hidden]{display:none!important}
+/* ---- urun karti: sekmeli kucuk duzen ---- */
+.kw .ks{display:none}
+.kw[data-kak="genel"] .ks[data-ks="genel"],.kw[data-kak="gorsel"] .ks[data-ks="gorsel"],.kw[data-kak="metin"] .ks[data-ks="metin"],.kw[data-kak="stok"] .ks[data-ks="stok"],.kw[data-kak="getir"] .ks[data-ks="getir"]{display:block}
+.kt{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:space-between;border-bottom:1px solid var(--line);margin:4px -16px 0;padding:0 16px;position:sticky;top:112px;background:#fcfcfc;z-index:5}
+.ktl{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.ktl::-webkit-scrollbar{display:none}
+.ktl button{position:relative;border:0;background:none;padding:12px 12px 10px;font-size:14px;font-weight:600;color:var(--mute);border-bottom:3px solid transparent;white-space:nowrap;min-height:44px}
+.ktl button small{font-weight:500;font-size:11.5px;color:var(--mute);margin-left:2px}
+.ktl button:hover{color:var(--ink)}
+.ktl button.on{color:var(--ink);border-bottom-color:var(--cta)}
+.kd{position:absolute;top:9px;right:3px;width:7px;height:7px;border-radius:50%;background:#e07a1f}
+.kt-ip{font-size:12px;color:var(--mute)}@media(max-width:760px){.kt-ip{display:none}}
+.kw .bl{margin-top:12px}
+.kw .bl h3{margin-bottom:8px}
+.kw label{gap:3px}
+.kw input:not([type=checkbox]):not([type=radio]),.kw select{min-height:40px;padding-top:7px;padding-bottom:7px}
+.kw textarea{min-height:70px;resize:vertical}
+.kw label small{font-weight:400;font-size:11.5px;color:var(--mute)}
+.kw .g3,.kw .g4,.kw .g2{gap:10px;margin-top:8px}
+.g4{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;align-items:start}
+.bk-s{display:flex;align-items:center;gap:10px;margin-top:6px}
+.bk-s .btn.s{min-height:30px;padding:0 10px}
+.uzk{border:1px dashed var(--line);border-radius:10px;padding:2px 12px 12px;margin-top:10px;background:#fff}
+.kw .acts{margin-top:12px;padding:10px 0 4px;border-top:1px solid var(--line);background:#fcfcfc;z-index:4}
+.kw .ks[data-ks="metin"] .bl>label,.kw .ks[data-ks="metin"] .uzk>label{margin-top:8px}
+@media(max-width:760px){.g4{grid-template-columns:1fr 1fr}.g4 .g-2{grid-column:1/-1}.kt{top:104px}.kw .g3{grid-template-columns:1fr 1fr}}
+
 .vids{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
 .vi{border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden;display:flex;flex-direction:column}
 .vk{position:relative;aspect-ratio:16/10;background:#1f1c19;display:grid;place-items:center;color:#fff;font-size:28px}
@@ -193,6 +220,8 @@ table.tg{width:100%;border-collapse:collapse;font-size:14px}.tg th{position:stic
 .cek-m{margin-top:10px}.cek-mh{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px}.cek-mh select{width:auto;min-height:34px}.cek-mh .st-i{flex:1}
 .cek-m textarea{font-size:14px}.cek-yeni{outline:3px solid var(--ok);outline-offset:2px;transition:outline .3s}
 .tg input.cu{width:100%;min-width:260px;min-height:36px;font-size:14px}.tg td.cd{min-width:200px;font-size:13px}
+
+@media(max-width:700px){.rh{grid-template-columns:26px 44px minmax(0,1fr)!important}.rh>div:last-child{grid-column:1/-1;text-align:left!important;display:flex;align-items:center;gap:10px;flex-wrap:wrap}.rh .a{word-break:normal}}
 </style>
 </head>
 <body>
@@ -414,40 +443,44 @@ async function kaynakOner(id){
 }
 document.addEventListener("click",e=>{const a=e.target.closest("[data-ka]");if(!a)return;e.preventDefault();const i=$("#f_kaynak");if(i)i.value=a.dataset.ka});
 const resimler=u=>[...new Set([u.foto,...(Array.isArray(u.galeri)?u.galeri:[])].filter(Boolean))];
+let kSekme="genel";
+function kSekmeAc(k){kSekme=k;document.querySelectorAll(".kw").forEach(w=>{w.dataset.kak=k;w.querySelectorAll("[data-kt]").forEach(b=>b.classList.toggle("on",b.dataset.kt===k))})}
 function govde(u){
   const kopru=ayar.stok_koprusu;
   vidTemizle();
   edit={id:u.id,imgs:resimler(u),orig:resimler(u),vids:JSON.parse(JSON.stringify(Array.isArray(u.videolar)?u.videolar:[])),vorig:JSON.parse(JSON.stringify(Array.isArray(u.videolar)?u.videolar:[])),yeniDosya:[]};setTimeout(karGuncelle,0);
   const T=(id,ad,deger,sat,ipucu,max=4000)=>`<label>${ad}<textarea id="${id}" rows="${sat}" maxlength="${max}">${esc(deger||"")}</textarea>${ipucu?`<span style="font-size:12px">${ipucu}</span>`:""}</label>`;
   const mkl=[...new Set(urunler.map(x=>x.marka).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"tr"));
-  return `<div class="bl"><h3>Genel</h3><label class="sw"><input type="checkbox" id="f_aktif"${u.aktif?" checked":""}>Sitede göster</label>
-  <div class="g3" style="margin-top:10px"><label>Ürün adı<input id="f_ad" maxlength="160" value="${esc(u.ad_tam)}"></label>
+  const im=resimler(u).length,vd=(Array.isArray(u.videolar)?u.videolar:[]).length,mt=[u.aciklama,u.uretici_bilgi,u.kullanim,u.icerik,u.uzman_gorus].filter(x=>(x||"").trim()).length;
+  const KS=[["genel","Genel",!(num(u.fiyat)>0)||!(num(u.alis_fiyat)>0)],["gorsel",`Görseller${vd?" ve video":""} <small>${im}${vd?" + "+vd+"▶":""}</small>`,!im],["metin",`Açıklamalar <small>${mt}/5</small>`,!(u.aciklama||"").trim()],["stok","Stok ve partiler",false],["getir","Üreticiden getir",false]];
+  return `<div class="kw" data-kak="${kSekme}"><div class="kt"><div class="ktl" role="tablist">${KS.map(k=>`<button type="button" role="tab" data-kt="${k[0]}" class="${k[0]===kSekme?"on":""}">${k[1]}${k[2]?`<i class="kd" title="Eksik bilgi var"></i>`:""}</button>`).join("")}</div>
+  <span class="kt-ip">Sitede göster: satırın sağ üstündeki kutu</span></div>
+  <div class="ks" data-ks="genel"><div class="bl">
+  <div class="g4"><label class="g-2">Ürün adı<input id="f_ad" maxlength="160" value="${esc(u.ad_tam)}"></label>
   <label>Marka<input id="f_marka" maxlength="60" list="f_mkl" value="${esc(u.marka)}"><datalist id="f_mkl">${mkl.map(m=>`<option value="${esc(m)}">`).join("")}</datalist></label>
   <label>Boyut<input id="f_ml" maxlength="30" placeholder="ör. 100 ml" value="${esc(u.ml||"")}"></label></div>
-  <div class="bk-s" style="margin-top:8px"><span class="st-i">Barkod: <b>${esc(u.id)}</b></span><button class="btn g s" type="button" data-bkac="1">Barkodu değiştir</button></div>
+  <div class="bk-s"><span class="st-i">Barkod: <b>${esc(u.id)}</b></span><button class="btn g s" type="button" data-bkac="1">Barkodu değiştir</button></div>
   <div class="bk-f" hidden><label>Yeni barkod<div class="cek-s"><input id="f_ybk" autocomplete="off" inputmode="text" placeholder="Barkodu okutun veya yazın"><button class="btn s" type="button" data-bkdeg="1">Değiştir</button><button class="btn g s" type="button" data-bkkap="1">Vazgeç</button></div></label>
     <span class="st-i">Ürünün bilgileri, görselleri, stok girişleri ve geçmiş siparişleri yeni barkoda taşınır. Bu bölümde kaydetmediğiniz başka değişiklik varsa önce <b>Kaydet</b>'e basın.</span></div>
-  <div class="g3" style="margin-top:10px"><label>Satış fiyatı (₺, KDV dahil)<input id="f_fiyat" type="number" inputmode="decimal" step="0.01" min="0" value="${esc(u.fiyat)}"></label>
+  <div class="g3"><label>Satış fiyatı (₺, KDV dahil)<input id="f_fiyat" type="number" inputmode="decimal" step="0.01" min="0" value="${esc(u.fiyat)}"></label>
   <label>${kopru?"Salon stoğu (köprü açık)":"Site stoğu (köprü kapalı)"}<input id="f_stok" type="number" inputmode="numeric" min="0" value="${kopru?Math.max(0,Math.floor(u.salon_stok)):u.web_stok}"${kopru?" disabled":""}></label>
   <label>Sıra (küçük olan önde)<input id="f_sira" type="number" inputmode="numeric" value="${esc(u.sira||0)}"></label></div></div>
-  <div class="bl"><h3>Maliyet ve kâr <small>Yalnız siz görürsünüz, müşteriye hiç gösterilmez</small></h3>
+  <div class="bl"><h3>Maliyet ve kâr <small>Yalnız siz görürsünüz</small></h3>
   <div class="g3"><label>Bana geliş (alış) fiyatı (₺ ${AYAR().dahil?"KDV dahil":"KDV hariç"})<input id="f_alis" type="number" inputmode="decimal" step="0.01" min="0" value="${esc(num(u.alis_fiyat)||"")}"></label>
   <label>Stoğa giriş (alış) tarihi${(()=>{const pv=partiOf(u.id).some(p=>p.kalan>0),yas=stokYas(u);return `<input id="f_atarih" type="date" value="${pv&&yas!=null?new Date(Date.now()-yas*864e5).toISOString().slice(0,10):esc(u.alis_tarih||"")}"${pv?" disabled":""}><span style="font-size:12px">${pv?"Aşağıdaki partilerden otomatik hesaplanır (ağırlıklı ortalama yaş).":"Ürünü ne zaman aldınız? Elde kalma bedeli bu tarihten sayılır. Mal girişi (parti) ekleyince otomatik olur."}</span>`})()}</label>
-  <label>Hedef kâr oranı (% — alış maliyeti üzerinden)<input id="f_oran" type="number" inputmode="decimal" step="1" min="0" placeholder="Örn: 100" value="${esc(sonOran())}"><span style="font-size:12px">Oranı yazın, satış fiyatı otomatik hesaplanıp yukarıdaki fiyat alanına yazılır. %100 = maliyetin 2 katı kâr.</span></label></div>
-  <div class="kar" id="karKutu" style="margin-top:10px"></div><div class="sug" id="karOner"></div></div>
-  ${partiBlok(u)}
-  ${(cekSon=null,cekBlok(u))}
-  <div class="bl"><h3>Ürün görselleri <small>İlk görsel ana görseldir. Her görsel yüklenirken otomatik küçültülür.</small></h3><div id="gal"></div></div>
-  <div class="bl"><h3>Ürün videoları <small>Ürünü salonda kullanırken çektiğiniz videolar. Sitede ürün galerisinde ve ana sayfadaki “Salonda kullanıyoruz” bölümünde görünür.</small></h3><div id="vid"></div></div>
-  <div class="bl"><h3>Ürün bilgisi</h3>
-  ${T("f_ac","Kısa açıklama (müşterinin ilk gördüğü metin)",u.aciklama,3,"Satırı “- ” ile başlatırsanız madde işareti olur.")}</div>
-  <div class="bl"><h3>Üretici firma bilgisi <small>Üretici firmanın ürünle ilgili verdiği bilgi</small></h3>
-  ${T("f_ur","",u.uretici_bilgi,6,"Üreticinin ürün sayfasından/broşüründen elle yazın. Madde madde için satırı “- ” ile başlatın.")}</div>
-  <div class="bl"><h3>Salonda kullanan profesyonel görüşü</h3>
-  <div class="g2"><label>Adı<input id="f_uzad" value="${esc(u.uzman_ad)}" maxlength="80" placeholder="Örn: Ahmet Serdar"></label><label>Unvanı<input id="f_uzun" value="${esc(u.uzman_unvan)}" maxlength="80" placeholder="Örn: Usta Berber"></label></div>
-  <div style="margin-top:10px">${T("f_uz","Görüşü",u.uzman_gorus,4,"Müşteriye “Salon uzmanımızın görüşü” olarak, tırnak içinde gösterilir.",1500)}</div></div>
-  <div class="bl"><h3>Kullanım ve içerik</h3><div class="g2">${T("f_ku","Kullanım önerisi",u.kullanim,4,"",2000)}${T("f_ic","İçindekiler",u.icerik,4,"",3000)}</div></div>
-  <div class="acts"><button class="btn" data-k="1">Kaydet</button><button class="btn g" data-i="1">Vazgeç</button><button class="btn d" data-sil1="1">Bu ürünü sil</button><a class="btn g" style="display:inline-grid;place-items:center;text-decoration:none" href="./index.html#urun/${encodeURIComponent(u.id)}" target="_blank" rel="noopener">Sitede gör ↗</a></div>`;
+  <label>Hedef kâr oranı (% — alış maliyeti üzerinden)<input id="f_oran" type="number" inputmode="decimal" step="1" min="0" placeholder="Örn: 100" value="${esc(sonOran())}"><span style="font-size:12px">Yazınca satış fiyatı kendiliğinden hesaplanır. %100 = maliyetin 2 katı.</span></label></div>
+  <div class="kar" id="karKutu" style="margin-top:8px"></div><div class="sug" id="karOner"></div></div></div>
+  <div class="ks" data-ks="stok">${partiBlok(u)}</div>
+  <div class="ks" data-ks="getir">${(cekSon=null,cekBlok(u))}</div>
+  <div class="ks" data-ks="gorsel"><div class="bl"><h3>Ürün görselleri <small>İlk görsel ana görseldir; yüklerken otomatik küçültülür.</small></h3><div id="gal"></div></div>
+  <div class="bl"><h3>Ürün videoları <small>Sitede ürün galerisinde ve ana sayfadaki “Salonda kullanıyoruz” bölümünde görünür.</small></h3><div id="vid"></div></div></div>
+  <div class="ks" data-ks="metin"><div class="bl">
+  ${T("f_ac","Kısa açıklama <small>müşterinin ilk gördüğü metin · satırı “- ” ile başlatırsanız madde olur</small>",u.aciklama,3,"")}
+  <div class="g2">${T("f_ku","Kullanım önerisi",u.kullanim,3,"",2000)}${T("f_ic","İçindekiler",u.icerik,3,"",3000)}</div>
+  ${T("f_ur","Üretici firma bilgisi <small>üreticinin ürün sayfasından/broşüründen</small>",u.uretici_bilgi,3,"")}
+  <div class="uzk"><div class="g2"><label>Salon uzmanının adı<input id="f_uzad" value="${esc(u.uzman_ad)}" maxlength="80" placeholder="Örn: Ahmet Serdar"></label><label>Unvanı<input id="f_uzun" value="${esc(u.uzman_unvan)}" maxlength="80" placeholder="Örn: Usta Berber"></label></div>
+  ${T("f_uz","Uzman görüşü <small>sitede “Salon uzmanımızın görüşü” olarak tırnak içinde gösterilir</small>",u.uzman_gorus,2,"",1500)}</div></div></div>
+  <div class="acts"><button class="btn" data-k="1">Kaydet</button><button class="btn g" data-i="1">Vazgeç</button><button class="btn d" data-sil1="1">Bu ürünü sil</button><a class="btn g" style="display:inline-grid;place-items:center;text-decoration:none" href="./index.html#urun/${encodeURIComponent(u.id)}" target="_blank" rel="noopener">Sitede gör ↗</a></div></div>`;
 }
 const sonOran=()=>{try{return localStorage.getItem("apron_son_oran")||""}catch(e){return ""}};
 // Hedef: komisyon ve paketleme gideri düşüldükten sonra vergi öncesi kâr = KDV hariç alış maliyetinin %m'si
@@ -508,6 +541,7 @@ const swap=(a,i,j)=>{[a[i],a[j]]=[a[j],a[i]]};
 $("#app").addEventListener("click",async e=>{
   const row=e.target.closest(".row");if(!row)return;const id=row.dataset.id;
   if(e.target.closest("[data-t]")){if(acik===id)vidTemizle();acik=acik===id?null:id;liste();galCiz();return}
+  const kt=e.target.closest("[data-kt]");if(kt){kSekmeAc(kt.dataset.kt);return}
   if(e.target.closest("[data-i]")){vidTemizle();geriVid=null;acik=null;liste();return}
   const gl=e.target.closest("[data-gl]"),gr=e.target.closest("[data-gr]"),gm=e.target.closest("[data-gm]"),gd=e.target.closest("[data-gd]");
   if(gl){const i=+gl.dataset.gl;swap(edit.imgs,i,i-1);galCiz();return}
@@ -520,7 +554,7 @@ $("#app").addEventListener("click",async e=>{
     try{
       const fiyat=parseFloat(row.querySelector("#f_fiyat").value);
       if(!(fiyat>=0))throw new Error("Fiyat geçersiz");
-      const aktif=row.querySelector("#f_aktif").checked;
+      const aktif=u.id in gsBek?!!gsBek[u.id]:!!u.aktif;   // "Sitede goster" satirdaki kutudan
       if(aktif&&!(fiyat>0))throw new Error("Sitede göstermek için fiyat girin");
       const v=k=>row.querySelector(k).value.trim();
       const alis=num(row.querySelector("#f_alis").value);if(alis<0)throw new Error("Alış fiyatı geçersiz");
@@ -638,7 +672,8 @@ $("#app").addEventListener("click",async e=>{
   const gl=e.target.closest("[data-gsl]");
   if(gl){e.stopPropagation();const c=e.target.closest("[data-gs]");if(!c)return;
     const id=c.dataset.gs,u=urunler.find(x=>x.id===id);if(!u)return;
-    if(c.checked&&!(num(u.fiyat)>0)){c.checked=false;return toast("Önce fiyat girin: ürüne tıklayıp “Satış fiyatı”nı yazın ve kaydedin")}
+    const fy=acik===id&&$("#f_fiyat")?num($("#f_fiyat").value):num(u.fiyat);
+    if(c.checked&&!(fy>0)){c.checked=false;return toast("Önce fiyat girin: ürüne tıklayıp “Satış fiyatı”nı yazın ve kaydedin")}
     if(c.checked===!!u.aktif)delete gsBek[id];else gsBek[id]=c.checked;
     gl.classList.toggle("on",c.checked);gl.classList.toggle("bek",id in gsBek);gl.title=id in gsBek?"Kaydedilmedi: sayfanın altındaki düğmeye basın":c.checked?"Müşteriler bu ürünü görüyor":"Bu ürün sitede gizli";gsAltCiz();return}
   if(e.target.closest("[data-ekkapat]")){e.stopPropagation();sonEklenen=null;cizUrun();return}
@@ -1386,7 +1421,7 @@ document.addEventListener("click",async e=>{
   if(b.dataset.cgx){e.preventDefault();const s=cekSon;if(!s)return;(s._sil=s._sil||[]).push(+b.dataset.cgx);cekSonucCiz();return}
   if(b.dataset.cgg){const s=cekSon;if(!s||!s._sil)return;if(b.dataset.cgg==="hepsi")s._sil=[];else s._sil.pop();cekSonucCiz();return}
   if(b.dataset.cgs){document.querySelectorAll("[data-cg]").forEach(x=>x.checked=b.dataset.cgs==="1");return}
-  if(b.dataset.galgit){const g=$("#gal");if(g)g.scrollIntoView({block:"center",behavior:"smooth"});return}
+  if(b.dataset.galgit){kSekmeAc("gorsel");const g=$("#gal");if(g)g.scrollIntoView({block:"center",behavior:"smooth"});return}
   if(b.dataset.cekgeri){if(!geriGal||!edit||geriGal.id!==edit.id)return;const n0=edit.imgs.length;edit.imgs=edit.imgs.filter(u=>!geriGal.urls.includes(u));toast((n0-edit.imgs.length)+" görsel galeriden çıkarıldı");geriGal=null;galCiz();cekSonucCiz();return}
   if(b.dataset.cekmg){const i=+b.dataset.cekmg,g=cekSon&&cekSon._geri&&cekSon._geri[i];if(!g)return;const h=$(g.sec);if(h){h.value=g.once;h.dispatchEvent(new Event("input",{bubbles:true}));h.classList.add("cek-yeni");setTimeout(()=>h.classList.remove("cek-yeni"),1500)}delete cekSon._geri[i];cekSonucCiz();toast("Metin alandan çıkarıldı");return}
   if(b.dataset.cad){$("#f_kaynak").value=b.dataset.cad;delete ck.aday[edit.id];b.closest(".cek-aday").remove();document.querySelector("[data-cek]").click();return}
@@ -1405,7 +1440,7 @@ document.addEventListener("click",async e=>{
     if(hedef.value.trim()&&hedef.value.includes(t.slice(0,60)))return toast("Bu metin o alanda zaten var");
     (cekSon._geri=cekSon._geri||{})[i]={sec:hsec,once:hedef.value};
     hedef.value=hedef.value.trim()?hedef.value.trim()+"\n\n"+t:t;hedef.dispatchEvent(new Event("input",{bubbles:true}));hedef.scrollIntoView({block:"center",behavior:"smooth"});
-    hedef.classList.add("cek-yeni");setTimeout(()=>hedef.classList.remove("cek-yeni"),1500);cekSonucCiz();toast("Eklendi. Kaydet'e basmayı unutmayın.")}
+    hedef.classList.add("cek-yeni");setTimeout(()=>hedef.classList.remove("cek-yeni"),1500);cekSonucCiz();toast("“Açıklamalar” sekmesine eklendi. Kaydet'e basmayı unutmayın.")}
 },true);
 /* ================= URUN ADINDAN URETICI SAYFASINI OTOMATIK BULMA ================= */
 const MARKA_ONERI={"Uppercut":"https://uppercutdeluxe.com","TT":"https://www.tangleteezer.com","Tangle Teezer":"https://www.tangleteezer.com","Morgans":"https://morganspomade.com.tr","Morgan's":"https://morganspomade.com.tr"};
