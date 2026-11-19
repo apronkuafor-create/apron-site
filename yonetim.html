@@ -61,6 +61,18 @@ label{display:grid;gap:4px;font-size:12.5px;color:var(--mute)}
 .gs.on{background:#e6f4ea;border-color:#9fd3ae;color:#1e7b3c}
 .gs.bek{border-color:#f08c2e;box-shadow:0 0 0 3px #f08c2e33}
 .tg-alt[hidden]{display:none!important}
+.vids{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.vi{border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden;display:flex;flex-direction:column}
+.vk{position:relative;aspect-ratio:16/10;background:#1f1c19;display:grid;place-items:center;color:#fff;font-size:28px}
+.vk img{width:100%;height:100%;object-fit:cover;opacity:.9}
+.vk i{position:absolute;width:44px;height:44px;border-radius:50%;background:#000a;display:grid;place-items:center;font-style:normal;font-size:16px;color:#fff;border:2px solid #fff}
+.vk em{position:absolute;left:8px;top:8px;font-style:normal;font-size:11px;font-weight:700;background:#fff;color:#1b1b1b;padding:2px 7px;border-radius:6px}
+.vi>input{border:0;border-top:1px solid var(--line);border-radius:0;min-height:40px;font-size:14px;padding:8px 10px}
+.vi .tb{display:flex;gap:4px;padding:6px;border-top:1px solid var(--line);align-items:center}
+.vi .tb button,.vi .tb a{min-height:32px;min-width:32px;border:1px solid var(--line);background:#fff;border-radius:8px;font-size:13px;display:grid;place-items:center;padding:0 8px;color:var(--ink);text-decoration:none}
+.vi .tb .x{margin-left:auto;color:var(--err)}
+.vek{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.vya{color:var(--mute);font-size:13px}
 .cek-i{position:relative}.cek-sil{position:absolute;top:4px;right:4px;z-index:2;width:26px;height:26px;border-radius:50%;border:1px solid #d5d9d9;background:#fff;color:var(--err);font-size:13px;font-weight:700;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0;box-shadow:0 1px 3px #0002}.cek-sil:hover{background:#fdecea;border-color:var(--err)}
 .sl-giz{display:block;margin-top:6px;background:none;border:0;padding:2px 0;color:var(--mute);font-size:12px;cursor:pointer;text-decoration:underline}.sl-giz:hover{color:var(--err)}.slt tr.gz td{background:#f6f7f8;color:var(--mute)}
 .sl-bil{display:block;margin-top:3px;font-size:12px;color:#1e7b3c}.sl-bil.yok{color:var(--mute)}
@@ -404,7 +416,8 @@ document.addEventListener("click",e=>{const a=e.target.closest("[data-ka]");if(!
 const resimler=u=>[...new Set([u.foto,...(Array.isArray(u.galeri)?u.galeri:[])].filter(Boolean))];
 function govde(u){
   const kopru=ayar.stok_koprusu;
-  edit={id:u.id,imgs:resimler(u),orig:resimler(u)};setTimeout(karGuncelle,0);
+  vidTemizle();
+  edit={id:u.id,imgs:resimler(u),orig:resimler(u),vids:JSON.parse(JSON.stringify(Array.isArray(u.videolar)?u.videolar:[])),vorig:JSON.parse(JSON.stringify(Array.isArray(u.videolar)?u.videolar:[])),yeniDosya:[]};setTimeout(karGuncelle,0);
   const T=(id,ad,deger,sat,ipucu,max=4000)=>`<label>${ad}<textarea id="${id}" rows="${sat}" maxlength="${max}">${esc(deger||"")}</textarea>${ipucu?`<span style="font-size:12px">${ipucu}</span>`:""}</label>`;
   const mkl=[...new Set(urunler.map(x=>x.marka).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"tr"));
   return `<div class="bl"><h3>Genel</h3><label class="sw"><input type="checkbox" id="f_aktif"${u.aktif?" checked":""}>Sitede göster</label>
@@ -425,6 +438,7 @@ function govde(u){
   ${partiBlok(u)}
   ${(cekSon=null,cekBlok(u))}
   <div class="bl"><h3>Ürün görselleri <small>İlk görsel ana görseldir. Her görsel yüklenirken otomatik küçültülür.</small></h3><div id="gal"></div></div>
+  <div class="bl"><h3>Ürün videoları <small>Ürünü salonda kullanırken çektiğiniz videolar. Sitede ürün galerisinde ve ana sayfadaki “Salonda kullanıyoruz” bölümünde görünür.</small></h3><div id="vid"></div></div>
   <div class="bl"><h3>Ürün bilgisi</h3>
   ${T("f_ac","Kısa açıklama (müşterinin ilk gördüğü metin)",u.aciklama,3,"Satırı “- ” ile başlatırsanız madde işareti olur.")}</div>
   <div class="bl"><h3>Üretici firma bilgisi <small>Üretici firmanın ürünle ilgili verdiği bilgi</small></h3>
@@ -483,6 +497,7 @@ function karGuncelle(){
 }
 let geriGal=null,geriSil=null;   // son "galeriye ekle" ve son silinen gorsel: geri alinabilsin
 function galCiz(){
+  vidCiz();
   const el=$("#gal");if(!el||!edit)return;
   const yeni=new Set(geriGal&&geriGal.id===edit.id?geriGal.urls:[]);
   el.innerHTML=`${geriSil&&geriSil.id===edit.id?`<div class="geri-bar">Görsel silindi.<button type="button" class="btn g s" data-gundo="1">Geri al</button></div>`:""}<div class="imgs">${edit.imgs.map((x,i)=>`<div class="im${i?"":" main"}${yeni.has(x)?" yeni":""}">${i?"":`<span class="tag">ANA</span>`}<div class="pic"><img src="${esc(x)}" alt=""></div>
@@ -492,8 +507,8 @@ function galCiz(){
 const swap=(a,i,j)=>{[a[i],a[j]]=[a[j],a[i]]};
 $("#app").addEventListener("click",async e=>{
   const row=e.target.closest(".row");if(!row)return;const id=row.dataset.id;
-  if(e.target.closest("[data-t]")){acik=acik===id?null:id;liste();galCiz();return}
-  if(e.target.closest("[data-i]")){acik=null;liste();return}
+  if(e.target.closest("[data-t]")){if(acik===id)vidTemizle();acik=acik===id?null:id;liste();galCiz();return}
+  if(e.target.closest("[data-i]")){vidTemizle();geriVid=null;acik=null;liste();return}
   const gl=e.target.closest("[data-gl]"),gr=e.target.closest("[data-gr]"),gm=e.target.closest("[data-gm]"),gd=e.target.closest("[data-gd]");
   if(gl){const i=+gl.dataset.gl;swap(edit.imgs,i,i-1);galCiz();return}
   if(gr){const i=+gr.dataset.gr;swap(edit.imgs,i,i+1);galCiz();return}
@@ -513,11 +528,14 @@ $("#app").addEventListener("click",async e=>{
       const veri={ad_tam,marka,ml,aktif,fiyat,alis_fiyat:alis,alis_tarih:row.querySelector("#f_atarih").disabled?(u.alis_tarih||null):(row.querySelector("#f_atarih").value||null),sira:parseInt(row.querySelector("#f_sira").value,10)||0,aciklama:v("#f_ac"),uretici_bilgi:v("#f_ur"),uzman_ad:v("#f_uzad"),uzman_unvan:v("#f_uzun"),uzman_gorus:v("#f_uz"),kullanim:v("#f_ku"),icerik:v("#f_ic"),
         foto:edit.imgs[0]||"",galeri:edit.imgs.slice(1),guncelleme:new Date().toISOString()};
       if("kaynak_url" in u&&row.querySelector("#f_kaynak"))veri.kaynak_url=v("#f_kaynak");
+      if("videolar" in u)veri.videolar=edit.vids.map(x=>({tur:x.tur,kaynak:x.kaynak,kapak:x.kapak||"",baslik:(x.baslik||"").trim()}));
+      else if(edit.vids.length)throw new Error("Videoları kaydetmek için önce Supabase'de 22_urun_videolari.sql dosyasını çalıştırın");
       if(!ayar.stok_koprusu){const s=parseInt(row.querySelector("#f_stok").value,10);if(!(s>=0))throw new Error("Stok geçersiz");veri.web_stok=s}
       await api("/rest/v1/web_urunler?id=eq."+encodeURIComponent(id),{method:"PATCH",body:veri,basliklar:{Prefer:"return=minimal"}});
       // listeden kaldirilan gorselleri depodan sil (en iyi gayretle)
       edit.orig.filter(x=>!edit.imgs.includes(x)&&x.includes("/web-gorseller/")).forEach(async x=>{try{const t=await token();await fetch(SB+"/storage/v1/object/web-gorseller/"+x.split("/web-gorseller/")[1],{method:"DELETE",headers:{apikey:KEY,Authorization:"Bearer "+t}})}catch(_){}});
-      Object.assign(u,veri);delete gsBek[id];toast("Kaydedildi");acik=null;edit=null;cizUrun();
+      if(veri.videolar){const yeni=new Set(veri.videolar.flatMap(x=>[x.kaynak,x.kapak]));vidDepoSil(edit.vorig.flatMap(x=>[x.kaynak,x.kapak]).filter(x=>!yeni.has(x)));edit.yeniDosya=[]}
+      Object.assign(u,veri);delete gsBek[id];toast("Kaydedildi");acik=null;edit=null;geriVid=null;cizUrun();
     }catch(x){b.disabled=false;b.textContent="Kaydet";oturumHata(x)}
   }
 });
@@ -544,6 +562,78 @@ async function fotoYukle(id,file,i=0){
   return SB+"/storage/v1/object/public/web-gorseller/"+yol;
 }
 
+
+/* ================= Urun videolari ================= */
+const VID_EN=4,VID_MB=50;
+let geriVid=null;
+const ytId=u=>{const m=String(u).match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/|v\/))([\w-]{11})/);return m?m[1]:null};
+const vmId=u=>{const m=String(u).match(/vimeo\.com\/(?:video\/|channels\/[\w-]+\/|groups\/[\w-]+\/videos\/)?(\d{6,})/);return m?m[1]:null};
+const vidKapak=v=>v.kapak||(v.tur==="youtube"?`https://i.ytimg.com/vi/${v.kaynak}/hqdefault.jpg`:"");
+const VID_TUR={dosya:"Yüklenen video",youtube:"YouTube",vimeo:"Vimeo"};
+function vidCiz(){
+  const el=$("#vid");if(!el||!edit)return;const V=edit.vids;
+  el.innerHTML=`${geriVid&&geriVid.id===edit.id?`<div class="geri-bar">Video kaldırıldı.<button type="button" class="btn g s" data-vundo="1">Geri al</button></div>`:""}
+  <div class="vids">${V.map((v,i)=>`<div class="vi"><div class="vk">${vidKapak(v)?`<img src="${esc(vidKapak(v))}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">`:`<span>▶</span>`}<i>▶</i><em>${esc(VID_TUR[v.tur]||v.tur)}</em></div>
+      <input data-vb="${i}" maxlength="80" placeholder="Başlık (isteğe bağlı), örn. Salonda uygulama" value="${esc(v.baslik||"")}">
+      <div class="tb"><button type="button" data-vl="${i}" title="Öne al" ${i?"":"disabled"}>◀</button><button type="button" data-vr="${i}" title="Geri al" ${i<V.length-1?"":"disabled"}>▶</button>${v.tur==="dosya"?`<a href="${esc(v.kaynak)}" target="_blank" rel="noopener" title="İzle">İzle</a>`:`<a href="${esc(v.tur==="youtube"?"https://youtu.be/"+v.kaynak:"https://vimeo.com/"+v.kaynak)}" target="_blank" rel="noopener">İzle</a>`}<button type="button" class="x" data-vd="${i}" title="Kaldır">✕</button></div></div>`).join("")}</div>
+  ${V.length<VID_EN?`<div class="vek"><label class="btn g s" style="display:inline-flex"><input type="file" id="f_video" accept="video/mp4,video/webm,video/quicktime,.mp4,.mov,.webm" hidden>Bilgisayardan / telefondan video yükle</label>
+     <span class="vya">ya da</span><div class="cek-s" style="flex:1;min-width:260px"><input id="f_vlink" inputmode="url" placeholder="YouTube veya Vimeo bağlantısı yapıştırın"><button class="btn g s" type="button" data-vekle="1">Ekle</button></div></div>
+     <div id="vDurum" class="st-i" style="margin-top:6px"></div>
+     <div class="st-i" style="margin-top:6px">En fazla ${VID_EN} video. Yüklenen dosya en fazla ${VID_MB} MB olabilir (yaklaşık 1 dakikalık telefon videosu). Çok izlenecek ya da uzun videoları <b>YouTube</b>'a (listelenmemiş olarak da olur) yükleyip bağlantısını eklemeniz önerilir; sitenizin aylık veri kotasını harcamaz.</div>`
+   :`<div class="st-i">En fazla ${VID_EN} video eklenebilir.</div>`}
+  ${V.length||edit.vorig.length?`<div class="st-i" style="margin-top:6px">Video değişiklikleri sayfanın altındaki <b>Kaydet</b> ile saklanır; <b>Vazgeç</b> eklediklerinizi geri alır.</div>`:""}`;
+}
+// kaydedilmeden birakilan yuklemeleri depodan sil
+function vidTemizle(){
+  if(!edit||!edit.yeniDosya||!edit.yeniDosya.length)return;
+  const u=urunler.find(x=>x.id===edit.id),kayitli=new Set((u&&Array.isArray(u.videolar)?u.videolar:[]).flatMap(v=>[v.kaynak,v.kapak]));
+  const sil=edit.yeniDosya.filter(x=>!kayitli.has(x));edit.yeniDosya=[];vidDepoSil(sil);
+}
+function vidDepoSil(l){l.filter(x=>x&&x.includes("/web-videolar/")).forEach(async x=>{try{const t=await token();await fetch(SB+"/storage/v1/object/web-videolar/"+x.split("/web-videolar/")[1],{method:"DELETE",headers:{apikey:KEY,Authorization:"Bearer "+t}})}catch(_){}})}
+function vidYukleXhr(yol,blob,tur,ilerle){return new Promise(async(ok,hata)=>{
+  const t=await token(),x=new XMLHttpRequest();x.open("POST",SB+"/storage/v1/object/web-videolar/"+yol);
+  x.setRequestHeader("apikey",KEY);x.setRequestHeader("Authorization","Bearer "+t);x.setRequestHeader("Content-Type",tur);x.setRequestHeader("x-upsert","true");
+  x.upload.onprogress=e=>{if(e.lengthComputable&&ilerle)ilerle(e.loaded/e.total)};
+  x.onload=()=>{if(x.status>=200&&x.status<300)ok(SB+"/storage/v1/object/public/web-videolar/"+yol);else{let m="";try{m=JSON.parse(x.responseText).message||""}catch(_){}
+    hata(new Error(/bucket|not found/i.test(m)?"Video deposu yok: önce Supabase'de 22_urun_videolari.sql dosyasını çalıştırın":/size|large/i.test(m)?`Video ${VID_MB} MB sınırını aşıyor`:/mime|type/i.test(m)?"Bu video türü desteklenmiyor (mp4, mov, webm)":/row-level|policy|Unauthorized|403/i.test(m)||x.status===403?"Video yükleme yetkiniz yok (21 ve 22 numaralı SQL dosyaları çalıştırıldı mı?)":"Video yüklenemedi"+(m?": "+m:"")))}};
+  x.onerror=()=>hata(new Error("Bağlantı koptu, video yüklenemedi"));x.send(blob)})}
+// videonun 1. saniyesinden kapak resmi uret
+function vidKapakUret(file){return new Promise(ok=>{
+  const v=document.createElement("video"),u=URL.createObjectURL(file);let bitti=false;const son=b=>{if(bitti)return;bitti=true;URL.revokeObjectURL(u);ok(b)};
+  v.muted=true;v.playsInline=true;v.preload="metadata";v.src=u;
+  v.onloadedmetadata=()=>{try{v.currentTime=Math.min(1,(v.duration||2)/3)}catch(e){son(null)}};
+  v.onseeked=()=>{try{const k=Math.min(1,800/Math.max(v.videoWidth,v.videoHeight)),c=document.createElement("canvas");c.width=Math.round(v.videoWidth*k);c.height=Math.round(v.videoHeight*k);
+    c.getContext("2d").drawImage(v,0,0,c.width,c.height);c.toBlob(b=>son(b),"image/jpeg",.82)}catch(e){son(null)}};
+  v.onerror=()=>son(null);setTimeout(()=>son(null),12000)})}
+document.addEventListener("change",async e=>{
+  if(e.target.id!=="f_video"||!edit)return;const f=e.target.files[0];e.target.value="";if(!f)return;
+  const d=$("#vDurum"),ed=edit;
+  if(!/^video\/(mp4|webm|quicktime)$/.test(f.type)&&!/\.(mp4|mov|webm)$/i.test(f.name))return toast("Yalnız mp4, mov veya webm video yükleyebilirsiniz");
+  const mb=f.size/1048576;if(mb>VID_MB)return toast(`Bu video ${mb.toFixed(0)} MB; en fazla ${VID_MB} MB olabilir. Videoyu kısaltın ya da YouTube'a yükleyip bağlantısını ekleyin.`);
+  if(mb>25&&!confirm(`Bu video ${mb.toFixed(0)} MB. Büyük videolar sitenizin aylık veri kotasını hızlı harcar ve yavaş açılır. Yine de yüklensin mi?`))return;
+  const tur=f.type||(/\.mov$/i.test(f.name)?"video/quicktime":/\.webm$/i.test(f.name)?"video/webm":"video/mp4"),uz=tur==="video/webm"?"webm":tur==="video/quicktime"?"mov":"mp4";
+  const kok=ed.id.replace(/[^\w-]/g,"")+"/"+Date.now();
+  try{
+    d.textContent="Kapak resmi hazırlanıyor…";const kb=await vidKapakUret(f);
+    const url=await vidYukleXhr(kok+"."+uz,f,tur,o=>{d.textContent=`Video yükleniyor… %${Math.round(o*100)} (${mb.toFixed(1)} MB)`});
+    let kapak="";if(kb){try{kapak=await vidYukleXhr(kok+"-kapak.jpg",kb,"image/jpeg")}catch(_){}}
+    ed.yeniDosya.push(url);if(kapak)ed.yeniDosya.push(kapak);
+    if(edit!==ed){vidDepoSil([url,kapak]);return}
+    ed.vids.push({tur:"dosya",kaynak:url,kapak,baslik:""});geriVid=null;vidCiz();toast("Video eklendi. Kaydet'e basmayı unutmayın.");
+  }catch(x){if(x.message==="oturum")return oturumHata(x);if(d)d.textContent="";toast(x.message)}
+});
+$("#app").addEventListener("click",e=>{
+  if(!edit)return;const t=e.target;
+  const ek=t.closest("[data-vekle]");if(ek){const i=$("#f_vlink"),l=(i&&i.value||"").trim();if(!l)return toast("Bağlantıyı yapıştırın");
+    const y=ytId(l),v=y?null:vmId(l);if(!y&&!v)return toast(/instagram|tiktok|facebook/i.test(l)?"Instagram / TikTok / Facebook videoları siteye gömülemiyor; videoyu YouTube'a yükleyip o bağlantıyı ekleyin ya da dosyayı doğrudan yükleyin.":"Bu bir YouTube veya Vimeo video bağlantısı değil");
+    if(edit.vids.some(x=>x.kaynak===(y||v)))return toast("Bu video zaten ekli");
+    edit.vids.push({tur:y?"youtube":"vimeo",kaynak:y||v,kapak:"",baslik:""});geriVid=null;vidCiz();toast("Video eklendi. Kaydet'e basmayı unutmayın.");return}
+  const vl=t.closest("[data-vl]");if(vl){const i=+vl.dataset.vl;swap(edit.vids,i,i-1);vidCiz();return}
+  const vr=t.closest("[data-vr]");if(vr){const i=+vr.dataset.vr;swap(edit.vids,i,i+1);vidCiz();return}
+  const vd=t.closest("[data-vd]");if(vd){const i=+vd.dataset.vd;geriVid={id:edit.id,v:edit.vids[i],i};edit.vids.splice(i,1);vidCiz();return}
+  if(t.closest("[data-vundo]")){if(geriVid&&geriVid.id===edit.id&&edit.vids.length<VID_EN){edit.vids.splice(Math.min(geriVid.i,edit.vids.length),0,geriVid.v);toast("Video geri getirildi")}geriVid=null;vidCiz();return}
+});
+document.addEventListener("input",e=>{const b=e.target.closest&&e.target.closest("[data-vb]");if(b&&edit&&edit.vids[+b.dataset.vb])edit.vids[+b.dataset.vb].baslik=b.value.slice(0,80)});
 $("#app").addEventListener("click",async e=>{
   const gl=e.target.closest("[data-gsl]");
   if(gl){e.stopPropagation();const c=e.target.closest("[data-gs]");if(!c)return;
@@ -1009,6 +1099,7 @@ Sitemiz reklam, takip veya istatistik çerezi **kullanmaz**. Yalnızca sitenin �
 - **apron_sepet:** Sepetinizdeki ürünleri hatırlamak için. Sepeti boşaltana kadar durur.
 - **apron_son:** Son siparişinizin numarasını Siparişlerim sayfasında hazır göstermek için. Tarayıcı sekmesi kapanınca silinir.
 - **apron_uye:** Üye girişi yaptıysanız, oturumunuzun açık kalması için rastgele bir oturum anahtarı. Çıkış yapınca silinir; en geç 30 gün sonra geçersiz olur.
+- **Ürün videoları:** YouTube veya Vimeo üzerinden gösterilen videolar, siz oynat düğmesine basana kadar yüklenmez. Oynattığınızda ilgili hizmet (YouTube için Google, Vimeo) kendi çerez ve gizlilik kurallarını uygulayabilir.
 
 Bu kayıtlar zorunlu niteliktedir ve bizimle paylaşılmaz. Tarayıcı ayarlarınızdan dilediğiniz zaman silebilirsiniz; bu durumda sepetiniz boşalır.
 

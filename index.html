@@ -510,6 +510,25 @@ footer{background:#171512;color:#bdb5aa}
 .adsec .adr small{color:var(--mute);display:block}
 .uyeip{display:flex;gap:10px;align-items:center;background:var(--krem);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13.5px}
 .uyeip svg{width:20px;height:20px;color:var(--acc);flex:none}
+/* videolar */
+.rz.v{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.gth.vt{position:relative;background:#1f1c19}
+.gth.vt img{opacity:.85}
+.gth.vt::after{content:"▶";position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-size:15px;text-shadow:0 1px 4px #000}
+.gmain.vid{padding:0;background:#000;overflow:hidden}
+.gmain.vid video,.gmain.vid iframe{width:100%;height:100%;border:0;display:block;object-fit:contain;background:#000}
+.vkr{position:relative;display:block;width:100%;height:100%;border:0;padding:0;background:#1f1c19 center/cover no-repeat;cursor:pointer;color:#fff}
+.vkr .oy{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:76px;height:76px;border-radius:50%;background:#000000a6;border:3px solid #fff;display:grid;place-items:center;font-size:26px;padding-left:5px;transition:.15s}
+.vkr:hover .oy{background:var(--cta);color:#1b1b1b;border-color:var(--cta)}
+.vkr .vb{position:absolute;left:0;right:0;bottom:0;padding:26px 16px 14px;background:linear-gradient(transparent,#000c);text-align:left;font-weight:600;font-size:14.5px;font-family:Inter,system-ui,sans-serif}
+.vkr small{display:block;font-weight:400;color:#ddd;font-size:12px}
+.vgr{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.vkt{aspect-ratio:16/10;border-radius:12px;overflow:hidden;box-shadow:var(--sh)}
+.vrow .vkt{flex:0 0 240px;scroll-snap-align:start}@media(max-width:560px){.vrow .vkt{flex-basis:200px}}
+.vrow .vkt{aspect-ratio:9/12}
+.vrow .vkr .oy{width:60px;height:60px;font-size:20px}
+.vsec{background:linear-gradient(160deg,#1f1c19,#2e241b);border:0;color:#eee6da}
+.vsec h2{color:#fff}.vsec .rh a{color:#e9c48a!important}.vsec .alt{color:#bfb6a8;font-size:14px;margin:-6px 0 12px}
 .f{grid-template-columns:minmax(0,1fr)}.f>*{min-width:0}
 .f .r2,.hf .r2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.f .r2>*,.f label{min-width:0}.f input:not([type=checkbox]):not([type=radio]),.f textarea{width:100%;min-width:0}
 @media(max-width:560px){.f .r2,.hf .r2{grid-template-columns:minmax(0,1fr)}}
@@ -644,7 +663,7 @@ const resim=(u,c)=>u.foto?`<img loading="lazy" src="${esc(u.foto)}" alt="${esc(u
 const favMi=id=>!!(typeof uye!=="undefined"&&uye&&Array.isArray(uye.favoriler)&&uye.favoriler.includes(id));
 const favBtn=id=>`<button type="button" class="fav${favMi(id)?" on":""}" data-fav="${esc(id)}" aria-pressed="${favMi(id)}" aria-label="${favMi(id)?"Favorilerden çıkar":"Favorilere ekle"}" title="${favMi(id)?"Favorilerden çıkar":"Favorilere ekle"}">${IK.kalp}</button>`;
 const kargoBedava=u=>{const l=+IC.kargo.limit||0,uc=+IC.kargo.ucret||0;return uc>0&&l>0&&u.fiyat>=l};
-const rozetler=u=>{const r=[];if(stokta(u)&&u.stok<=3)r.push(`<span class="rz k">Son ${u.stok} ürün</span>`);if(u.uzman_gorus)r.push(`<span class="rz u">Uzman önerisi</span>`);if(stokta(u)&&kargoBedava(u))r.push(`<span class="rz g">Kargo bedava</span>`);return r.length?`<div class="rozet">${r.join("")}</div>`:""};
+const rozetler=u=>{const r=[];if(stokta(u)&&u.stok<=3)r.push(`<span class="rz k">Son ${u.stok} ürün</span>`);if(u.uzman_gorus)r.push(`<span class="rz u">Uzman önerisi</span>`);if(stokta(u)&&kargoBedava(u))r.push(`<span class="rz g">Kargo bedava</span>`);if(VIDLER(u).length)r.push(`<span class="rz v">▶ Video</span>`);return r.length?`<div class="rozet">${r.join("")}</div>`:""};
 const teslimYazi=k=>IC.kargo.sure?(k?IC.kargo.sure+" içinde teslim":"Tahmini teslim: "+IC.kargo.sure):"Stokta, hemen kargoda";
 const kart=u=>`<article class="card">${rozetler(u)}${favBtn(u.id)}
     <div class="ph" data-d="${esc(u.id)}">${resim(u)}</div>
@@ -712,6 +731,8 @@ function cizHome(){
   // satirlar
   const R=[];
   const satir=(b,ad,ml)=>`<section class="rowsec"><div class="rh"><h2>${esc(ad)}</h2><a data-m="${esc(b)}">Tümünü gör ›</a></div><div class="rowwrap"><button class="rb l" type="button" aria-label="Geri">‹</button><div class="row">${ml.map(kart).join("")}</div><button class="rb r" type="button" aria-label="İleri">›</button></div></section>`;
+  const HV=urunler.flatMap(u=>VIDLER(u).map((v,i)=>({u,v,i}))).slice(0,12);
+  if(HV.length)R.push(`<section class="rowsec vsec vrow"><div class="rh"><h2>Salonda kullanıyoruz</h2></div><p class="alt">Sattığımız ürünleri salonumuzda nasıl kullandığımızı ve sonuçlarını izleyin.</p><div class="rowwrap"><button class="rb l" type="button" aria-label="Geri">‹</button><div class="row">${HV.map(x=>`<div class="vkt">${vKart(x.v,`data-hv="${esc(x.u.id)}" data-hi="${x.i}"`,x.u.ad_tam)}</div>`).join("")}</div><button class="rb r" type="button" aria-label="İleri">›</button></div></section>`);
   if(urunler.length)R.push(satir("Tümü","Tüm ürünler",urunler));
   m.forEach(b=>{const l=urunler.filter(u=>u.marka===b);if(l.length&&m.length>1)R.push(satir(b,b+" ürünleri",l))});
   $("#rows").innerHTML=urunler.length?R.join(""):`<div class="empty" style="margin-top:16px">Ürünlerimiz çok yakında burada olacak.</div>`;
@@ -780,7 +801,9 @@ const kartTik=e=>{
   const a=e.target.closest("[data-a]");if(a)return ekle(a.dataset.a);
   const d=e.target.closest("[data-d]");if(d)detay(d.dataset.d);
 };
-$("#grid").onclick=kartTik;$("#rows").addEventListener("click",kartTik);$("#tiles").addEventListener("click",e=>{const d=e.target.closest("[data-d]");if(d)detay(d.dataset.d)});
+$("#grid").onclick=kartTik;
+$("#rows").addEventListener("click",e=>{const h=e.target.closest("[data-hv]");if(!h)return;e.stopImmediatePropagation();try{sessionStorage.setItem("apron_vid",h.dataset.hi)}catch(x){}detay(h.dataset.hv)});
+$("#rows").addEventListener("click",kartTik);$("#tiles").addEventListener("click",e=>{const d=e.target.closest("[data-d]");if(d)detay(d.dataset.d)});
 
 /* ===== Urun sayfasi ===== */
 const detay=id=>{location.hash="#urun/"+encodeURIComponent(id)};
@@ -793,6 +816,22 @@ const par=t=>{
   flush();return out.join("");
 };
 const stokEt=u=>!stokta(u)?`<span class="stk out">Tükendi</span>`:u.stok<=3?`<span class="stk low">Son ${u.stok} ürün</span>`:`<span class="stk">Stokta</span>`;
+
+/* ===================== Urun videolari ===================== */
+const VIDLER=u=>(Array.isArray(u&&u.videolar)?u.videolar:[]).filter(v=>v&&v.kaynak&&["dosya","youtube","vimeo"].includes(v.tur));
+const vKapak=v=>v.kapak||(v.tur==="youtube"?`https://i.ytimg.com/vi/${encodeURIComponent(v.kaynak)}/hqdefault.jpg`:"");
+// YouTube/Vimeo: ziyaretci oynat'a basmadan hicbir sey yuklenmez (hiz + gizlilik)
+function vOynatici(v){
+  if(v.tur==="dosya")return `<video src="${esc(v.kaynak)}"${v.kapak?` poster="${esc(v.kapak)}"`:""} controls playsinline autoplay preload="metadata"></video>`;
+  const src=v.tur==="youtube"?`https://www.youtube-nocookie.com/embed/${encodeURIComponent(v.kaynak)}?autoplay=1&rel=0&playsinline=1&modestbranding=1`:`https://player.vimeo.com/video/${encodeURIComponent(v.kaynak)}?autoplay=1&dnt=1`;
+  return `<iframe src="${src}" title="${esc(v.baslik||"Ürün videosu")}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+}
+const vKart=(v,veri,alt)=>`<button type="button" class="vkr" ${veri} style="${vKapak(v)?`background-image:url('${esc(vKapak(v)).replace(/'/g,"%27")}')`:""}" aria-label="Videoyu oynat: ${esc(v.baslik||alt||"")}"><span class="oy">▶</span><span class="vb">${esc(v.baslik||"Salonda uygulama")}${alt?`<small>${esc(alt)}</small>`:""}</span></button>`;
+function vGoster(i){
+  const V=$("#vUrun")._vids||[],v=V[i],g=$("#gmain");if(!v||!g)return;
+  g.classList.add("vid");g.innerHTML=vOynatici(v);
+  document.querySelectorAll(".gth").forEach(b=>b.classList.toggle("on",b.dataset.gv===String(i)));
+}
 function cizUrun(id){
   const u=urunler.find(x=>x.id===id);
   if(!u){history.replaceState(null,"",location.pathname+location.search);return route()}
@@ -805,13 +844,14 @@ function cizUrun(id){
   if(u.aciklama)B.push(`<section class="sec"><h2>Ürün açıklaması</h2>${par(u.aciklama)}</section>`);
   if(u.uzman_gorus)B.push(`<section class="sec"><h2>Salon uzmanımızın görüşü</h2><div class="uz"><q>${esc(u.uzman_gorus)}</q><div class="kim"><b>${esc(u.uzman_ad||"APRON salon ekibi")}</b>${u.uzman_unvan?" · "+esc(u.uzman_unvan):""} · ürünü salonda kullanıyor</div></div></section>`);
   if(u.uretici_bilgi)B.push(`<section class="sec"><h2>Üretici firma bilgisi</h2>${par(u.uretici_bilgi)}</section>`);
+  if(VIDLER(u).length)B.unshift(`<section class="sec vsec2"><h2>Salonda nasıl kullanıyoruz</h2><div class="vgr">${VIDLER(u).map((v,i)=>`<div class="vkt">${vKart(v,`data-gv="${i}"`)}</div>`).join("")}</div></section>`);
   if(u.kullanim)B.push(`<section class="sec"><h2>Kullanım önerisi</h2>${par(u.kullanim)}</section>`);
   if(u.icerik)B.push(`<section class="sec"><h2>İçindekiler</h2>${par(u.icerik)}</section>`);
   B.push(`<section class="sec"><h2>Satın aldıktan sonra</h2><ul><li>Üyeyseniz sipariş durumunu ve kargo bilgisini <a class="lnk" href="#hesap/siparisler">Hesabım › Siparişlerim</a>'den, üye olmadan verdiğiniz siparişleri <a class="lnk" href="#siparis">Sipariş sorgula</a> sayfasından sipariş numaranız ve telefonunuzla görebilirsiniz.</li><li>Kargoya verilmeden önce siparişinizi iptal edebilirsiniz.</li><li>Teslimden itibaren 14 gün içinde iade / cayma, değişim talebi oluşturabilirsiniz.</li><li>Hasarlı, hatalı veya eksik ürünü aynı sayfadan bildirebilirsiniz. Fatura talebi ve sorularınız için de aynı yeri kullanabilirsiniz.</li></ul></section>`);
   $("#vUrun").innerHTML=`<div class="wrap crumb"><a id="uGeri">‹ Ürünlere dön</a> &nbsp;›&nbsp; <a data-m="${esc(u.marka)}">${esc(u.marka)}</a></div>
   <div class="wrap pdp">
-    <div class="gal"><div class="gthumbs">${imgs.length>1?imgs.map((x,i)=>`<button class="gth${i?"":" on"}" data-g="${i}" aria-label="Görsel ${i+1}"><img src="${esc(x)}" alt=""></button>`).join(""):""}</div>
-      <div class="gmain" id="gmain">${imgs.length?`<img src="${esc(imgs[0])}" alt="${esc(u.ad_tam)}">`:esc((u.marka||"A").slice(0,1))}</div></div>
+    <div class="gal"><div class="gthumbs">${imgs.length+VIDLER(u).length>1?imgs.map((x,i)=>`<button class="gth${i?"":" on"}" data-g="${i}" aria-label="Görsel ${i+1}"><img src="${esc(x)}" alt=""></button>`).join("")+VIDLER(u).map((v,i)=>`<button class="gth vt" data-gv="${i}" aria-label="Video ${i+1}${v.baslik?": "+esc(v.baslik):""}">${vKapak(v)?`<img src="${esc(vKapak(v))}" alt="" onerror="this.remove()">`:""}</button>`).join(""):""}</div>
+      <div class="gmain" id="gmain">${imgs.length?`<img src="${esc(imgs[0])}" alt="${esc(u.ad_tam)}">`:VIDLER(u).length?vKart(VIDLER(u)[0],'data-gv="0"'):esc((u.marka||"A").slice(0,1))}</div></div>
     <div class="pinfo"><a class="bm" data-m="${esc(u.marka)}">${esc(u.marka)} markasının tüm ürünleri ›</a><h1>${esc(u.ad_tam)}</h1><span style="color:var(--mute)">${esc(u.ml)}</span>
       <div class="pbad"><span class="pb">${IK.kalkan}Orijinal ürün</span><span class="pb">${IK.makas}Salon stoğundan</span><span class="pb">${IK.fatura}Faturalı satış</span>${u.uzman_gorus?`<span class="pb">${IK.yildiz}Salon uzmanı önerisi</span>`:""}</div>
       <div class="pp">${TL(u.fiyat)}<span class="kdv">KDV dahil</span></div>${stokEt(u)}<hr><div class="ds">${par(u.aciklama)}</div></div>
@@ -825,13 +865,15 @@ function cizUrun(id){
   </div>
   <div class="wrap pdet">${B.join("")}</div>
   ${(()=>{const b=[...urunler.filter(x=>x.id!==u.id&&x.marka===u.marka),...urunler.filter(x=>x.id!==u.id&&x.marka!==u.marka)].slice(0,12);return b.length?`<div class="wrap ubz" id="uBnz"><section class="rowsec"><div class="rh"><h2>Bunlar da ilginizi çekebilir</h2><a data-m="${esc(u.marka)}">${esc(u.marka)} ürünleri ›</a></div><div class="rowwrap"><button class="rb l" type="button" aria-label="Geri">‹</button><div class="row">${b.map(kart).join("")}</div><button class="rb r" type="button" aria-label="İleri">›</button></div></section></div>`:""})()}`;
-  $("#vUrun")._imgs=imgs;
+  $("#vUrun")._imgs=imgs;$("#vUrun")._vids=VIDLER(u);
+  {let vi=null;try{vi=sessionStorage.getItem("apron_vid");sessionStorage.removeItem("apron_vid")}catch(e){}if(vi!==null&&VIDLER(u)[+vi])setTimeout(()=>{vGoster(+vi);const g=$("#gmain");if(g)g.scrollIntoView({block:"center"})},50)}
 }
 $("#vUrun").addEventListener("click",e=>{
   if(e.target.closest("#uBnz")){const rb=e.target.closest(".rb");if(rb){const r=rb.parentElement.querySelector(".row");r.scrollBy({left:(rb.classList.contains("l")?-1:1)*r.clientWidth*.85,behavior:"smooth"});return}return kartTik(e)}
   if(e.target.closest("#uGeri")){history.length>1?history.back():(location.hash="#liste");return}
   const g=e.target.closest("[data-g]");
-  if(g){const im=$("#vUrun")._imgs[+g.dataset.g];$("#gmain").innerHTML=`<img src="${esc(im)}" alt="">`;document.querySelectorAll(".gth").forEach(b=>b.classList.toggle("on",b===g));return}
+  const gv=e.target.closest("[data-gv]");if(gv){vGoster(+gv.dataset.gv);if(gv.closest(".vsec2")){const m=$("#gmain");if(m)m.scrollIntoView({block:"center",behavior:"smooth"})}return}
+  if(g){const im=$("#vUrun")._imgs[+g.dataset.g],m=$("#gmain");m.classList.remove("vid");m.innerHTML=`<img src="${esc(im)}" alt="">`;document.querySelectorAll(".gth").forEach(b=>b.classList.toggle("on",b===g));return}
   const n=Number(($("#pq")||{}).value)||1;
   const a=e.target.closest("[data-a]");if(a)return ekle(a.dataset.a,n);
   const w=e.target.closest("[data-now]");if(w&&ekle(w.dataset.now,n)){cizSepet();cizOdeme();dac(true)}
@@ -1200,6 +1242,7 @@ Sitemiz reklam, takip veya istatistik çerezi **kullanmaz**. Yalnızca sitenin �
 - **apron_sepet:** Sepetinizdeki ürünleri hatırlamak için. Sepeti boşaltana kadar durur.
 - **apron_son:** Son siparişinizin numarasını Siparişlerim sayfasında hazır göstermek için. Tarayıcı sekmesi kapanınca silinir.
 - **apron_uye:** Üye girişi yaptıysanız, oturumunuzun açık kalması için rastgele bir oturum anahtarı. Çıkış yapınca silinir; en geç 30 gün sonra geçersiz olur.
+- **Ürün videoları:** YouTube veya Vimeo üzerinden gösterilen videolar, siz oynat düğmesine basana kadar yüklenmez. Oynattığınızda ilgili hizmet (YouTube için Google, Vimeo) kendi çerez ve gizlilik kurallarını uygulayabilir.
 
 Bu kayıtlar zorunlu niteliktedir ve bizimle paylaşılmaz. Tarayıcı ayarlarınızdan dilediğiniz zaman silebilirsiniz; bu durumda sepetiniz boşalır.
 
